@@ -1,7 +1,7 @@
 #ESP32 Dev Board  
 ## ESP UDP 4 Port relay with RTC 
 
-libs:	`Arduino JSON`, `RTCDS1307`, `AsyncUDP`, `WiFi`  
+libs:	`Arduino JSON`, `RTCDS1307`/`RTClib`, `AsyncUDP`, `WiFi`  
 
 example:  
 `[{ "digitalRead": { "pin": 32 } }]` // Read pin state;  
