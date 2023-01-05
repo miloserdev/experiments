@@ -4,6 +4,7 @@
 files:  
 `esp32_relay_udp.ino` - only UDP protocol  
 `esp32_relay_http.ino` - HTTP/HTTPS protocol  
+`esp8266_relay_http.ino` (P.S. now without RTC) - HTTP/HTTPS protocol  
 
 libs:	`Arduino JSON`, `RTCDS1307`/`RTClib`, `AsyncUDP`, `WiFi`  
 
