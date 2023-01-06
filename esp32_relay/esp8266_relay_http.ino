@@ -44,6 +44,8 @@ void handleNotFound()
 void setup()
 {
 
+    pinMode(32, OUTPUT);
+
     Serial.begin(115200);
 
     WiFi.mode(WIFI_STA);
@@ -68,8 +70,14 @@ void setup()
 
     server.on("/", []() {
 
+        char cont2[512];
         char content[512];
-        server.arg(0).toCharArray(content, server.arg(0).length() + 1);
+        server.arg(0).toCharArray(cont2, server.arg(0).length() + 1);
+
+        int e = 0;
+        for (int i = 0; i < sizeof(content); i++) {
+            if (cont2[i] != '\\') { content[e] = cont2[i]; e++; }
+        }
 
         Serial.println(content);
 
@@ -79,8 +87,10 @@ void setup()
 
         const char* resp = (const char*)exec_packet(buffer);
 
+        String tosend;
+        tosend = resp;
 
-        server.send(200, "text/plain", "this works as well");
+        server.send(200, "text/plain", tosend);
     });
 
 
@@ -152,6 +162,7 @@ char* exec_packet(JSONVar& pack)
     Serial.print(pack.length());
 
     for (uint32_t i = 0; i < pack.length(); i++) {
+        Serial.println("unpacking");
         JSONVar data = pack[i];
         Serial.println(data);
         //    Serial.println(data["pin"]);
