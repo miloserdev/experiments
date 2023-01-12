@@ -1,15 +1,25 @@
+
+#include <esp_partition.h>
+#include <esp_ota_ops.h>                // get running partition
+
+
 #define R1 32
 #define R2 33
 #define R3 25
-#define R4 26
+#define R4 26           
 #define R5 27
 
 // #include "RTCDS1307.h"
+
+#include "Update.h"
+
 #include "WiFi.h"
 #include <esp_err.h>
 #include <esp_event.h>
 #include <esp_intr_alloc.h>
 #include <esp_http_server.h>
+
+#define PORT 8081
 
 #include "JSON.h"
 
@@ -28,6 +38,10 @@ Scheduler runner;
 const char* ssid = "Keenetic-6193";
 const char* password = "DNj6KdZT";
 bool connected = false;
+wl_status_t __status__;
+uint32_t __reconnect_time__ = 5; //seconds
+uint32_t __reconnect_time_prev__ = 0;
+uint32_t __reconnect_time_max__ = 120;
 
 JSONVar buffer;
 JSONVar sched_cmd;
@@ -41,9 +55,10 @@ int turn_off_hour = 1;
 int turn_off_minute = 30;
 
 uint8_t year, month, weekday, day, hour, minute, second;
+uint32_t __unixtime__;  //seconds!
 bool period = 0;
 
-void get_time()
+uint32_t get_time()
 {
     _now = RTC.now();
 
@@ -54,12 +69,14 @@ void get_time()
     hour = _now.hour();
     minute = _now.minute();
     second = _now.second();
+    __unixtime__ = _now.unixtime();
 
+/*
     Serial.print("unixtime=");
     Serial.println(_now.unixtime());
     Serial.print("-");
     Serial.print(day);
-    Serial.print("of");
+    Serial.print(" of ");
     Serial.print(month);
     Serial.print(" ");
     Serial.print(hour);
@@ -68,8 +85,15 @@ void get_time()
     Serial.print(":");
     Serial.print(second);
     Serial.println(" ");
-}
+*/
 
+    Serial.println(__unixtime__);
+    return __unixtime__;
+}
+Task get_time_task(1000, TASK_FOREVER, []() { get_time(); }, &runner, true, NULL, NULL);
+
+
+/*
 esp_err_t get_handler(httpd_req_t* req)
 {
     const char resp[] = " <html><head><meta name=\"viewport\" content=\"initial-scale=1\"></head><body>"
@@ -113,9 +137,11 @@ esp_err_t get_handler(httpd_req_t* req)
     httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
+*/
 
 esp_err_t post_handler(httpd_req_t* req)
 {
+    Serial.println("new client");
     char content[512];
     size_t recv_size = MIN(req->content_len, sizeof(content));
 
@@ -135,12 +161,132 @@ esp_err_t post_handler(httpd_req_t* req)
     return ESP_OK;
 }
 
+/*
+
+size_t currentLength = 0;
+size_t totalLength = 0;
+
+#define BUF_SIZE 1024
+
+static esp_err_t http_handle_ota(httpd_req_t *req)
+{
+    const esp_partition_t *part;
+    esp_ota_handle_t handle;
+    char buf[BUF_SIZE];
+    int total_size;
+    int recv_size;
+    int remain;
+    uint8_t percent;
+ 
+    ESP_LOGI(TAG, "Start to update firmware.");
+ 
+    ESP_ERROR_CHECK(httpd_resp_set_type(req, "text/plain"));
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "Start to update firmware.\n"));
+ 
+    part = esp_ota_get_next_update_partition(NULL);
+ 
+    total_size = req->content_len;
+ 
+    ESP_LOGI(TAG, "Sent size: %d KB.", total_size / 1024);
+ 
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "0        20        40        60        80       100%\n"));
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "|---------+---------+---------+---------+---------+\n"));
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "*"));
+ 
+    ESP_ERROR_CHECK(esp_ota_begin(part, total_size, &handle));
+    remain = total_size;
+    percent = 2;
+    while (remain > 0) {
+        if (remain < sizeof(buf)) {
+            recv_size = remain;
+        } else {
+            recv_size = sizeof(buf);
+        }
+ 
+        recv_size = httpd_req_recv(req, buf, recv_size);
+        if (recv_size <= 0) {
+            if (recv_size == HTTPD_SOCK_ERR_TIMEOUT) {
+                continue;
+            }
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR,
+                                "Failed to receive firmware.");
+            return ESP_FAIL;
+        }
+ 
+        ESP_ERROR_CHECK(esp_ota_write(handle, buf, recv_size));
+ 
+        remain -= recv_size;
+        if (remain < (total_size * (100-percent) / 100)) {
+            httpd_resp_sendstr_chunk(req, "*");
+            percent += 2;
+        }
+    }
+    //ESP_ERROR_CHECK(esp_ota_end(handle));
+    //ESP_ERROR_CHECK(esp_ota_set_boot_partition(part));
+    ESP_LOGI(TAG, "Finished writing firmware.");
+ 
+    httpd_resp_sendstr_chunk(req, "*\nOK\n");
+    httpd_resp_sendstr_chunk(req, NULL);
+ 
+    esp_restart();
+ 
+    return ESP_OK;
+}
+    
+esp_err_t update_handler(httpd_req_t* req)
+{
+    size_t recv_size = req->content_len;
+    char content[recv_size];
+    
+    int ret = httpd_req_recv(req, content, recv_size);
+    if (ret <= 0) {
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+            httpd_resp_send_408(req);
+        }
+        return ESP_FAIL;
+    }
+
+    uint8_t buff8[128] = { 0 };
+    esp_err_t res = ESP_OK;
+    
+//    res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
+//    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    const esp_partition_t *next_partition = esp_ota_get_next_update_partition(NULL);
+    const esp_partition_t *configured = esp_ota_get_boot_partition();
+    const esp_partition_t *running  = esp_ota_get_running_partition();
+    size_t ota_size = OTA_SIZE_UNKNOWN;
+    esp_ota_handle_t ota_handle = 0;
+
+    const void *data = content;
+
+    esp_err_t rz = esp_ota_begin(next_partition, ota_size, &ota_handle);
+    esp_ota_write( ota_handle, (const void *)data, recv_size);
+
+    if (rz == ESP_OK) {
+        Serial.println("update ok");
+        esp_restart();
+    }
+
+    
+    //updateFirmware(firmware, recv_size);
+
+    const char* resp = "OK";
+    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    
+    return ESP_OK;
+}
+
+*/
+
+/*
 httpd_uri_t uri_get = {
     .uri = "/",
     .method = HTTP_GET,
     .handler = get_handler,
     .user_ctx = NULL
 };
+*/
 
 httpd_uri_t uri_post = {
     .uri = "/",
@@ -149,18 +295,28 @@ httpd_uri_t uri_post = {
     .user_ctx = NULL
 };
 
+/*
+httpd_uri_t update_post = {
+    .uri = "/update",
+    .method = HTTP_POST,
+    .handler = http_handle_ota,
+    .user_ctx = NULL
+};
+*/
+
 httpd_handle_t start_webserver(void)
 {
     Serial.println("start_webserver");
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.server_port = 80;
+    config.server_port = PORT;
 
     httpd_handle_t server = NULL;
 
     if (httpd_start(&server, &config) == ESP_OK) {
         Serial.println("starting...");
-        httpd_register_uri_handler(server, &uri_get);
+    //    httpd_register_uri_handler(server, &uri_get);
         httpd_register_uri_handler(server, &uri_post);
+    //    httpd_register_uri_handler(server, &update_post);
         Serial.println("all handlers in register");
     }
     return server;
@@ -237,31 +393,41 @@ void setup()
 */
 }
 
-int wifi_reconnect()
-{
-    if ((WiFi.status() != WL_CONNECTED)) {
-        Serial.println("reconnecting...");
-        WiFi.disconnect();
-        WiFi.reconnect();
-    }
-}
 
 void loop()
 {
     runner.execute();
-    exec_scheduler();
     wifi_reconnect();
     //    print_time();
 }
 
+
+void wifi_reconnect()
+{
+    __status__ = WiFi.status();
+    if ((__status__ != WL_CONNECTED)) {
+        if ((__unixtime__ - __reconnect_time_prev__ >= __reconnect_time__)) {
+            Serial.println("reconnecting...");
+            WiFi.disconnect();
+            WiFi.reconnect();
+
+            __reconnect_time_prev__ = __unixtime__;
+            __reconnect_time__ += 5;
+            if (__reconnect_time__ >= __reconnect_time_max__) {
+                ESP.restart();
+            }
+        }
+    } else {
+        __reconnect_time__ = 5;        
+    }
+}
+//Task wifi_reconnect_task(15000, TASK_FOREVER, wifi_reconnect, &runner, true, NULL, NULL);
 
 
 /// WARNING
 /// HARDCODE ;)
 
 Task time_toggler(30000, TASK_FOREVER, []() {
-
-    get_time();
 
     if (hour == turn_off_hour && minute == turn_off_minute) {
         digitalWrite(32, HIGH);
@@ -275,12 +441,10 @@ Task time_toggler(30000, TASK_FOREVER, []() {
 }, &runner, true, NULL, NULL);
 
 
-
 void exec_scheduler()
 {
-    int now = millis();
     if (scheduled_isset && scheduled_time > 0) {
-        if (now >= scheduled_time) {
+        if (__unixtime__ >= scheduled_time) {
 
             Serial.println("Scheduled activation");
             Serial.println(sched_cmd);
@@ -292,11 +456,11 @@ void exec_scheduler()
         }
     }
 }
+Task exec_scheduler_task(1000, TASK_FOREVER, exec_scheduler, &runner, true, NULL, NULL);
 
 void scheduled(JSONVar& command, int next_time)
 {
-    int current_time = millis();
-    scheduled_time = current_time + next_time;
+    scheduled_time = __unixtime__ + next_time;
     Serial.println(command);
 
     sched_cmd = command;
@@ -401,6 +565,3 @@ char* exec_packet(JSONVar& pack)
     }
     return ret_;
 }
-
-
-// Happy New Year!
