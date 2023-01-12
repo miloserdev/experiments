@@ -1,7 +1,11 @@
 
 #include <esp_partition.h>
 #include <esp_ota_ops.h>                // get running partition
+#include <HTTPUpdateServer.h>
+HTTPUpdateServer httpUpdater;
 
+#include <WebServer.h>
+WebServer httpServer(80);
 
 #define R1 32
 #define R2 33
@@ -161,27 +165,19 @@ esp_err_t post_handler(httpd_req_t* req)
     return ESP_OK;
 }
 
-/*
-
-size_t currentLength = 0;
-size_t totalLength = 0;
-
-#define BUF_SIZE 1024
-
+//pure ESP variant // encryption type multipart/form-data //temporary solutiuon
 static esp_err_t http_handle_ota(httpd_req_t *req)
 {
     const esp_partition_t *part;
     esp_ota_handle_t handle;
-    char buf[BUF_SIZE];
+    char buf[1024];
     int total_size;
     int recv_size;
     int remain;
-    uint8_t percent;
  
-    ESP_LOGI(TAG, "Start to update firmware.");
+    Serial.println("OTA update begin");
  
     ESP_ERROR_CHECK(httpd_resp_set_type(req, "text/plain"));
-    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "Start to update firmware.\n"));
  
     part = esp_ota_get_next_update_partition(NULL);
  
@@ -189,13 +185,8 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
  
     ESP_LOGI(TAG, "Sent size: %d KB.", total_size / 1024);
  
-    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "0        20        40        60        80       100%\n"));
-    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "|---------+---------+---------+---------+---------+\n"));
-    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "*"));
- 
     ESP_ERROR_CHECK(esp_ota_begin(part, total_size, &handle));
     remain = total_size;
-    percent = 2;
     while (remain > 0) {
         if (remain < sizeof(buf)) {
             recv_size = remain;
@@ -214,25 +205,17 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
         }
  
         ESP_ERROR_CHECK(esp_ota_write(handle, buf, recv_size));
- 
         remain -= recv_size;
-        if (remain < (total_size * (100-percent) / 100)) {
-            httpd_resp_sendstr_chunk(req, "*");
-            percent += 2;
-        }
     }
-    //ESP_ERROR_CHECK(esp_ota_end(handle));
-    //ESP_ERROR_CHECK(esp_ota_set_boot_partition(part));
-    ESP_LOGI(TAG, "Finished writing firmware.");
- 
-    httpd_resp_sendstr_chunk(req, "*\nOK\n");
-    httpd_resp_sendstr_chunk(req, NULL);
+    ESP_ERROR_CHECK(esp_ota_end(handle));
+    ESP_ERROR_CHECK(esp_ota_set_boot_partition(part));
  
     esp_restart();
  
     return ESP_OK;
 }
-    
+
+//arduino-esp32 Update variant
 esp_err_t update_handler(httpd_req_t* req)
 {
     size_t recv_size = req->content_len;
@@ -246,7 +229,7 @@ esp_err_t update_handler(httpd_req_t* req)
         return ESP_FAIL;
     }
 
-    uint8_t buff8[128] = { 0 };
+    uint8_t buff8[recv_size] = { 0 };
     esp_err_t res = ESP_OK;
     
 //    res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
@@ -258,8 +241,18 @@ esp_err_t update_handler(httpd_req_t* req)
     size_t ota_size = OTA_SIZE_UNKNOWN;
     esp_ota_handle_t ota_handle = 0;
 
-    const void *data = content;
+    uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    Update.begin(maxSketchSpace, U_FLASH);
 
+    for (uint32_t i = 0; i < recv_size; i++) {
+        buff8[i] = uint8_t (content[i]);
+       
+    }
+
+    if (Update.write(buff8, recv_size) != recv_size) {
+        Serial.println("error");
+    }
+/*
     esp_err_t rz = esp_ota_begin(next_partition, ota_size, &ota_handle);
     esp_ota_write( ota_handle, (const void *)data, recv_size);
 
@@ -267,7 +260,7 @@ esp_err_t update_handler(httpd_req_t* req)
         Serial.println("update ok");
         esp_restart();
     }
-
+*/
     
     //updateFirmware(firmware, recv_size);
 
@@ -277,7 +270,6 @@ esp_err_t update_handler(httpd_req_t* req)
     return ESP_OK;
 }
 
-*/
 
 /*
 httpd_uri_t uri_get = {
@@ -295,14 +287,14 @@ httpd_uri_t uri_post = {
     .user_ctx = NULL
 };
 
-/*
+
 httpd_uri_t update_post = {
     .uri = "/update",
     .method = HTTP_POST,
     .handler = http_handle_ota,
     .user_ctx = NULL
 };
-*/
+
 
 httpd_handle_t start_webserver(void)
 {
@@ -316,7 +308,7 @@ httpd_handle_t start_webserver(void)
         Serial.println("starting...");
     //    httpd_register_uri_handler(server, &uri_get);
         httpd_register_uri_handler(server, &uri_post);
-    //    httpd_register_uri_handler(server, &update_post);
+        httpd_register_uri_handler(server, &update_post);
         Serial.println("all handlers in register");
     }
     return server;
@@ -377,6 +369,9 @@ void setup()
     }
 
     start_webserver();
+    
+    httpUpdater.setup(&httpServer);
+    httpServer.begin();
 
     /*
     if (udp.listen(80)) {
@@ -398,6 +393,7 @@ void loop()
 {
     runner.execute();
     wifi_reconnect();
+    httpServer.handleClient();
     //    print_time();
 }
 
@@ -443,6 +439,7 @@ Task time_toggler(30000, TASK_FOREVER, []() {
 
 void exec_scheduler()
 {
+    Serial.println("unixtime");
     if (scheduled_isset && scheduled_time > 0) {
         if (__unixtime__ >= scheduled_time) {
 
