@@ -45,8 +45,8 @@ Scheduler runner;
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define WIFI_SSID "Keenetic-6193"
-#define WIFI_PASSWORD "DNj6KdZT"
+#define WIFI_SSID "********"
+#define WIFI_PASSWORD "********"
 
 bool connected = false;
 //wl_status_t wifi_status;
