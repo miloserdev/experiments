@@ -1,38 +1,43 @@
-#include <tcpip_adapter.h>
-#include <esp_system.h>
-#include <esp_event_legacy.h>
-
-#include <esp_partition.h>
-#include <esp_ota_ops.h>                // get running partition
-#define OTA_BUF_SIZE 1024
-
 #define R1 32
 #define R2 33
 #define R3 25
 #define R4 26
 
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
 // #include "RTCDS1307.h"
 //#include "Update.h"
 //#include "WiFi.h"
-
+#include <stdio.h>
 #include <esp_err.h>
+#include <esp_system.h>
 #include <esp_event.h>
 #include <esp_event_loop.h>
+#include <esp_event_legacy.h>
 #include <esp_intr_alloc.h>
+
+static const char *TAG = "relay_array_1";
 
 #include <esp_wifi.h>
 #include <esp_wifi_types.h>
+#include <tcpip_adapter.h>
+#define WIFI_SSID "********"
+#define WIFI_PASSWORD "********"
+
+#include <esp_http_server.h>
+#define PORT 8081
+
+#include <esp_partition.h>
+#include <esp_ota_ops.h>    // get running partition
+#define OTA_BUF_SIZE 1024
 
 #include <esp_sntp.h>
 #define SNTP_SERVER "pool.ntp.org"
 //#define SNTP_SYNC_INTERVAL ((60 * 60) * 1000) * 12 // 12 hours;
 #define SNTP_SYNC_INTERVAL (((60 * 60) * 1000) *  24) * 7 // 7 days;
 
-#include <esp_http_server.h>
-#define PORT 8081
-
 #include "JSON.h"
-
 #include <SD.h>
 #include <Wire.h>
 #include "RTClib.h"
@@ -42,18 +47,13 @@ DateTime _now;
 #include <TaskScheduler.h>
 Scheduler runner;
 
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define WIFI_SSID "********"
-#define WIFI_PASSWORD "********"
-
-bool connected = false;
+//bool connected = false;
 //wl_status_t wifi_status;
 
-uint32_t reconnect_time = 5; //seconds
-uint32_t reconnect_time_prev = 0;
-uint32_t reconnect_time_max = 120;
+//uint32_t reconnect_time = 5; //seconds
+//uint32_t reconnect_time_prev = 0;
+//uint32_t reconnect_time_max = 120;
 
 JSONVar buffer;
 JSONVar sched_cmd;
@@ -85,7 +85,7 @@ uint32_t get_time()
 
 /*
     Serial.print("unixtime=");
-    Serial.println(_now.unixtime());
+    printf(_now.unixtime());
     Serial.print("-");
     Serial.print(day);
     Serial.print(" of ");
@@ -96,7 +96,7 @@ uint32_t get_time()
     Serial.print(minute);
     Serial.print(":");
     Serial.print(second);
-    Serial.println(" ");
+    printf(" ");
 
     Serial.print(">");
     Serial.print(day);
@@ -110,16 +110,16 @@ uint32_t get_time()
     Serial.print(minute);
     Serial.print(":");
     Serial.print(second);
-    Serial.println(";");
+    printf(";");
 */
 
-    Serial.println(__unixtime__);
+    //printf("time -> %d \n", __unixtime__);
     return __unixtime__;
 }
 Task get_time_task(1000, TASK_FOREVER, []() { get_time(); }, &runner, true, NULL, NULL);
 
 void sntp_update_rtc(struct timeval *tv) {
-    Serial.println("SNTP RTC update event");
+    printf("SNTP RTC update event \n");
     struct DateTime dt = DateTime(tv->tv_sec);
     RTC.adjust(dt);
 }
@@ -141,7 +141,7 @@ void update_time_sntp() {
 //    sntp_set_sync_interval(10000); //deprecated
     sntp_init();
 
-    Serial.print("SNTP try fetch time");
+    printf("SNTP try fetch time");
 
 //  time_t now = 0;
 //  struct tm timeinfo = { 0 };
@@ -149,26 +149,26 @@ void update_time_sntp() {
     uint32_t retry = 0;
     uint32_t retries = 10;
     while(sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retries) {
-        Serial.print(".");
+        printf(".");
     }
-    Serial.println("");
+    printf("SNTP fetch end \n");
 
 //    time(&now);
 //    localtime_r(&now, &timeinfo);
 
 /*
     Serial.print("Now: ");
-    Serial.println(now);
+    printf(now);
     Serial.print("TM_MDAY: ");
-    Serial.println(timeinfo.tm_sec);
-    Serial.println(timeinfo.tm_min);
-    Serial.println(timeinfo.tm_hour);
-    Serial.println(timeinfo.tm_mday);
-    Serial.println(timeinfo.tm_mon);
-    Serial.println(timeinfo.tm_year);
-    Serial.println(timeinfo.tm_wday);
+    printf(timeinfo.tm_sec);
+    printf(timeinfo.tm_min);
+    printf(timeinfo.tm_hour);
+    printf(timeinfo.tm_mday);
+    printf(timeinfo.tm_mon);
+    printf(timeinfo.tm_year);
+    printf(timeinfo.tm_wday);
 
-    Serial.println("");
+    printf("");
 */
 
 }
@@ -187,8 +187,7 @@ esp_err_t get_time_handler(httpd_req_t* req)
 
 esp_err_t get_handler(httpd_req_t* req)
 {
-    Serial.print("get method uri: ");
-    Serial.println(req->uri);
+    printf("get method uri: %s \n", req->uri);
 }
 
 esp_err_t post_handler(httpd_req_t* req)
@@ -204,8 +203,8 @@ esp_err_t post_handler(httpd_req_t* req)
         return ESP_FAIL;
     }
 
+    printf("buffer: %.*s \n", req->content_len, content);
     buffer = JSON.parse((char*)content);
-    Serial.println(buffer);
     const char* resp = (const char*)exec_packet(buffer);
 
     httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
@@ -236,7 +235,7 @@ static const char static_html[] PROGMEM =
 esp_err_t get_update_handler(httpd_req_t* req)
 {
     Serial.print("get method uri: ");
-    Serial.println(req->uri);
+    printf(req->uri);
     
     httpd_resp_set_hdr(req, "Connection", "close");
     httpd_resp_send(req, static_html, HTTPD_RESP_USE_STRLEN);
@@ -258,7 +257,7 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
     int remain;
     uint8_t percent;
  
-    ESP_LOGI(TAG, "Start to update firmware.");
+    printf(TAG, "Start to update firmware. \n");
  
     ESP_ERROR_CHECK(httpd_resp_set_type(req, "text/plain"));
     ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "Start to update firmware.\n"));
@@ -268,7 +267,7 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
  
     total_size = req->content_len;
  
-    ESP_LOGI(TAG, "Sent size: %d KB.", total_size / 1024);
+    printf(TAG, "Sent size: %d KB. \n", total_size / 1024);
  
     ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "0        20        40        60        80       100%\n"));
     ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "|---------+---------+---------+---------+---------+\n"));
@@ -304,7 +303,7 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
     }
     ESP_ERROR_CHECK(esp_ota_end(handle));
     ESP_ERROR_CHECK(esp_ota_set_boot_partition(part));
-    ESP_LOGI(TAG, "Finished writing firmware.");
+    printf(TAG, "Finished writing firmware. \n");
  
     httpd_resp_sendstr_chunk(req, "*\nOK\n");
     httpd_resp_sendstr_chunk(req, NULL);
@@ -357,7 +356,7 @@ httpd_uri_t uri_post_update = {
 
 httpd_handle_t start_webserver(void)
 {
-    Serial.println("Starting web server");
+    printf("Starting web server \n");
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = PORT;
 
@@ -369,7 +368,7 @@ httpd_handle_t start_webserver(void)
     //  httpd_register_uri_handler(server, &uri_get_update);
         httpd_register_uri_handler(server, &uri_post_update);
         httpd_register_uri_handler(server, &uri_get_time);
-        Serial.println("All handlers in register");
+        printf("All handlers in register \n");
     }
     return server;
 }
@@ -412,7 +411,7 @@ void setup()
 //        Serial.print('.');
 //        delay(1000);
 //    }
-//    Serial.println("");
+//    printf("");
 
     start_webserver();
 }
@@ -431,19 +430,17 @@ esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
         switch (event->event_id)
         {
             case SYSTEM_EVENT_STA_START: {
-                if ( esp_wifi_connect() != ESP_OK ) { Serial.println("Cannot connect to WiFi AP"); }
+                if ( esp_wifi_connect() != ESP_OK ) { printf("Cannot connect to WiFi AP \n"); }
                 //esp_err_to_name_r(esp_err_t code, char *buf, size_t buflen)
                 break;
             }
             case SYSTEM_EVENT_STA_GOT_IP: {
-                Serial.print("IPv4-> ");
-                Serial.println( ip4addr_ntoa( &event->event_info.got_ip.ip_info.ip ) );
-                Serial.print("IPv6-> ");
-                Serial.println( ip6addr_ntoa( &event->event_info.got_ip6.ip6_info.ip ) );
+                printf("IPv4-> %s \n", ip4addr_ntoa( &event->event_info.got_ip.ip_info.ip ) );
+                printf("IPv6-> %s \n", ip6addr_ntoa( &event->event_info.got_ip6.ip6_info.ip ) );
                 break;
             }
             case SYSTEM_EVENT_STA_DISCONNECTED: {
-                if ( esp_wifi_connect() != ESP_OK ) { Serial.println("Cannot connect to WiFi AP"); }
+                if ( esp_wifi_connect() != ESP_OK ) { printf("Cannot connect to WiFi AP \n"); }
                 break;                
             }
         }
@@ -454,13 +451,13 @@ esp_err_t wifi_init()
 {
     tcpip_adapter_init();
 
-    if ( esp_event_loop_init(wifi_event_handler, NULL) != ESP_OK ) { Serial.println("Cannot init WiFi event loop"); }
+    if ( esp_event_loop_init(wifi_event_handler, NULL) != ESP_OK ) { printf("Cannot init WiFi event loop \n"); }
     
     wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
-    if ( esp_wifi_init(&wifi_init_config) != ESP_OK ) { Serial.println("Cannot init WiFi module"); }
+    if ( esp_wifi_init(&wifi_init_config) != ESP_OK ) { printf("Cannot init WiFi module \n"); }
 
     wifi_storage_t wifi_storage = WIFI_STORAGE_FLASH;
-    if ( esp_wifi_set_storage(wifi_storage) != ESP_OK ) { Serial.println("Cannot set WiFi storage"); }
+    if ( esp_wifi_set_storage(wifi_storage) != ESP_OK ) { printf("Cannot set WiFi storage \n"); }
 
     wifi_interface_t wifi_interface = WIFI_IF_STA;
     wifi_config_t wifi_config = {
@@ -469,14 +466,14 @@ esp_err_t wifi_init()
             { .password = WIFI_PASSWORD },
         }        
     };
-    if ( esp_wifi_set_config(wifi_interface, &wifi_config) != ESP_OK ){ Serial.println("Cannot set WiFi config"); }
+    if ( esp_wifi_set_config(wifi_interface, &wifi_config) != ESP_OK ){ printf("Cannot set WiFi config \n"); }
 
     wifi_mode_t wifi_mode = WIFI_MODE_STA;
-    if ( esp_wifi_set_mode(wifi_mode) != ESP_OK ) { Serial.println("Cannot set WiFi mode"); }
+    if ( esp_wifi_set_mode(wifi_mode) != ESP_OK ) { printf("Cannot set WiFi mode \n"); }
 
-    if ( esp_wifi_start() != ESP_OK ) { Serial.println("Cannot start WiFi"); }
+    if ( esp_wifi_start() != ESP_OK ) { printf("Cannot start WiFi \n"); }
 
-    //if ( esp_wifi_connect() != ESP_OK ) { Serial.println("Cannot connect to WiFi AP"); }
+    //if ( esp_wifi_connect() != ESP_OK ) { printf("Cannot connect to WiFi AP \n"); }
     //else { return ESP_OK; }
 
     return ESP_FAIL;
@@ -485,10 +482,11 @@ esp_err_t wifi_init()
 /*
 void wifi_reconnect()
 {
+    get_time();
     wifi_status = WiFi.status();
     if ((wifi_status != WL_CONNECTED)) {
         if ((__unixtime__ - reconnect_time_prev >= reconnect_time)) {
-            Serial.println("reconnecting...");
+            printf("reconnecting...");
             WiFi.disconnect();
             WiFi.reconnect();
 
@@ -512,12 +510,12 @@ Task time_toggler(20000, TASK_FOREVER, []() {
     if (hour == turn_off_hour && minute == turn_off_minute) {
         JSONVar _off = JSON.parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 1 } }]"); 
         exec_packet(_off);
-        Serial.println("turned off");
+        printf("turned off \n");
     }
     else if (hour == turn_on_hour && minute == turn_on_minute) {
         JSONVar _on = JSON.parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 0 } }]"); 
         exec_packet(_on);
-        Serial.println("turned on");
+        printf("turned on \n");
     }
 
 }, &runner, true, NULL, NULL);
@@ -525,11 +523,12 @@ Task time_toggler(20000, TASK_FOREVER, []() {
 
 void exec_scheduler()
 {
+    get_time();
     if (scheduled_isset && scheduled_time > 0) {
         if (__unixtime__ >= scheduled_time) {
 
-            Serial.println("Scheduled activation");
-            Serial.println(sched_cmd);
+            printf("Scheduled activation \n");
+            printf("Scheduled command %s \n", sched_cmd);
 
             JSONVar cmd = sched_cmd;
             exec_packet(cmd);
@@ -542,14 +541,13 @@ Task exec_scheduler_task(1000, TASK_FOREVER, exec_scheduler, &runner, true, NULL
 
 void scheduled(JSONVar &command, int next_time)
 {
+    get_time();
     scheduled_time = __unixtime__ + next_time;
-    Serial.println(command);
-
     sched_cmd = command;
     scheduled_isset = true;
 
-    Serial.println("Scheduled is set");
-    Serial.println(sched_cmd);
+    printf("Scheduled is set \n");
+    printf("Scheduled command %s \n", sched_cmd);
 }
 
 void scheduled_clear()
@@ -558,15 +556,15 @@ void scheduled_clear()
     sched_cmd = "";
     scheduled_isset = false;
 
-    Serial.println("Scheduled is clear");
+    printf("Scheduled is clear \n");
 }
 
 char* exec_packet(JSONVar& pack)
 {
-    Serial.println("exec packet begin");
+    printf("exec packet begin \n");
 
     if (JSON.typeof(pack) == "undefined") {
-        Serial.println("parser malfunction");
+        ESP_LOGE(TAG, "parser malfunction");
         return "parser malfunction";
     }
 
@@ -576,23 +574,23 @@ char* exec_packet(JSONVar& pack)
 
     char* ret_ = "";
 
-    Serial.print(pack.length());
+    printf("packet length %d \n", pack.length() );
 
     for (uint32_t i = 0; i < pack.length(); i++) {
         JSONVar data = pack[i];
-        Serial.println(data);
-        //    Serial.println(data["pin"]);
-        //    Serial.println( data.hasOwnProperty("schedule") );
-        //    Serial.println( data.hasOwnProperty("pin") );
+        //printf("data: %s \n", pack[i]);
+        //    printf(data["pin"]);
+        //    printf( data.hasOwnProperty("schedule") );
+        //    printf( data.hasOwnProperty("pin") );
 
         if (data.hasOwnProperty("schedule")) {
-            Serial.println("schedule");
+            //printf("schedule \n");
 
             if (JSON.typeof(data["schedule"]) == String("string")) {
-                Serial.println("is string");
+                //printf("is string \n");
 
                 if (data.hasPropertyEqual("schedule", "state")) {
-                    Serial.println("getting state schedule");
+                    printf("getting state schedule \n");
                     ret_ = (char*)(scheduled_isset ? "scheduled" : "not scheduled");
                     continue;
                 }
@@ -627,7 +625,7 @@ char* exec_packet(JSONVar& pack)
                 int val = data["digitalWrite"]["value"];
                 digitalWrite(pin, val);
 
-                Serial.println("digitalWrite");
+                printf("digitalWrite \n");
                 ret_ = (char*)(val ? "off" : "on");
                 continue;
             }
@@ -640,7 +638,7 @@ char* exec_packet(JSONVar& pack)
                 int val = digitalRead(pin);
                 ret_ = (char*)(val ? "off" : "on");
 
-                Serial.println("digitalRead");
+                printf("digitalRead \n");
                 continue;
             }
         }
