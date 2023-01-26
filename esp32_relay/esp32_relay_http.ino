@@ -1,28 +1,34 @@
+#include <tcpip_adapter.h>
+#include <esp_system.h>
+#include <esp_event_legacy.h>
 
 #include <esp_partition.h>
 #include <esp_ota_ops.h>                // get running partition
-#include <HTTPUpdateServer.h>
-HTTPUpdateServer httpUpdater;
-
-#include <WebServer.h>
-WebServer httpServer(80);
+#define OTA_BUF_SIZE 1024
 
 #define R1 32
 #define R2 33
 #define R3 25
-#define R4 26           
-#define R5 27
+#define R4 26
 
 // #include "RTCDS1307.h"
+//#include "Update.h"
+//#include "WiFi.h"
 
-#include "Update.h"
-
-#include "WiFi.h"
 #include <esp_err.h>
 #include <esp_event.h>
+#include <esp_event_loop.h>
 #include <esp_intr_alloc.h>
-#include <esp_http_server.h>
 
+#include <esp_wifi.h>
+#include <esp_wifi_types.h>
+
+#include <esp_sntp.h>
+#define SNTP_SERVER "pool.ntp.org"
+//#define SNTP_SYNC_INTERVAL ((60 * 60) * 1000) * 12 // 12 hours;
+#define SNTP_SYNC_INTERVAL (((60 * 60) * 1000) *  24) * 7 // 7 days;
+
+#include <esp_http_server.h>
 #define PORT 8081
 
 #include "JSON.h"
@@ -39,24 +45,26 @@ Scheduler runner;
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-const char* ssid = "Keenetic-6193";
-const char* password = "DNj6KdZT";
+#define WIFI_SSID "Keenetic-6193"
+#define WIFI_PASSWORD "DNj6KdZT"
+
 bool connected = false;
-wl_status_t __status__;
-uint32_t __reconnect_time__ = 5; //seconds
-uint32_t __reconnect_time_prev__ = 0;
-uint32_t __reconnect_time_max__ = 120;
+//wl_status_t wifi_status;
+
+uint32_t reconnect_time = 5; //seconds
+uint32_t reconnect_time_prev = 0;
+uint32_t reconnect_time_max = 120;
 
 JSONVar buffer;
 JSONVar sched_cmd;
 uint32_t scheduled_time;
 bool scheduled_isset = false;
 
-int turn_on_hour = 18;
-int turn_on_minute = 01;
+int turn_on_hour = 17;
+int turn_on_minute = 1;
 
 int turn_off_hour = 1;
-int turn_off_minute = 30;
+int turn_off_minute = 1;
 
 uint8_t year, month, weekday, day, hour, minute, second;
 uint32_t __unixtime__;  //seconds!
@@ -89,6 +97,20 @@ uint32_t get_time()
     Serial.print(":");
     Serial.print(second);
     Serial.println(" ");
+
+    Serial.print(">");
+    Serial.print(day);
+    Serial.print("/");
+    Serial.print(month);
+    Serial.print("/");
+    Serial.print(year);
+    Serial.print("-");
+    Serial.print(hour);
+    Serial.print(":");
+    Serial.print(minute);
+    Serial.print(":");
+    Serial.print(second);
+    Serial.println(";");
 */
 
     Serial.println(__unixtime__);
@@ -96,56 +118,81 @@ uint32_t get_time()
 }
 Task get_time_task(1000, TASK_FOREVER, []() { get_time(); }, &runner, true, NULL, NULL);
 
+void sntp_update_rtc(struct timeval *tv) {
+    Serial.println("SNTP RTC update event");
+    struct DateTime dt = DateTime(tv->tv_sec);
+    RTC.adjust(dt);
+}
+
+void update_time_sntp() {
+
+    setenv("TZ", "Europe/Moscow", 1);
+    tzset();
+
+    if(sntp_enabled()){
+        sntp_stop();
+    }
+
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_servermode_dhcp(1);
+    sntp_setservername(0, SNTP_SERVER);
+    sntp_set_time_sync_notification_cb(&sntp_update_rtc);
+    sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
+//    sntp_set_sync_interval(10000); //deprecated
+    sntp_init();
+
+    Serial.print("SNTP try fetch time");
+
+//  time_t now = 0;
+//  struct tm timeinfo = { 0 };
+
+    uint32_t retry = 0;
+    uint32_t retries = 10;
+    while(sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retries) {
+        Serial.print(".");
+    }
+    Serial.println("");
+
+//    time(&now);
+//    localtime_r(&now, &timeinfo);
 
 /*
-esp_err_t get_handler(httpd_req_t* req)
+    Serial.print("Now: ");
+    Serial.println(now);
+    Serial.print("TM_MDAY: ");
+    Serial.println(timeinfo.tm_sec);
+    Serial.println(timeinfo.tm_min);
+    Serial.println(timeinfo.tm_hour);
+    Serial.println(timeinfo.tm_mday);
+    Serial.println(timeinfo.tm_mon);
+    Serial.println(timeinfo.tm_year);
+    Serial.println(timeinfo.tm_wday);
+
+    Serial.println("");
+*/
+
+}
+Task get_sntp_task(SNTP_SYNC_INTERVAL, TASK_FOREVER, []() { update_time_sntp(); }, &runner, true, NULL, NULL);
+
+
+
+
+esp_err_t get_time_handler(httpd_req_t* req)
 {
-    const char resp[] = " <html><head><meta name=\"viewport\" content=\"initial-scale=1\"></head><body>"
-                        "    <style>"
-                        "    body {"
-                        "    display: grid;"
-                        "    place-content: center;"
-                        "    width: 100%;"
-                        "    height: 100%;"
-                        "    background-color: #2e2e2e; }"
-                        "    * { box-sizing: border-box;"
-                        "    min-width: 50%;"
-                        "    min-height: 20%;"
-                        "    border-radius: 20px;"
-                        "    padding: 20px;"
-                        "    text-align: center;"
-                        "    font-size: 1.5em;"
-                        "    font-family: \"sans\";"
-                        "    }"
-                        "    </style>"
-                        "    <script>"
-                        "    function send_data(e, datas) {"
-                        "        fetch('http://192.168.1.65:80', {"
-                        "        method: 'POST',"
-                        "        headers: {"
-                        "            'Accept': 'application/json',"
-                        "            'Content-Type': 'application/json'"
-                        "        },"
-                        "        body: JSON.stringify( datas )"
-                        "        })"
-                        "        .then(response => response.text())"
-                        "        .then(response => {"
-                        "        document.getElementById(\"status_label\").style.backgroundColor = (response == \"on\" ? \"#4cd964\" : \"#ff3b30\")"
-                        "        });"
-                        "    }"
-                        "    </script>"
-                        "    <h1 style=\"background-color: #ff9500;\" onclick='send_data(this, [{ \"digitalRead\": { \"pin\": 32 } }] );' id=\"status_label\">State</h1>"
-                        "    <a style=\"background-color: #4cd964;\" onclick='send_data(this, [{ \"digitalWrite\": { \"pin\": 32, \"value\": 0 } }] )'>on</a>"
-                        "    <a style=\"background-color: #ff3b30;\" onclick='send_data(this, [{ \"digitalWrite\": { \"pin\": 32, \"value\": 1 } }] )'>off</a>"
-                        "    </body></html>";
-    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    char buf[16];
+    sprintf(buf, "%lu", __unixtime__);
+    httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
-*/
+
+esp_err_t get_handler(httpd_req_t* req)
+{
+    Serial.print("get method uri: ");
+    Serial.println(req->uri);
+}
 
 esp_err_t post_handler(httpd_req_t* req)
 {
-    Serial.println("new client");
     char content[512];
     size_t recv_size = MIN(req->content_len, sizeof(content));
 
@@ -165,28 +212,71 @@ esp_err_t post_handler(httpd_req_t* req)
     return ESP_OK;
 }
 
+/*
+static const char static_html[] PROGMEM =
+    "<!DOCTYPE html>"
+    " <html lang='en'>"
+    " <head>"
+    "     <meta charset='utf-8'>"
+    "     <meta name='viewport' content='width=device-width,initial-scale=1'/>"
+    " </head>"
+    " <body>"
+    " <form method='POST' action='' enctype='multipart/form-data'>"
+    "     Firmware:<br>"
+    "     <input type='file' accept='.bin,.bin.gz' name='firmware'>"
+    "     <input type='submit' value='Update Firmware'>"
+    " </form>"
+    " <form method='POST' action='' enctype='multipart/form-data'>"
+    "     FileSystem:<br>"
+    "     <input type='file' accept='.bin,.bin.gz,.image' name='filesystem'>"
+    "     <input type='submit' value='Update FileSystem'>"
+    " </form>"
+    " </body>"
+    " </html>)";
+esp_err_t get_update_handler(httpd_req_t* req)
+{
+    Serial.print("get method uri: ");
+    Serial.println(req->uri);
+    
+    httpd_resp_set_hdr(req, "Connection", "close");
+    httpd_resp_send(req, static_html, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_set_status(req, "200 Ok");
+    return ESP_OK;
+}
+*/
+
 //pure ESP variant // encryption type multipart/form-data //temporary solutiuon
+// thanks to @kimata from rabbit-note.com
+// curl 192.168.1.73:8081/update/ --no-buffer --data-binary @./sketch_relay_new.ino.bin
 static esp_err_t http_handle_ota(httpd_req_t *req)
 {
     const esp_partition_t *part;
     esp_ota_handle_t handle;
-    char buf[1024];
+    char buf[OTA_BUF_SIZE];
     int total_size;
     int recv_size;
     int remain;
+    uint8_t percent;
  
-    Serial.println("OTA update begin");
+    ESP_LOGI(TAG, "Start to update firmware.");
  
     ESP_ERROR_CHECK(httpd_resp_set_type(req, "text/plain"));
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "Start to update firmware.\n"));
  
     part = esp_ota_get_next_update_partition(NULL);
+    // part_info_show("Target", part);
  
     total_size = req->content_len;
  
     ESP_LOGI(TAG, "Sent size: %d KB.", total_size / 1024);
  
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "0        20        40        60        80       100%\n"));
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "|---------+---------+---------+---------+---------+\n"));
+    ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "*"));
+ 
     ESP_ERROR_CHECK(esp_ota_begin(part, total_size, &handle));
     remain = total_size;
+    percent = 2;
     while (remain > 0) {
         if (remain < sizeof(buf)) {
             recv_size = remain;
@@ -205,80 +295,34 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
         }
  
         ESP_ERROR_CHECK(esp_ota_write(handle, buf, recv_size));
+ 
         remain -= recv_size;
+        if (remain < (total_size * (100-percent) / 100)) {
+            httpd_resp_sendstr_chunk(req, "*");
+            percent += 2;
+        }
     }
     ESP_ERROR_CHECK(esp_ota_end(handle));
     ESP_ERROR_CHECK(esp_ota_set_boot_partition(part));
+    ESP_LOGI(TAG, "Finished writing firmware.");
  
+    httpd_resp_sendstr_chunk(req, "*\nOK\n");
+    httpd_resp_sendstr_chunk(req, NULL);
+
     esp_restart();
  
-    return ESP_OK;
-}
-
-//arduino-esp32 Update variant
-esp_err_t update_handler(httpd_req_t* req)
-{
-    size_t recv_size = req->content_len;
-    char content[recv_size];
-    
-    int ret = httpd_req_recv(req, content, recv_size);
-    if (ret <= 0) {
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            httpd_resp_send_408(req);
-        }
-        return ESP_FAIL;
-    }
-
-    uint8_t buff8[recv_size] = { 0 };
-    esp_err_t res = ESP_OK;
-    
-//    res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
-//    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-
-    const esp_partition_t *next_partition = esp_ota_get_next_update_partition(NULL);
-    const esp_partition_t *configured = esp_ota_get_boot_partition();
-    const esp_partition_t *running  = esp_ota_get_running_partition();
-    size_t ota_size = OTA_SIZE_UNKNOWN;
-    esp_ota_handle_t ota_handle = 0;
-
-    uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-    Update.begin(maxSketchSpace, U_FLASH);
-
-    for (uint32_t i = 0; i < recv_size; i++) {
-        buff8[i] = uint8_t (content[i]);
-       
-    }
-
-    if (Update.write(buff8, recv_size) != recv_size) {
-        Serial.println("error");
-    }
-/*
-    esp_err_t rz = esp_ota_begin(next_partition, ota_size, &ota_handle);
-    esp_ota_write( ota_handle, (const void *)data, recv_size);
-
-    if (rz == ESP_OK) {
-        Serial.println("update ok");
-        esp_restart();
-    }
-*/
-    
-    //updateFirmware(firmware, recv_size);
-
-    const char* resp = "OK";
-    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
-    
+    // xTaskCreate(restart_task, "restart_task", 1024, NULL, 10, NULL);
+ 
     return ESP_OK;
 }
 
 
-/*
 httpd_uri_t uri_get = {
     .uri = "/",
     .method = HTTP_GET,
     .handler = get_handler,
     .user_ctx = NULL
 };
-*/
 
 httpd_uri_t uri_post = {
     .uri = "/",
@@ -287,29 +331,45 @@ httpd_uri_t uri_post = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_get_time = {
+    .uri = "/time",
+    .method = HTTP_GET,
+    .handler = get_time_handler,
+    .user_ctx = NULL
+};
 
-httpd_uri_t update_post = {
+/*
+httpd_uri_t uri_get_update = {
     .uri = "/update",
+    .method = HTTP_GET,
+    .handler = &get_update_handler,
+    .user_ctx = NULL
+};
+*/
+
+httpd_uri_t uri_post_update = {
+    .uri = "/update/",
     .method = HTTP_POST,
-    .handler = http_handle_ota,
+    .handler = &http_handle_ota,
     .user_ctx = NULL
 };
 
 
 httpd_handle_t start_webserver(void)
 {
-    Serial.println("start_webserver");
+    Serial.println("Starting web server");
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = PORT;
 
     httpd_handle_t server = NULL;
 
     if (httpd_start(&server, &config) == ESP_OK) {
-        Serial.println("starting...");
-    //    httpd_register_uri_handler(server, &uri_get);
+        httpd_register_uri_handler(server, &uri_get);
         httpd_register_uri_handler(server, &uri_post);
-        httpd_register_uri_handler(server, &update_post);
-        Serial.println("all handlers in register");
+    //  httpd_register_uri_handler(server, &uri_get_update);
+        httpd_register_uri_handler(server, &uri_post_update);
+        httpd_register_uri_handler(server, &uri_get_time);
+        Serial.println("All handlers in register");
     }
     return server;
 }
@@ -323,6 +383,9 @@ void stop_webserver(httpd_handle_t server)
 
 void setup()
 {
+    Serial.begin(115200);
+
+    wifi_init();
 
     //    rtc.begin();
     Wire.begin();
@@ -333,104 +396,127 @@ void setup()
     pinMode(R2, OUTPUT);
     pinMode(R3, OUTPUT);
     pinMode(R4, OUTPUT);
-    pinMode(R5, OUTPUT);
 
     digitalWrite(R1, HIGH);
     digitalWrite(R2, HIGH);
     digitalWrite(R3, HIGH);
     digitalWrite(R4, HIGH);
-    digitalWrite(R5, HIGH);
 
     //    pinMode(13, INPUT); //thermal;
 
-    Serial.begin(115200);
+//    WiFi.mode(WIFI_STA);
+//    WiFi.begin(ssid, password);
 
-    Serial.print(">");
-    Serial.print(day);
-    Serial.print("/");
-    Serial.print(month);
-    Serial.print("/");
-    Serial.print(year);
-    Serial.print("-");
-    Serial.print(hour);
-    Serial.print(":");
-    Serial.print(minute);
-    Serial.print(":");
-    Serial.print(second);
-    Serial.println(";");
-
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-
-    Serial.print("Connecting to WiFi ..");
-    while (WiFi.status() != WL_CONNECTED) {
-        Serial.print('.');
-        delay(1000);
-    }
+//    Serial.print("Connecting to WiFi ");
+//    while (WiFi.status() != WL_CONNECTED) {
+//        Serial.print('.');
+//        delay(1000);
+//    }
+//    Serial.println("");
 
     start_webserver();
-    
-    httpUpdater.setup(&httpServer);
-    httpServer.begin();
-
-    /*
-    if (udp.listen(80)) {
-        Serial.println("UDP connected");
-        udp.onPacket([](AsyncUDPPacket packet) {
-            buffer = JSON.parse( (char*) packet.data());
-            Serial.println(buffer);
-            char *ret = exec_packet(buffer);
-            packet.print( ret);
-        });
-        //Send unicast
-        udp.print("Hello Server!");
-    }
-*/
 }
 
 
 void loop()
 {
     runner.execute();
-    wifi_reconnect();
-    httpServer.handleClient();
-    //    print_time();
+    //wifi_reconnect();
 }
 
+esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
+{
+    if (event != NULL)
+    {
+        switch (event->event_id)
+        {
+            case SYSTEM_EVENT_STA_START: {
+                if ( esp_wifi_connect() != ESP_OK ) { Serial.println("Cannot connect to WiFi AP"); }
+                //esp_err_to_name_r(esp_err_t code, char *buf, size_t buflen)
+                break;
+            }
+            case SYSTEM_EVENT_STA_GOT_IP: {
+                Serial.print("IPv4-> ");
+                Serial.println( ip4addr_ntoa( &event->event_info.got_ip.ip_info.ip ) );
+                Serial.print("IPv6-> ");
+                Serial.println( ip6addr_ntoa( &event->event_info.got_ip6.ip6_info.ip ) );
+                break;
+            }
+            case SYSTEM_EVENT_STA_DISCONNECTED: {
+                if ( esp_wifi_connect() != ESP_OK ) { Serial.println("Cannot connect to WiFi AP"); }
+                break;                
+            }
+        }
+    }
+}
 
+esp_err_t wifi_init()
+{
+    tcpip_adapter_init();
+
+    if ( esp_event_loop_init(wifi_event_handler, NULL) != ESP_OK ) { Serial.println("Cannot init WiFi event loop"); }
+    
+    wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
+    if ( esp_wifi_init(&wifi_init_config) != ESP_OK ) { Serial.println("Cannot init WiFi module"); }
+
+    wifi_storage_t wifi_storage = WIFI_STORAGE_FLASH;
+    if ( esp_wifi_set_storage(wifi_storage) != ESP_OK ) { Serial.println("Cannot set WiFi storage"); }
+
+    wifi_interface_t wifi_interface = WIFI_IF_STA;
+    wifi_config_t wifi_config = {
+        .sta = {
+            { .ssid = WIFI_SSID },
+            { .password = WIFI_PASSWORD },
+        }        
+    };
+    if ( esp_wifi_set_config(wifi_interface, &wifi_config) != ESP_OK ){ Serial.println("Cannot set WiFi config"); }
+
+    wifi_mode_t wifi_mode = WIFI_MODE_STA;
+    if ( esp_wifi_set_mode(wifi_mode) != ESP_OK ) { Serial.println("Cannot set WiFi mode"); }
+
+    if ( esp_wifi_start() != ESP_OK ) { Serial.println("Cannot start WiFi"); }
+
+    //if ( esp_wifi_connect() != ESP_OK ) { Serial.println("Cannot connect to WiFi AP"); }
+    //else { return ESP_OK; }
+
+    return ESP_FAIL;
+}
+
+/*
 void wifi_reconnect()
 {
-    __status__ = WiFi.status();
-    if ((__status__ != WL_CONNECTED)) {
-        if ((__unixtime__ - __reconnect_time_prev__ >= __reconnect_time__)) {
+    wifi_status = WiFi.status();
+    if ((wifi_status != WL_CONNECTED)) {
+        if ((__unixtime__ - reconnect_time_prev >= reconnect_time)) {
             Serial.println("reconnecting...");
             WiFi.disconnect();
             WiFi.reconnect();
 
-            __reconnect_time_prev__ = __unixtime__;
-            __reconnect_time__ += 5;
-            if (__reconnect_time__ >= __reconnect_time_max__) {
-                ESP.restart();
+            reconnect_time_prev = __unixtime__;
+            reconnect_time += 5;
+            if (reconnect_time >= reconnect_time_max) {
+                esp_restart();
             }
         }
     } else {
-        __reconnect_time__ = 5;        
+        reconnect_time = 5;        
     }
 }
-//Task wifi_reconnect_task(15000, TASK_FOREVER, wifi_reconnect, &runner, true, NULL, NULL);
-
+Task wifi_reconnect_task(15000, TASK_FOREVER, wifi_reconnect, &runner, true, NULL, NULL);
+*/
 
 /// WARNING
 /// HARDCODE ;)
-
-Task time_toggler(30000, TASK_FOREVER, []() {
+Task time_toggler(20000, TASK_FOREVER, []() {
 
     if (hour == turn_off_hour && minute == turn_off_minute) {
-        digitalWrite(32, HIGH);
+        JSONVar _off = JSON.parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 1 } }]"); 
+        exec_packet(_off);
         Serial.println("turned off");
     }
     else if (hour == turn_on_hour && minute == turn_on_minute) {
-        digitalWrite(32, LOW);
+        JSONVar _on = JSON.parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 0 } }]"); 
+        exec_packet(_on);
         Serial.println("turned on");
     }
 
@@ -439,7 +525,6 @@ Task time_toggler(30000, TASK_FOREVER, []() {
 
 void exec_scheduler()
 {
-    Serial.println("unixtime");
     if (scheduled_isset && scheduled_time > 0) {
         if (__unixtime__ >= scheduled_time) {
 
@@ -455,7 +540,7 @@ void exec_scheduler()
 }
 Task exec_scheduler_task(1000, TASK_FOREVER, exec_scheduler, &runner, true, NULL, NULL);
 
-void scheduled(JSONVar& command, int next_time)
+void scheduled(JSONVar &command, int next_time)
 {
     scheduled_time = __unixtime__ + next_time;
     Serial.println(command);
