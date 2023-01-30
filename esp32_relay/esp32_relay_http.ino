@@ -38,6 +38,8 @@
     #define SNTP_SYNC_INTERVAL (((60 * 60) * 1000) *  24) * 7 // 7 days;
 
     #include "JSON.h"
+    #include "cjson/cJSON.h"
+
     #include <SD.h>
     #include <Wire.h>
     #include "RTClib.h"
@@ -58,8 +60,8 @@
 
     httpd_handle_t server = NULL;
 
-    JSONVar buffer;
-    JSONVar sched_cmd;
+    cJSON *buffer;
+    cJSON *sched_cmd;
     uint32_t scheduled_time;
     bool scheduled_isset = false;
 
@@ -72,6 +74,27 @@
     uint8_t year, month, weekday, day, hour, minute, second;
     uint32_t __unixtime__;  //seconds!
     bool period = 0;
+
+
+    char * json_type (cJSON *json) {
+        if (json == NULL ||  cJSON_IsInvalid(json)) {
+            return "undefined";
+        } else if (cJSON_IsBool(json)) {
+            return "boolean";
+        } else if (cJSON_IsNull(json)) {
+            return "null"; // TODO: should this return "object" to be more JS like?
+        } else if (cJSON_IsNumber(json)) {
+            return "number";
+        } else if (cJSON_IsString(json)) {
+            return "string";
+        } else if (cJSON_IsArray(json)) {
+            return "array"; // TODO: should this return "object" to be more JS like?
+        } else if (cJSON_IsObject(json)) {
+            return "object";
+        } else {
+            return "unknown";
+        }
+    }
 
     uint32_t get_time()
     {
@@ -210,7 +233,7 @@
         }
 
         printf("buffer: %.*s \n", req->content_len, content);
-        buffer = JSON.parse((char*)content);
+        buffer = cJSON_Parse((const char*)content);
         const char* resp = (const char*)exec_packet(buffer);
 
         httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
@@ -534,12 +557,12 @@
             printf("time_toggler start \n");
 
         if (hour == turn_off_hour && minute == turn_off_minute) {
-            JSONVar _off = JSON.parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 1 } }]"); 
+            cJSON *_off = cJSON_Parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 1 } }]"); 
             exec_packet(_off);
             printf("turned off \n");
         }
         else if (hour == turn_on_hour && minute == turn_on_minute) {
-            JSONVar _on = JSON.parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 0 } }]"); 
+            cJSON *_on = cJSON_Parse("[{ \"digitalWrite\": { \"pin\": 33, \"value\": 0 } }]"); 
             exec_packet(_on);
             printf("turned on \n");
         }
@@ -557,9 +580,9 @@
             if (__unixtime__ >= scheduled_time) {
 
                 printf("Scheduled activation \n");
-                printf("Scheduled command %s \n", sched_cmd);
+                printf("Scheduled command %s \n", sched_cmd->valuestring);
 
-                JSONVar cmd = sched_cmd;
+                cJSON *cmd = sched_cmd;
                 exec_packet(cmd);
 
                 scheduled_clear();
@@ -569,7 +592,7 @@
     }
     Task exec_scheduler_task(1000, TASK_FOREVER, exec_scheduler, &runner, true, NULL, NULL);
 
-    void scheduled(JSONVar &command, int next_time)
+    void scheduled(cJSON *command, int next_time)
     {
             printf("scheduled start \n");
         get_time();
@@ -585,62 +608,70 @@
     {
             printf("scheduled_clear start \n");
         scheduled_time = 0;
-        sched_cmd = "";
+        sched_cmd = cJSON_CreateNull();
         scheduled_isset = false;
 
         printf("Scheduled is clear \n");
     }
 
-    char* exec_packet(JSONVar& pack)
+    char* exec_packet(const cJSON * const pack)
     {
+        cJSON *buf_val;
             printf("exec_packet start \n");
 
-        if (JSON.typeof(pack) == "undefined") {
+        // USE STRCMP
+        
+        if ( pack == NULL || cJSON_IsInvalid(pack) ) {
             ESP_LOGE(TAG, "parser malfunction");
             return "parser malfunction";
         }
 
-        if (pack.length() < 0) {
+        if (sizeof(pack) < 0) {
             return "data misfunction";
         }
 
         char* ret_ = "";
 
-        printf("packet length %d \n", pack.length() );
+        printf("packet length %d \n", sizeof(pack) );
 
-        for (uint32_t i = 0; i < pack.length(); i++) {
-            JSONVar data = pack[i];
+        for (uint32_t i = 0; i < sizeof(pack); i++) {
+            const cJSON *data = cJSON_GetArrayItem(pack, i);
             //printf("data: %s \n", pack[i]);
             //    printf(data["pin"]);
             //    printf( data.hasOwnProperty("schedule") );
             //    printf( data.hasOwnProperty("pin") );
 
-            if (data.hasOwnProperty("schedule")) {
+            if ( cJSON_GetObjectItemCaseSensitive(data, (const char*) "schedule") != NULL ) {
+                buf_val = cJSON_GetObjectItem(data, "schedule");
                 //printf("schedule \n");
 
-                if (JSON.typeof(data["schedule"]) == String("string")) {
+                if (json_type(buf_val) == "string" ) {
                     //printf("is string \n");
 
-                    if (data.hasPropertyEqual("schedule", "state")) {
+                    cJSON *json;
+                    json = cJSON_GetObjectItemCaseSensitive(data, "schedule");
+                    if ( strcmp("state", json->valuestring) ) {
                         printf("getting state schedule \n");
                         ret_ = (char*)(scheduled_isset ? "scheduled" : "not scheduled");
                         continue;
                     }
-
-                    if (data.hasPropertyEqual("schedule", "clear")) {
+                    
+                    json = cJSON_GetObjectItemCaseSensitive(data, "schedule");
+                    if ( strcmp("clear", json->valuestring) ) {
                         scheduled_clear();
                         ret_ = "ok; scheduler is clear";
                         continue;
                     }
                 }
-                else if (JSON.typeof(data["schedule"]) == String("object")) {
+                else if (json_type(buf_val) == "object" ) {
+                    
+                    
+                    if ( cJSON_GetObjectItemCaseSensitive( buf_val, "time") != NULL
+                      && cJSON_GetObjectItemCaseSensitive( buf_val, "cmd") != NULL ) {
 
-                    if (JSONVar(data["schedule"]).hasOwnProperty("time") && JSONVar(data["schedule"]).hasOwnProperty("cmd")) {
-
-                        int tme = data["schedule"]["time"];
-                        JSONVar cmd = data["schedule"]["cmd"];
+                        int tme = cJSON_GetObjectItem( buf_val, "time")->valueint;
+                        cJSON *cmd = cJSON_GetObjectItem( buf_val, "cmd");
                         scheduled(cmd, tme);
-
                         ret_ = "ok; scheduler is set";
                         continue;
                     }
@@ -650,27 +681,46 @@
                 }
             }
 
-            if (data.hasOwnProperty("digitalWrite")) {
-                if (JSONVar(data["digitalWrite"]).hasOwnProperty("pin") && JSONVar(data["digitalWrite"]).hasOwnProperty("value")) {
+            if ( cJSON_GetObjectItemCaseSensitive(data, "digitalWrite") != NULL ) {
+                buf_val = cJSON_GetObjectItem(data, "digitalWrite");
+                if ( cJSON_GetObjectItemCaseSensitive( buf_val, "pin") != NULL
+                  && cJSON_GetObjectItemCaseSensitive( buf_val, "value") != NULL ) {
 
-                    int pin = data["digitalWrite"]["pin"];
-                    int val = data["digitalWrite"]["value"];
-                    digitalWrite(pin, val);
+                    int pin = cJSON_GetObjectItem( buf_val, "pin")->valueint;
+                    int val = cJSON_GetObjectItem( buf_val, "value")->valueint;
+                    digitalWrite(pin, val);                    
 
                     printf("digitalWrite \n");
                     ret_ = (char*)(val ? "off" : "on");
+
+                    buf_val = cJSON_CreateNull();
+                    buf_val = cJSON_CreateObject();
+                    cJSON_AddNumberToObject(buf_val, "pin", pin);
+                    cJSON_AddStringToObject(buf_val, "value", ret_);
+
+                    ret_ = cJSON_Print(buf_val);
+
                     continue;
                 }
             }
 
-            if (data.hasOwnProperty("digitalRead")) {
-                if (JSONVar(data["digitalRead"]).hasOwnProperty("pin")) {
+            if ( cJSON_GetObjectItemCaseSensitive(data, "digitalRead") != NULL ) {
+                buf_val = cJSON_GetObjectItem(data, "digitalRead");
+                if ( cJSON_GetObjectItemCaseSensitive( buf_val, "pin") != NULL ) {
 
-                    int pin = data["digitalRead"]["pin"];
+                    int pin = cJSON_GetObjectItem( buf_val, "pin")->valueint;
                     int val = digitalRead(pin);
                     ret_ = (char*)(val ? "off" : "on");
-
+                    //strcpy( ret_, (char*) "" );
                     printf("digitalRead \n");
+
+                    buf_val = cJSON_CreateNull();
+                    buf_val = cJSON_CreateObject();
+                    cJSON_AddNumberToObject(buf_val, "pin", pin);
+                    cJSON_AddStringToObject(buf_val, "value", ret_);
+
+                    ret_ = cJSON_Print(buf_val);
+                    
                     continue;
                 }
             }
