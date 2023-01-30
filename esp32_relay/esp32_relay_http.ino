@@ -37,8 +37,9 @@
     //#define SNTP_SYNC_INTERVAL ((60 * 60) * 1000) * 12 // 12 hours;
     #define SNTP_SYNC_INTERVAL (((60 * 60) * 1000) *  24) * 7 // 7 days;
 
-    #include "JSON.h"
+    //    #include "JSON.h"
     #include "cjson/cJSON.h"
+	// Full migration from Arduino JSON to cJSON
 
     #include <SD.h>
     #include <Wire.h>
