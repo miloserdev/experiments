@@ -40,6 +40,7 @@
     //    #include "JSON.h"
     #include "cjson/cJSON.h"
 	// Full migration from Arduino JSON to cJSON
+	// p.s. Please, add JSON.stringify to chararray, not String only
 
     #include <SD.h>
     #include <Wire.h>
