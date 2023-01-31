@@ -572,6 +572,8 @@
     }, &runner, true, NULL, NULL);
 
 
+    // Also need to deprecate;
+    // Much time i worked about it, but i want to use (server (master)) -> (device (slave)) architecture;
     void exec_scheduler()
     {
             printf("exec_scheduler start \n");
