@@ -22,8 +22,8 @@
     #include <esp_wifi.h>
     #include <esp_wifi_types.h>
     #include <tcpip_adapter.h>
-    #define WIFI_SSID "Keenetic-6193"
-    #define WIFI_PASSWORD "DNj6KdZT"
+    #define WIFI_SSID "********"
+    #define WIFI_PASSWORD "********"
 
     #include <esp_http_server.h>
     #define PORT 8081
@@ -37,10 +37,8 @@
     //#define SNTP_SYNC_INTERVAL ((60 * 60) * 1000) * 12 // 12 hours;
     #define SNTP_SYNC_INTERVAL (((60 * 60) * 1000) *  24) * 7 // 7 days;
 
-    //    #include "JSON.h"
+    #include "JSON.h"
     #include "cjson/cJSON.h"
-	// Full migration from Arduino JSON to cJSON
-	// p.s. Please, add JSON.stringify to chararray, not String only
 
     #include <SD.h>
     #include <Wire.h>
