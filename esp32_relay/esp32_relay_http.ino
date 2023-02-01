@@ -22,8 +22,8 @@
     #include <esp_wifi.h>
     #include <esp_wifi_types.h>
     #include <tcpip_adapter.h>
-    #define WIFI_SSID "********"
-    #define WIFI_PASSWORD "********"
+    #define WIFI_SSID "Keenetic-6193"
+    #define WIFI_PASSWORD "DNj6KdZT"
 
     #include <esp_http_server.h>
     #define PORT 8081
@@ -215,7 +215,12 @@
 
     esp_err_t get_handler(httpd_req_t* req)
     {
+        char *buf = "pong";
+        // cJSON *buf_val = cJSON_CreateObject();
+        // cJSON_AddStringToObject(buf_val, "pong", ret_);
         printf("get method uri: %s \n", req->uri);
+        httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+        return ESP_OK;
     }
 
     esp_err_t post_handler(httpd_req_t* req)
@@ -351,7 +356,7 @@
 
 
     httpd_uri_t uri_get = {
-        .uri = "/",
+        .uri = "/ping",
         .method = HTTP_GET,
         .handler = &get_handler,
         .user_ctx = NULL
