@@ -68,6 +68,7 @@ Scheduler runner;
 //uint32_t reconnect_time_max = 120;
 
 httpd_handle_t server = NULL;
+bool _connected = false;
 
 cJSON * buffer;
 cJSON * sched_cmd;
@@ -576,7 +577,7 @@ int settings_init () {
 #define MAX_HTTP_RECV_BUFFER 512
 #define MAX_HTTP_OUTPUT_BUFFER 2048
 
-
+// from esp-idf examples
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     static char *output_buffer;  // Buffer to store response of http request from event handler
@@ -644,27 +645,35 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
+/*
+void http_client_init () {
 
-static void http_client_init () {
-    esp_http_client_config_t config;
-    config.url = "http://192.168.1.69:8884/";
-    config.auth_type = HTTP_AUTH_TYPE_NONE;
-    config.method = HTTP_METHOD_POST;
-    config.event_handler = _http_event_handler;
-    config.transport_type = HTTP_TRANSPORT_OVER_TCP;
+    if (!_connected) return;
+
+    printf("http_client_init begin \n");
+    esp_http_client_config_t config =
+    {
+        .host = gateway_addr,
+        .path = "/" };
+    printf("esp_http_client_config_t init \n");
 
     // because: sorry, unimplemented: non-trivial designated initializers not supported
     // idk how to fix;
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
+    printf("esp_http_client_handle_t init \n");
 
     // POST
     const char *post_data = "{\"field1\":\"value1\"}";
     //esp_http_client_set_url(client, "http://httpbin.org/post");
-    esp_http_client_set_method(client, HTTP_METHOD_POST);
+    //esp_http_client_set_method(client, HTTP_METHOD_POST);
+    //printf("esp_http_client_set_method init \n");
     esp_http_client_set_header(client, "Content-Type", "application/json");
+    printf("esp_http_client_set_header init \n");
     esp_http_client_set_post_field(client, post_data, strlen(post_data));
+    printf("esp_http_client_set_post_field init \n");
     esp_err_t err = esp_http_client_perform(client);
+    printf("esp_http_client_perform init \n");
     if (err == ESP_OK) {
         ESP_LOGI(TAG, "HTTP POST Status = %d, content_length = %"PRIu64,
                 esp_http_client_get_status_code(client),
@@ -672,12 +681,13 @@ static void http_client_init () {
     } else {
         ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
     }
+    printf("http_client_init end \n");
 }
 
 
+Task http_client_init_task(5000, TASK_FOREVER, http_client_init, &runner, true, NULL, NULL);
 
-
-
+*/
 
 
 
@@ -693,38 +703,25 @@ void setup()
 	RTC.begin();
 	get_time();
 
-/*
-	pinMode(R1, OUTPUT);
-	pinMode(R2, OUTPUT);
-	pinMode(R3, OUTPUT);
-	pinMode(R4, OUTPUT);
-
-	digitalWrite(R1, HIGH);
-	digitalWrite(R2, HIGH);
-	digitalWrite(R3, HIGH);
-	digitalWrite(R4, HIGH);
-*/
-
     settings_init();
 
 	wifi_init();
 
-    http_client_init();
 
-	//    pinMode(13, INPUT);	//thermal;
+    esp_http_client_config_t config = {
+    .url = "http://httpbin.org/redirect/2",
+    .event_handler = _http_event_handler,
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_err_t err = esp_http_client_perform(client);
 
-	//    WiFi.mode(WIFI_STA);
-	//    WiFi.begin(ssid, password);
+    if (err == ESP_OK) {
+    ESP_LOGI(TAG, "Status = %d, content_length = %d",
+            esp_http_client_get_status_code(client),
+            esp_http_client_get_content_length(client));
+    }
+    esp_http_client_cleanup(client);
 
-	//    Serial.print("Connecting to WiFi ");
-	//    while (WiFi.status() != WL_CONNECTED) {
-	//        Serial.print('.');
-	//        delay(1000);
-	//    }
-
-	//    printf("");
-
-	//server = start_webserver();
 }
 
 void loop()
@@ -746,6 +743,7 @@ esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 					{
 						printf("Cannot connect to WiFi AP \n");
 						stop_webserver(server);
+                        _connected = false;
 					}
 
 					//esp_err_to_name_r(esp_err_t code, char *buf, size_t buflen)
@@ -757,6 +755,7 @@ esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 					printf("IPv4-> %s \n", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
 					printf("IPv6-> %s \n", ip6addr_ntoa(&event->event_info.got_ip6.ip6_info.ip));
 					server = start_webserver();
+                    _connected = true;
 					break;
 				}
 
@@ -766,6 +765,7 @@ esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 					{
 						printf("Cannot connect to WiFi AP \n");
 						stop_webserver(server);
+                        _connected = false;
 					}
 
 					break;
