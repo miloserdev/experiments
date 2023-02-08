@@ -7,16 +7,11 @@
 #include <esp_system.h>
 #include <esp_event.h>
 #include <esp_event_loop.h>
-//#include <esp_event_legacy.h>
+//#include <esp_event_legacy.h> // DEPRECATED;
 #include <esp_intr_alloc.h>
 #include <esp_event_base.h>
 #include <esp_event.h>
 
-//#include "esp_err.h"
-//#include "esp_wifi.h"
-//#include "esp_wifi_internal.h"
-//#include "esp_event.h"
-//#include "esp_event_loop.h"
 #include "esp_task.h"
 #include "esp_eth.h"
 #include "esp_system.h"
@@ -26,12 +21,6 @@
 #include <string.h>
 
 #include "rom/ets_sys.h"
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "freertos/semphr.h"
-
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
@@ -92,7 +81,7 @@ char *exec_packet(cJSON *pack);
 //char *exec_packet(cJSON *pack);
 uint32_t get_time();
 int settings_init();
-esp_err_t wifi_init();
+esp_err_t wifi_init(); // NEED TO FIX DISCONNECT;
 esp_err_t wifi_stops();
 void scheduled_clear();
 
