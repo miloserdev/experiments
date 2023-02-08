@@ -95,9 +95,6 @@ int settings_init();
 esp_err_t wifi_init();
 esp_err_t wifi_stops();
 void scheduled_clear();
-//esp_err_t wifi_event_handler(void *ctx, esp_http_client_event_t *event);
-//esp_event_handler_t wifi_event_handler(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data);
-
 
 httpd_handle_t server = NULL;
 static esp_netif_t *esp_netif_this = NULL;
@@ -117,6 +114,18 @@ int turn_off_minute = 1;
 uint8_t year, month, weekday, day, hour, minute, second;
 uint32_t __unixtime__;	//seconds!
 bool period = 0;
+
+
+
+const char *gateway_addr = "http://192.168.1.69:8884/";
+
+static const char *settings =
+"["
+"{\"id\":\"relay_1\",\"pin\":32,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
+"{\"id\":\"relay_2\",\"pin\":33,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
+"{\"id\":\"relay_3\",\"pin\":25,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
+"{\"id\":\"relay_4\",\"pin\":26,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true}"
+"]";
 
 
 
@@ -176,36 +185,6 @@ uint32_t get_time()
 	minute = _now.minute();
 	second = _now.second();
 	__unixtime__ = _now.unixtime();
-    */
-	/*
-	    Serial.print("unixtime=");
-	    printf(_now.unixtime());
-	    Serial.print("-");
-	    Serial.print(day);
-	    Serial.print(" of ");
-	    Serial.print(month);
-	    Serial.print(" ");
-	    Serial.print(hour);
-	    Serial.print(":");
-	    Serial.print(minute);
-	    Serial.print(":");
-	    Serial.print(second);
-	    printf(" ");
-
-	    Serial.print(">");
-	    Serial.print(day);
-	    Serial.print("/");
-	    Serial.print(month);
-	    Serial.print("/");
-	    Serial.print(year);
-	    Serial.print("-");
-	    Serial.print(hour);
-	    Serial.print(":");
-	    Serial.print(minute);
-	    Serial.print(":");
-	    Serial.print(second);
-	    printf(";");
-	*/
 
 	printf("time -> %lu \n", __unixtime__);
 	return __unixtime__;
@@ -261,21 +240,6 @@ void update_time_sntp()
 
 	//    time(&now);
 	//    localtime_r(&now, &timeinfo);
-
-	/*
-	    Serial.print("Now: ");
-	    printf(now);
-	    Serial.print("TM_MDAY: ");
-	    printf(timeinfo.tm_sec);
-	    printf(timeinfo.tm_min);
-	    printf(timeinfo.tm_hour);
-	    printf(timeinfo.tm_mday);
-	    printf(timeinfo.tm_mon);
-	    printf(timeinfo.tm_year);
-	    printf(timeinfo.tm_wday);
-
-	    printf("");
-	*/
 
 }
 
@@ -333,40 +297,6 @@ esp_err_t post_handler(httpd_req_t *req)
 
 	return ESP_OK;
 }
-
-/*
-static const char static_html[] PROGMEM =
-    "<!DOCTYPE html>"
-    "<html lang='en'>"
-    "<head>"
-    "    <meta charset='utf-8'>"
-    "    <meta name='viewport' content='width=device-width,initial-scale=1'/>"
-    "</head>"
-    "<body>"
-    "<form method='POST' action='' enctype='multipart/form-data'>"
-    "     Firmware:<br>"
-    "    <input type='file' accept='.bin,.bin.gz' name='firmware'>"
-    "    <input type='submit' value='Update Firmware'>"
-    "</form>"
-    "<form method='POST' action='' enctype='multipart/form-data'>"
-    "     FileSystem:<br>"
-    "    <input type='file' accept='.bin,.bin.gz,.image' name='filesystem'>"
-    "    <input type='submit' value='Update FileSystem'>"
-    "</form>"
-    "</body>"
-    "</html>)";
-esp_err_t get_update_handler(httpd_req_t* req)
-{
-    Serial.print("get method uri: ");
-    printf(req->uri);
-
-    httpd_resp_set_hdr(req, "Connection", "close");
-    httpd_resp_send(req, static_html, HTTPD_RESP_USE_STRLEN);
-    httpd_resp_set_status(req, "200 Ok");
-    return ESP_OK;
-}
-
-*/
 
 //pure ESP variant	// encryption type multipart/form-data	//temporary solutiuon
 // thanks to @kimata from rabbit-note.com
@@ -516,20 +446,13 @@ void stop_webserver(httpd_handle_t server)
 }
 
 
+#define ON_VAL "on"
+#define OFF_VAL "off"
 
-
-
-
-const char *gateway_addr = "http://192.168.1.69:8884/";
-
-static const char *settings =
-"["
-"{\"id\":\"relay_1\",\"pin\":32,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
-"{\"id\":\"relay_2\",\"pin\":33,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
-"{\"id\":\"relay_3\",\"pin\":25,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
-"{\"id\":\"relay_4\",\"pin\":26,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true}"
-"]";
-
+char *parse_value(int value, bool invert)
+{
+    return ( char* ) ( ( value ^ invert ) ? ON_VAL : OFF_VAL );
+}
 
 uint32_t parse_lohi (char *lohi)
 {
@@ -1029,46 +952,7 @@ esp_err_t wifi_init()
 	
 	printf("wifi_init end \n");
 	return ESP_OK;
-
-    /*
-	wifi_config_t wifi_config = { .sta = {
-		{.ssid = WIFI_SSID
-			},
-			{.password = WIFI_PASSWORD
-			},
-		}
-	};
-    */
-
-	//if (esp_wifi_connect() != ESP_OK) { 	printf("Cannot connect to WiFi AP \n"); }
-
-	//else { 	return ESP_OK; }
 }
-
-/*
-void wifi_reconnect()
-{
-    get_time();
-    wifi_status = WiFi.status();
-    if ((wifi_status != WL_CONNECTED)) {
-        if ((__unixtime__ - reconnect_time_prev >= reconnect_time)) {
-            printf("reconnecting...");
-            WiFi.disconnect();
-            WiFi.reconnect();
-
-            reconnect_time_prev = __unixtime__;
-            reconnect_time += 5;
-            if (reconnect_time >= reconnect_time_max) {
-                esp_restart();
-            }
-        }
-    } else {
-        reconnect_time = 5;        
-    }
-}
-
-Task wifi_reconnect_task(15000, TASK_FOREVER, wifi_reconnect, &runner, true, NULL, NULL);
-*/
 
 /// WARNING
 /// HARDCODE ;)
@@ -1140,14 +1024,6 @@ void scheduled_clear()
 	scheduled_isset = false;
 
 	printf("Scheduled is clear \n");
-}
-
-#define ON_VAL "on"
-#define OFF_VAL "off"
-
-char *parse_value(int value, bool invert)
-{
-    return ( char* ) ( ( value ^ invert ) ? ON_VAL : OFF_VAL );
 }
 
 
