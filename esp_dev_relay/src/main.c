@@ -96,6 +96,13 @@ esp_err_t wifi_init();
 esp_err_t wifi_stops();
 void scheduled_clear();
 
+#define ON_VAL "on"
+#define OFF_VAL "off"
+
+char * parse_value(int value, bool invert);
+uint32_t parse_lohi(char * lohi);
+int parse_type(char * type);
+
 httpd_handle_t server = NULL;
 static esp_netif_t *esp_netif_this = NULL;
 bool _connected = false;
@@ -188,6 +195,7 @@ uint32_t get_time()
 
 	printf("time -> %lu \n", __unixtime__);
 	return __unixtime__;
+	*/
 }
 
 //Task get_time_task(1000, TASK_FOREVER, []() { 	get_time(); }, &runner, true, NULL, NULL);
@@ -446,8 +454,7 @@ void stop_webserver(httpd_handle_t server)
 }
 
 
-#define ON_VAL "on"
-#define OFF_VAL "off"
+
 
 char *parse_value(int value, bool invert)
 {
