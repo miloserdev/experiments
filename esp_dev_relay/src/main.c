@@ -526,7 +526,7 @@ static const char *settings =
 "["
 "{\"id\":\"relay_1\",\"pin\":32,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
 "{\"id\":\"relay_2\",\"pin\":33,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
-"{\"id\":\"relay_3\",\"pin\":25,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"LOW\",\"invert\":true},"
+"{\"id\":\"relay_3\",\"pin\":25,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true},"
 "{\"id\":\"relay_4\",\"pin\":26,\"type\":\"ANALOG\",\"pinmode\":\"OUTPUT\",\"defval\":\"HIGH\",\"invert\":true}"
 "]";
 
@@ -619,7 +619,7 @@ int settings_init () {
         if (pin_ && defval_)
         {
 			printf("gpio set level \n");
-            gpio_set_level( BIT64(pin_), parse_lohi(defval_) );
+            gpio_set_level( pin_, parse_lohi(defval_) );
             //digitalWrite(pin_, parse_lohi(defval_));
         }
         /*{
