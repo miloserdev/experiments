@@ -723,19 +723,8 @@ void close_nvs(nvs_handle* handle)
   printf ("Done\n");
 }
 
-
-void app_main()
+void nvs_handler_init()
 {
-	//Serial.begin(115200);
-
-	//    rtc.begin();
-	//Wire.begin();
-	//RTC.begin();
-
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-
 /*
 	nvs_handle handle_nvs;
 
@@ -749,15 +738,12 @@ void app_main()
 	}
 	ESP_ERROR_CHECK(ret);
 */
+}
 
-	get_time();
 
-    settings_init();
-
-	wifi_init();
-
+void http_fetch()
+{
 /*
-
     esp_http_client_config_t config = {
         .url = "http://httpbin.org/redirect/2",
         .event_handler = _http_event_handler,
@@ -772,6 +758,28 @@ void app_main()
     }
     esp_http_client_cleanup(client);
 */
+}
+
+
+void app_main()
+{
+	//Serial.begin(115200);
+	//    rtc.begin();
+	//Wire.begin();
+	//RTC.begin();
+
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+
+
+	get_time();
+
+    settings_init();
+
+	wifi_init();
+
     //runner.execute();
 }
 /*
@@ -840,8 +848,7 @@ esp_event_handler_t wifi_event_handler(void* handler_arg, esp_event_base_t base,
 */
 
 
-static void disconnect_handler(void* arg, esp_event_base_t event_base,
-                               int32_t event_id, void* event_data)
+static void disconnect_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
 	if (esp_wifi_connect() != ESP_OK)
 	{
@@ -852,8 +859,7 @@ static void disconnect_handler(void* arg, esp_event_base_t event_base,
     printf("WiFi disconnected \n");
 }
 
-static void connect_handler(void* arg, esp_event_base_t event_base,
-                            int32_t event_id, void* event_data)
+static void connect_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
 	ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
 	printf("IPv4-> %s \n", ip4addr_ntoa(&event->ip_info.ip));
@@ -886,8 +892,6 @@ esp_err_t wifi_stops()
 esp_err_t wifi_init()
 {
 	printf("wifi_init start \n");
-	//tcpip_adapter_init();
- //    esp_netif_init();
 
     //ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     //ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
@@ -1070,8 +1074,9 @@ char *exec_packet(cJSON *pack)
 
             if ( strcmp("status", data->valuestring) == 0 ) {
                 printf("    data is status \n");
-                uint8_t temp_farenheit = temprature_sens_read();
-                float temp_celsius = ( temp_farenheit - 32 ) / 1.8;
+                // uint8_t temp_farenheit = temprature_sens_read();
+                // float temp_celsius = ( temp_farenheit - 32 ) / 1.8;
+				// ^ need to include to status packet;
 
                 buf_val = cJSON_CreateNull();
                 buf_val = cJSON_CreateArray();
