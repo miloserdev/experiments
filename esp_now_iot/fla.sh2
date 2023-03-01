@@ -1,0 +1,37 @@
+/home/max/esp/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc ./main/main.c \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private \
+    -I./build/include/ \
+    -I./include/ \
+    -I./main \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/rom/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/heap/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/heap/port/esp8266/include \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/esp_common/include \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/nvs_flash/include \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/spi_flash/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/tcpip_adapter/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/vfs/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/apps \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/log/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/console/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/newlib/platform_include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/ \
+    -I/home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/ \
+
+
+#python /home/max/esp/ESP8266_RTOS_SDK/components/esptool_py/esptool/esptool.py --chip esp8266 --port /dev/ttyUSB0 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 2MB 0x0 /home/max/esp/ESP8266_RTOS_SDK/examples/wifi/espnow/build/bootloader/bootloader.bin 0x10000 /home/max/esp/ESP8266_RTOS_SDK/examples/wifi/espnow/build/espnow_example.bin 0x8000 /home/max/esp/ESP8266_RTOS_SDK/examples/wifi/espnow/build/partitions_singleapp.bin &
+#python /home/max/esp/ESP8266_RTOS_SDK/components/esptool_py/esptool/esptool.py --chip esp8266 --port /dev/ttyUSB1 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 2MB 0x0 /home/max/esp/ESP8266_RTOS_SDK/examples/wifi/espnow/build/bootloader/bootloader.bin 0x10000 /home/max/esp/ESP8266_RTOS_SDK/examples/wifi/espnow/build/espnow_example.bin 0x8000 /home/max/esp/ESP8266_RTOS_SDK/examples/wifi/espnow/build/partitions_singleapp.bin &
+
+#python /home/max/esp/ESP8266_RTOS_SDK/components/esptool_py/esptool/esptool.py --chip esp8266 --port /dev/ttyUSB0 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 2MB 0x0 /home/max/workspace/to_git/experiments/esp_now_iot/build/bootloader/bootloader.bin 0x10000 /home/max/workspace/to_git/experiments/esp_now_iot/build/espnow_example.bin 0x8000 /home/max/workspace/to_git/experiments/esp_now_iot/build/partitions_singleapp.bin &
+#python /home/max/esp/ESP8266_RTOS_SDK/components/esptool_py/esptool/esptool.py --chip esp8266 --port /dev/ttyUSB1 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 2MB 0x0 /home/max/workspace/to_git/experiments/esp_now_iot/build/bootloader/bootloader.bin 0x10000 /home/max/workspace/to_git/experiments/esp_now_iot/build/espnow_example.bin 0x8000 /home/max/workspace/to_git/experiments/esp_now_iot/build/partitions_singleapp.bin &

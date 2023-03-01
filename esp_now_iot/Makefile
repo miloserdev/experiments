@@ -5,5 +5,5 @@
 
 PROJECT_NAME := espnow_example
 
-include $(IDF_PATH)/make/project.mk
+include ./make/project.mk
 

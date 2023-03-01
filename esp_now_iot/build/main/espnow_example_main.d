@@ -86,11 +86,17 @@ espnow_example_main.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/console/linenoise/linenoise.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/console/argtable3/argtable3.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/nvs_flash/include/nvs.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/vfs/include/esp_vfs_dev.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/vfs/include/esp_vfs.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/newlib/platform_include/sys/termios.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/newlib/platform_include/sys/poll.h \
- /home/max/workspace/to_git/experiments/esp_now_iot/main/uart_init.c
+ /home/max/workspace/to_git/experiments/esp_now_iot/main/uart_init.c \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h
 
 /home/max/esp/ESP8266_RTOS_SDK/components/newlib/platform_include/time.h:
 
@@ -264,6 +270,14 @@ espnow_example_main.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/nvs_flash/include/nvs.h:
 
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h:
+
 /home/max/esp/ESP8266_RTOS_SDK/components/vfs/include/esp_vfs_dev.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/vfs/include/esp_vfs.h:
@@ -273,4 +287,7 @@ espnow_example_main.o: \
 /home/max/esp/ESP8266_RTOS_SDK/components/newlib/platform_include/sys/poll.h:
 
 /home/max/workspace/to_git/experiments/esp_now_iot/main/uart_init.c:
-/home/max/workspace/to_git/experiments/esp_now_iot/main/./espnow_example_main.c:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h:
