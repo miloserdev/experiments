@@ -6,4 +6,7 @@ cp -r ~/Documents/PlatformIO/Projects/esp_dev/lib/* ./esp_dev_relay/lib/
 cp -r ~/Documents/PlatformIO/Projects/esp_dev/test/* ./esp_dev_relay/test
 
 git add . && git commit --amend --no-edit && git push origin master
+<<<<<<< HEAD
 # --force
+=======
+>>>>>>> 87fbc8e (	modified:   .gitignore)

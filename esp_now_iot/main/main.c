@@ -12,6 +12,8 @@
    Prepare two device, one for sending ESPNOW data and another for receiving
    ESPNOW data.
 */
+#include "sdkconfig.h"
+
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -68,9 +70,6 @@ uint8_t my_mac[ESP_NOW_ETH_ALEN];
 static const uint8_t example_broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 static uint16_t s_example_espnow_seq[EXAMPLE_ESPNOW_DATA_MAX] = { 0, 0 };
 
-
-
-
 #define MIN(a, b)(((a) < (b)) ? (a) : (b))
 #define MAX(a, b)(((a) > (b)) ? (a) : (b))
 
@@ -92,6 +91,8 @@ bool _connected = false;
 char *exec_packet(cJSON *pack);
 httpd_handle_t start_webserver(void);
 void stop_webserver();
+
+
 
 
 
@@ -247,8 +248,8 @@ static void wifi_init(void)
 
     os_printf("______ esp_wifi_set_ps ______%d_\n", esp_wifi_set_ps(WIFI_PS_NONE) );
 
-    os_free(cfg);
-    os_ftee(wifi_config);
+    os_free(&cfg);
+    os_free(&wifi_config);
 }
 
 
@@ -263,7 +264,7 @@ static void wifi_init(void)
 
 static void example_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
-    example_espnow_event_send_cb_t *send = malloc(sizeof(example_espnow_event_send_cb_t));
+    example_espnow_event_send_cb_t *send = /*may cause crash*/ os_malloc(sizeof(example_espnow_event_send_cb_t));
 
     if (mac_addr == NULL) {
         os_printf("example_espnow_send_cb >> error >> status: %d \n", status);
@@ -275,13 +276,16 @@ static void example_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_
 
     os_printf("example_espnow_send_cb >> mac: "MACSTR" status: %d \n", MAC2STR(send->mac_addr), send->status);
 
+    os_free(send->mac_addr);
     os_free(send);
+
+    os_free(&mac_addr);
 }
 
 
 static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
-    example_espnow_event_recv_cb_t *recv = malloc(sizeof(example_espnow_event_recv_cb_t));
+    example_espnow_event_recv_cb_t *recv = /*may cause crash*/ os_malloc(sizeof(example_espnow_event_recv_cb_t));
 
     if (mac_addr == NULL || data == NULL || len <= 0) {
         ESP_LOGE(TAG, "Receive cb arg error");
@@ -289,13 +293,13 @@ static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data,
     }
 
     memcpy(recv->mac_addr, mac_addr, ESP_NOW_ETH_ALEN);
-    recv->data = malloc(len);
+    recv->data = /*may cause crash*/ os_malloc(len);
     memcpy(recv->data, data, len);
     recv->data_len = len;
 
     os_printf("example_espnow_recv_cb >> mac: "MACSTR" len: %d data: [", MAC2STR(recv->mac_addr), recv->data_len);
 
-    char *datas = malloc(len);
+    char *datas = /*may cause crash*/ os_malloc(len);
     for (int i = 0; i < recv->data_len - 1; i++)
     {
         datas[i] = recv->data[i];
@@ -310,11 +314,10 @@ static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data,
         return;
     }
     char *exec_data = exec_packet(pack);
-    os_free(exec_data);
 
 
     if (esp_now_is_peer_exist(mac_addr) == false) {
-        esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
+        esp_now_peer_info_t *peer = /*may cause crash*/ os_malloc(sizeof(esp_now_peer_info_t));
         if (peer == NULL) {
             os_printf("Malloc peer information fail \n");
         }
@@ -333,8 +336,14 @@ static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data,
     cJSON_Delete(pack);
     cJSON_free(pack);
     os_free(pack); // may cause segfault;
+
     os_free(datas);
+    os_free(recv->mac_addr);
+    os_free(recv->data);
     os_free(recv);
+
+    os_free(&mac_addr);
+    os_free(&data);
 }
 
 
@@ -355,7 +364,7 @@ static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data,
 
 void send_packet(const uint8_t *peer_addr, const uint8_t *strs, size_t len)
 {
-    example_espnow_send_param_t *data = malloc(sizeof(example_espnow_send_param_t));
+    example_espnow_send_param_t *data = /*may cause crash*/ os_malloc(sizeof(example_espnow_send_param_t));
     memset(data, 0, sizeof(example_espnow_send_param_t));
     
     data->unicast = false;
@@ -365,7 +374,7 @@ void send_packet(const uint8_t *peer_addr, const uint8_t *strs, size_t len)
     data->count = CONFIG_ESPNOW_SEND_COUNT;
     data->delay = CONFIG_ESPNOW_SEND_DELAY;
     data->len = CONFIG_ESPNOW_SEND_LEN;
-    data->buffer = malloc(CONFIG_ESPNOW_SEND_LEN);
+    data->buffer = /*may cause crash*/ os_malloc(CONFIG_ESPNOW_SEND_LEN);
 
     memset(data->buffer, 0, CONFIG_ESPNOW_SEND_LEN);
     memcpy(data->buffer, strs, len);
@@ -394,9 +403,6 @@ void send_packet(const uint8_t *peer_addr, const uint8_t *strs, size_t len)
 
 
 
-#include "sdkconfig.h"
-
-
 static esp_err_t example_espnow_init(void)
 {
 
@@ -415,7 +421,7 @@ static esp_err_t example_espnow_init(void)
     ESP_ERROR_CHECK( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
 
     /* Add broadcast peer information to peer list. */
-    esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
+    esp_now_peer_info_t *peer = /*may cause crash*/ os_malloc(sizeof(esp_now_peer_info_t));
     if (peer == NULL) {
         os_printf("Malloc peer information fail \n");
         return ESP_FAIL;
@@ -496,7 +502,7 @@ httpd_uri_t uri_get = { .uri = "/status",
 
 esp_err_t post_handler(httpd_req_t *req)
 {
-    cJSON *buffer;
+    cJSON *buffer = NULL;
 	os_printf("post_handler start \n");
 	char content[512];
 	size_t recv_size = MIN(req->content_len, sizeof(content));
@@ -522,6 +528,9 @@ esp_err_t post_handler(httpd_req_t *req)
 
     os_free(resp);
     os_free(buffer);
+    os_free(&content);
+
+    os_free(&req);
 
 	return ESP_OK;
 }
@@ -584,13 +593,6 @@ void stop_webserver(httpd_handle_t server)
 
 
 
-#define ESP_BD_ADDR_HEX_STR        "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx"
-#define ESP_BD_ADDR_HEX_ARR(addr)   addr[0],  addr[1],  addr[2],  addr[3],  addr[4],  addr[5]
-#define ESP_BD_ADDR_HEX_PTR(addr)  &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5]
-
-
-
-
 
 
 int macaddr_parse(const char *str, uint8_t *out)
@@ -603,10 +605,11 @@ int macaddr_parse(const char *str, uint8_t *out)
 
 char *exec_packet(cJSON *pack)
 {
-	cJSON *buf_val;
+	cJSON *buf_val = NULL;
     char *ret_ = "";
+    int arr_sz = cJSON_GetArraySize(pack);
 	os_printf("exec_packet start \n");
-    os_printf("packet length %d \n", cJSON_GetArraySize(pack));
+    os_printf("packet length %d \n", arr_sz);
 
     bool to_me = true;
 
@@ -709,6 +712,14 @@ char *exec_packet(cJSON *pack)
                           peer_addrs[4],
                           peer_addrs[5]);
 
+                os_printf("    my mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
+                          my_mac[0],
+                          my_mac[1],
+                          my_mac[2],
+                          my_mac[3],
+                          my_mac[4],
+                          my_mac[5]);
+
                 int mcmp = memcmp(peer_addrs, my_mac, ESP_NOW_ETH_ALEN);
                 os_printf("MCMP >> %d \n", mcmp);
                 if (mcmp == 0)
@@ -722,7 +733,7 @@ char *exec_packet(cJSON *pack)
                     if (esp_now_is_peer_exist(peer_addrs) == false)
                     {
                         os_printf("    peer not found \n");
-                        esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
+                        esp_now_peer_info_t *peer = /*may cause crash*/ os_malloc(sizeof(esp_now_peer_info_t));
                         if (peer == NULL)
                         {
                             os_printf("Malloc peer information fail \n");
@@ -757,6 +768,7 @@ char *exec_packet(cJSON *pack)
 
             if (to_me)
             {
+                os_printf("packet to me >> parsing... \n");
                 if (cJSON_GetObjectItemCaseSensitive(data, "pingmsg") != NULL)
                 {
                     // buf_val = cJSON_GetObjectItem(data, "pingmsg");
@@ -766,8 +778,8 @@ char *exec_packet(cJSON *pack)
                     uint8_t *msg8t = (uint8_t *)msg; // working convertion
                     memcpy(pingmsg, msg8t, strlen(msg));
 
-                    //free(msg);
                     os_free(msg8t);
+                    os_free(msg);
                 }
 
                 if (cJSON_GetObjectItemCaseSensitive(data, "broadcast") != NULL)
@@ -800,6 +812,7 @@ char *exec_packet(cJSON *pack)
                         cJSON_AddItemToArray(tmp_val, read_pin(pin));
 
                         ret_ = cJSON_Print(tmp_val);
+
                         cJSON_Delete(tmp_val);
                         os_free(tmp_val);
 
@@ -839,11 +852,19 @@ char *exec_packet(cJSON *pack)
        os_free(data);
     }
 
-	os_printf("exec_packet end \n");
+    //cJSON_Delete(&buf_val);
+    //os_printf("exec_packet cJSON_Delete \n");
 
-    cJSON_Delete(&buf_val);
     cJSON_free(buf_val);
+	os_printf("exec_packet cJSON_free \n");
+
+
+    os_free(buf_val);
+    os_printf("exec_packet os_free(buf_val) \n");
     os_free(pack);
+    os_printf("exec_packet os_free(pack) \n");
+
+    os_printf("exec_packet end \n");
 
 	return ret_;
 }
@@ -887,7 +908,9 @@ static void app_loop()
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
     //cJSON *datas = cJSON_Parse(&data);
-    send_packet(example_broadcast_mac, pingmsg, sizeof(pingmsg));
+
+
+    // send_packet(example_broadcast_mac, pingmsg, sizeof(pingmsg)); // BACK!
 }
 
 
@@ -934,10 +957,10 @@ static void echo_task()
     uart_param_config(UART_NUM_0, &uart_config);
     uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
 
-    os_free(uart_config);
+    os_free(&uart_config);
 
     // Configure a temporary buffer for the incoming data
-    uint8_t *data = (uint8_t *) malloc(BUF_SIZE);
+    uint8_t *data = (uint8_t *) /*may cause crash*/ os_malloc(BUF_SIZE);
 
     while (1) {
         // Read data from the UART
@@ -947,6 +970,10 @@ static void echo_task()
         //os_printf("\n");
     }
 }
+
+
+
+
 
 
 
