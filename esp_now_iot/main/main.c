@@ -1153,7 +1153,7 @@ void app_main()
     example_espnow_init();
     server = start_webserver();
 
-    //xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
+    xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
 
     os_printf("________TASK_INIT_DONE________\n");
 
