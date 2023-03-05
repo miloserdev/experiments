@@ -127,6 +127,7 @@ typedef struct {
     esp_event_base_t base;
     int32_t id;
     void *data;
+    size_t len;
 } msx_event_t;
 
 static xQueueHandle event_loop_queue;
@@ -352,6 +353,15 @@ static void example_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_
 
 static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
+
+    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+    //evt->base = event_base;
+    evt->id = MSX_ESP_NOW_RECV_CB;
+    evt->data = data;
+    evt->len = len;
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    return;
+
     example_espnow_event_recv_cb_t *recv = /*may cause crash*/ os_malloc(sizeof(example_espnow_event_recv_cb_t));
 
     if (mac_addr == NULL || data == NULL || len <= 0) {
@@ -1069,6 +1079,14 @@ void event_loop(void *params)
             }
             case MSX_ESP_NOW_RECV_CB:
             {
+                uint8_t *data = evt.data;
+                char *datas = /*may cause crash*/ os_malloc(evt.len);
+                for (int i = 0; i < evt.len - 1; i++)
+                {
+                    datas[i] = data[i];
+                    os_printf("%c", data[i]);
+                }
+                os_printf("] \n");
                 os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
                 break;
             }
