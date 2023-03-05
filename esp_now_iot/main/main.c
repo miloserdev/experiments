@@ -988,8 +988,6 @@ void app_main()
 
     initialize_console();
 
-    //cJSON_InitHooks(NULL);
-
     //example_wifi_init();
     wifi_init();
     example_espnow_init();
