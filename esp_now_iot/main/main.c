@@ -108,10 +108,12 @@ void stop_webserver();
 
 
 typedef enum {
-    ESP_NOW_SEND_CB,
-    ESP_NOW_RECV_CB,
-    ESP_WIFI_UP_CB,
-    ESP_WIFI_DOWN_CB,
+    MSX_ESP_NOW_SEND_CB = 99,
+    MSX_ESP_NOW_RECV_CB,
+
+    MSX_WIFI_EVENT_STA_START,
+    MSX_WIFI_EVENT_STA_DISCONNECTED,
+    MSX_IP_EVENT_STA_GOT_IP,
 } msx_event_id_t;
 
 typedef struct {
@@ -119,9 +121,12 @@ typedef struct {
 } msx_event_data_t;
 
 typedef struct {
-    msx_event_id_t id;
-    msx_event_data_t data;
-    uint8_t *from;
+    //msx_event_id_t id;
+    //msx_event_data_t data;
+    //uint8_t *from;
+    esp_event_base_t base;
+    int32_t id;
+    void *data;
 } msx_event_t;
 
 static xQueueHandle event_loop_queue;
@@ -152,13 +157,25 @@ static int s_retry_num = 0;
 
 static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+    evt->base = event_base;
+    evt->id = event_id;
+    evt->data = event_data;
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    return;
+
+/*     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
-        (xQueueSend(example_espnow_queue, &evt, portMAX_DELAY) != pdTRUE)
+        evt->id = MSX_WIFI_EVENT_STA_START;
+        os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+
         esp_wifi_connect();
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
+        evt->id = MSX_WIFI_EVENT_STA_DISCONNECTED;
+        os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+
         if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
         {
             esp_wifi_connect();
@@ -174,12 +191,20 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
+        evt->id = MSX_IP_EVENT_STA_GOT_IP;
+
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+
+        evt->data = event_data;
+        //memcpy(evt.data, event_data, sizeof(event_data));
+
         ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
         s_retry_num = 0;
         // xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         os_printf("event_handler >> WIFI_CONNECTED_BIT \n");
-    }
+
+        os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    } */
 }
 
 
@@ -274,13 +299,13 @@ static void wifi_init(void)
         },
     };
     os_printf("______ esp_wifi_init ______%d_\n", esp_wifi_init(&cfg) );
+
+    os_printf("______ esp_event_handler_register WIFI_EVENT ______%d_\n", esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
+    os_printf("______ esp_event_handler_register IP_EVENT ______%d_\n", esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
+
     os_printf("______ esp_wifi_set_storage ______%d_\n", esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     os_printf("______ esp_wifi_set_mode ______%d_\n", esp_wifi_set_mode(WIFI_MODE_APSTA) );
     os_printf("______ esp_wifi_set_config ______%d_\n", esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-
-    os_printf("______ esp_event_handler_register WIFI_EVENT ______%d_\n", esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) )
-    os_printf("______ esp_event_handler_register IP_EVENT ______%d_\n", esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) )
-
     os_printf("______ esp_wifi_start ______%d_\n", esp_wifi_start() );
     os_printf("______ esp_wifi_set_channel ______%d_\n", esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
     os_printf("______ esp_wifi_connect ______%d_\n", esp_wifi_connect() );
@@ -1025,38 +1050,47 @@ static void echo_task()
 
 
 
-
-
-
-
 void event_loop(void *params)
 {
 
-    msx_event_t *evt = malloc( sizeof( msx_event_t ) );
-    memset( evt, 0, sizeof( msx_event_t ) );
+    msx_event_t evt; //malloc( sizeof( msx_event_t ) );
+    //memset( evt, 0, sizeof( msx_event_t ) );
+
+    vTaskDelay(5000 / portTICK_RATE_MS);
 
     while( xQueueReceive( event_loop_queue, &evt, portMAX_DELAY ) == pdTRUE )
     {
         switch( evt.id )
         {
-            case ESP_NOW_SEND_CB:
+            case MSX_ESP_NOW_SEND_CB:
             {
-                os_printf( "event_loop >> ESP_NOW_SEND_CB \n" );
+                os_printf( "event_loop >> MSX_ESP_NOW_SEND_CB \n" );
                 break;
             }
-            case ESP_NOW_RECV_CB:
+            case MSX_ESP_NOW_RECV_CB:
             {
-                os_printf( "event_loop >> ESP_NOW_RECV_CB \n" );
+                os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
                 break;
             }
-            case ESP_WIFI_UP_CB:
+            case WIFI_EVENT_STA_START:
             {
-                os_printf( "event_loop >> ESP_WIFI_UP_CB \n" );
+                os_printf( "event_loop >> MSX_WIFI_EVENT_STA_START \n" );
                 break;
             }
-            case ESP_WIFI_DOWN_CB:
+            case WIFI_EVENT_STA_DISCONNECTED:
             {
-                os_printf( "event_loop >> ESP_WIFI_DOWN_CB \n" );
+                os_printf( "event_loop >> MSX_WIFI_EVENT_STA_DISCONNECTED \n" );
+                break;
+            }
+            case IP_EVENT_STA_GOT_IP:
+            {
+                ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt.data;
+                os_printf( "event_loop >> MSX_IP_EVENT_STA_GOT_IP %s \n", ip4addr_ntoa(&event->ip_info.ip) );
+                break;
+            }
+            default:
+            {
+                os_printf( "event_loop >> UNKNOWN_EVENT %d \n", evt.id );
                 break;
             }
         }
@@ -1085,6 +1119,10 @@ void event_loop(void *params)
 
 void app_main()
 {
+
+    event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
+    xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
+
     // Initialize NVS
     ESP_ERROR_CHECK( nvs_flash_init() );
 
@@ -1098,7 +1136,6 @@ void app_main()
     server = start_webserver();
 
     //xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
-    xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
 
     os_printf("________TASK_INIT_DONE________\n");
 
