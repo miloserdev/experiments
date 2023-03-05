@@ -62,6 +62,18 @@
 //#include "lwip/tcp.h"
 #include "esp_http_server.h"
 
+
+
+
+
+
+
+
+
+
+
+
+
 httpd_handle_t server = NULL;
 
 static const char *TAG = "espnow_example";
@@ -95,6 +107,24 @@ void stop_webserver();
 
 
 
+typedef enum {
+    ESP_NOW_SEND_CB,
+    ESP_NOW_RECV_CB,
+    ESP_WIFI_UP_CB,
+    ESP_WIFI_DOWN_CB,
+} msx_event_id_t;
+
+typedef struct {
+
+} msx_event_data_t;
+
+typedef struct {
+    msx_event_id_t id;
+    msx_event_data_t data;
+    uint8_t *from;
+} msx_event_t;
+
+static xQueueHandle event_loop_queue;
 
 
 
@@ -120,27 +150,34 @@ char *parse_value(int value, bool invert)
 #define EXAMPLE_ESP_MAXIMUM_RETRY  10
 static int s_retry_num = 0;
 
-static void event_handler(void* arg, esp_event_base_t event_base,
-                                int32_t event_id, void* event_data)
+static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    {
+        (xQueueSend(example_espnow_queue, &evt, portMAX_DELAY) != pdTRUE)
         esp_wifi_connect();
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    {
+        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
+        {
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "retry to connect to the AP");
-        } else {
-            //xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+        }
+        else
+        {
+            // xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
             os_printf("event_handler >> WIFI_FAIL_BIT \n");
         }
-        ESP_LOGI(TAG,"connect to the AP fail");
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip:%s",
-                 ip4addr_ntoa(&event->ip_info.ip));
+        ESP_LOGI(TAG, "connect to the AP fail");
+    }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    {
+        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+        ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
         s_retry_num = 0;
-        //xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        // xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         os_printf("event_handler >> WIFI_CONNECTED_BIT \n");
     }
 }
@@ -148,7 +185,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 
 
 
-esp_err_t wifi_init2()
+/* esp_err_t wifi_init2()
 {
     tcpip_adapter_init();
 
@@ -216,7 +253,7 @@ esp_err_t wifi_init2()
 	
 	os_printf("wifi_init end \n");
 	return ESP_OK;
-}
+} */
 
 
 static void wifi_init(void)
@@ -240,11 +277,16 @@ static void wifi_init(void)
     os_printf("______ esp_wifi_set_storage ______%d_\n", esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     os_printf("______ esp_wifi_set_mode ______%d_\n", esp_wifi_set_mode(WIFI_MODE_APSTA) );
     os_printf("______ esp_wifi_set_config ______%d_\n", esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+
+    os_printf("______ esp_event_handler_register WIFI_EVENT ______%d_\n", esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) )
+    os_printf("______ esp_event_handler_register IP_EVENT ______%d_\n", esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) )
+
     os_printf("______ esp_wifi_start ______%d_\n", esp_wifi_start() );
     os_printf("______ esp_wifi_set_channel ______%d_\n", esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
     os_printf("______ esp_wifi_connect ______%d_\n", esp_wifi_connect() );
 
-    esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac);
+
+     os_printf("______ esp_wifi_get_mac ______%d_\n", esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
 
     os_printf("______ esp_wifi_set_ps ______%d_\n", esp_wifi_set_ps(WIFI_PS_NONE) );
 
@@ -979,21 +1021,85 @@ static void echo_task()
 
 
 
+
+
+
+
+
+
+
+
+void event_loop(void *params)
+{
+
+    msx_event_t *evt = malloc( sizeof( msx_event_t ) );
+    memset( evt, 0, sizeof( msx_event_t ) );
+
+    while( xQueueReceive( event_loop_queue, &evt, portMAX_DELAY ) == pdTRUE )
+    {
+        switch( evt.id )
+        {
+            case ESP_NOW_SEND_CB:
+            {
+                os_printf( "event_loop >> ESP_NOW_SEND_CB \n" );
+                break;
+            }
+            case ESP_NOW_RECV_CB:
+            {
+                os_printf( "event_loop >> ESP_NOW_RECV_CB \n" );
+                break;
+            }
+            case ESP_WIFI_UP_CB:
+            {
+                os_printf( "event_loop >> ESP_WIFI_UP_CB \n" );
+                break;
+            }
+            case ESP_WIFI_DOWN_CB:
+            {
+                os_printf( "event_loop >> ESP_WIFI_DOWN_CB \n" );
+                break;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void app_main()
 {
     // Initialize NVS
     ESP_ERROR_CHECK( nvs_flash_init() );
 
-    //uart_set_baudrate(0, 115200);
+    uart_set_baudrate(0, 115200);
 
-    initialize_console();
+    //initialize_console();
 
     //example_wifi_init();
     wifi_init();
     example_espnow_init();
-    start_webserver();
+    server = start_webserver();
 
-    xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
-    printf("________TASK_INIT_DONE________\n");
+    //xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
+    xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
+
+    os_printf("________TASK_INIT_DONE________\n");
 
 }
