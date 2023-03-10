@@ -10,7 +10,7 @@ uint32_t stack[STACK_SIZE] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 
 
-void stack_print()
+void stack_print ()
 {
 	for (size_t i = 0; i < STACK_SIZE; i++)
 	{
@@ -20,7 +20,7 @@ void stack_print()
 
 
 
-bool stack_push(uint32_t *dest, uint32_t *data)
+bool stack_push (uint32_t *dest, uint32_t *data)
 {
 //	printf("data is 0x%08X \n", data);
 	size_t i = STACK_SIZE;
@@ -39,7 +39,16 @@ bool stack_push(uint32_t *dest, uint32_t *data)
 	return true;
 }
 
-bool stack_exists(uint32_t *stack, uint32_t *data)
+bool stack_null (uint32_t *stack)
+{
+	//memset
+	for (size_t i = 0; i < STACK_SIZE; i++)
+	{
+		stack[i] = 0x00000000;
+	}
+}
+
+bool stack_exists (uint32_t *stack, uint32_t *data)
 {
 	for (size_t i = 0; i < STACK_SIZE; i++)
 	{
@@ -59,18 +68,24 @@ int main ()
 
 
 	for (size_t i = 0; i <= 0x00000FFF; i++)
-{
-	stack_push(stack, (uint32_t) i);
-}
+	{
+		stack_push(stack, (uint32_t) i);
+	}
+
 	printf("___ after ___ \n");
 	stack_print();
 
 
-	uint32_t data = 0xAEAAFFFF;
+	uint32_t data = 0x00000FFF;
 	bool exists = stack_exists(stack, data);
 	printf("___ is 0x%08X %s exist ___ \n", data, (exists ? "is" : "does not") );
 
 	data = 0xBBFAFF;
 	exists = stack_exists(stack, data);
 	printf("___ is 0x%08X %s exist ___ \n", data, (exists ? "is" : "does not") );
+
+	stack_null(stack);
+	printf("___ after ___ \n");
+	stack_print();
+
 }
