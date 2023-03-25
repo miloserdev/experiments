@@ -1,1 +1,2 @@
-nano main.c && gcc -lm main.c -o ./main && ./main
+#nano main.c &&
+gcc -lm main.c -o ./main && ./main

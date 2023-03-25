@@ -8,6 +8,10 @@
         "ratio": "c",
         "tuple": "c",
         "type_traits": "c",
-        "utility": "c"
+        "utility": "c",
+        "esp_wifi_types.h": "c",
+        "gpio.h": "c",
+        "random": "c",
+        "main.h": "c"
     }
 }

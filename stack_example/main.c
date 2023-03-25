@@ -6,9 +6,9 @@
 // unpopable stack
 
 #define STACK_SIZE 6
-uint32_t stack[STACK_SIZE] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint32_t stack[STACK_SIZE]; // = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-
+//asds
 
 void stack_print ()
 {
@@ -20,7 +20,7 @@ void stack_print ()
 
 
 
-bool stack_push (uint32_t *dest, uint32_t *data)
+bool stack_push (uint32_t *dest, uint32_t data)
 {
 //	printf("data is 0x%08X \n", data);
 	size_t i = STACK_SIZE;
@@ -29,13 +29,7 @@ bool stack_push (uint32_t *dest, uint32_t *data)
 		stack[i] = (i == 0) ? data : stack[i - 1];
 	} while( (i--) != 0);
 
-/*	for (size_t i = STACK_SIZE; i--; i != 0)
-	{
-		printf("checking %d \n", i);
-		stack[i] = (i == 0) ? data : stack[i - 1];
-
-	}
-*/
+/*	for (size_t i = STACK_SIZE; i--; i != 0) { stack[i] = (i == 0) ? data : stack[i - 1]; } */
 	return true;
 }
 
@@ -48,7 +42,7 @@ bool stack_null (uint32_t *stack)
 	}
 }
 
-bool stack_exists (uint32_t *stack, uint32_t *data)
+bool stack_exists (uint32_t *stack, uint32_t data)
 {
 	for (size_t i = 0; i < STACK_SIZE; i++)
 	{
@@ -67,7 +61,7 @@ int main ()
 	stack_print();
 
 
-	for (size_t i = 0; i <= 0x00000FFF; i++)
+	for (size_t i = 0; i <= 0x00000011; i++)
 	{
 		stack_push(stack, (uint32_t) i);
 	}
@@ -83,6 +77,7 @@ int main ()
 	data = 0xBBFAFF;
 	exists = stack_exists(stack, data);
 	printf("___ is 0x%08X %s exist ___ \n", data, (exists ? "is" : "does not") );
+
 
 	stack_null(stack);
 	printf("___ after ___ \n");
