@@ -1317,7 +1317,7 @@ void app_main()
     uart_set_baudrate(0, 115200);
 
 
-
+    // esp_get_free_heap_size >> 41616 <-- exec_packet
     //                           41648 <-- app_loop
     // esp_get_free_heap_size >> 41692 <-- app_loop
     // esp_get_free_heap_size >> 42088 <-- espnow_init
