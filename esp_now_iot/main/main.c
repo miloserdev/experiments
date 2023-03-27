@@ -1208,15 +1208,15 @@ esp_err_t post_handler(httpd_req_t *req)
 
 	os_printf("buffer: %.*s \n", req->content_len, content);
 
-    cJSON *parsed_buffer = cJSON_Parse((const char *) content);
+/*     cJSON *parsed_buffer = cJSON_Parse((const char *) content);
     os_printf("parsing buffer ... \n");
     size_t buf_len = cJSON_GetArraySize(parsed_buffer);
-    os_printf("parsing buffer ... len %d \n", buf_len);
+    os_printf("parsing buffer ... len %d \n", buf_len); */
     
     /////////////////////////////////////////////////////
     // NEED TO DISABLE "nano" formatting in menuconfig //
     /////////////////////////////////////////////////////
-
+/* 
     for (size_t i = 0; i < buf_len; i++)
     {
         cJSON *item = cJSON_GetArrayItem(parsed_buffer, i);
@@ -1225,40 +1225,7 @@ esp_err_t post_handler(httpd_req_t *req)
         os_printf("parsed_buffer item %d --> %s \n", i, printed);
     }
 
-    return; // !!!!!!!!!!!!!!!!!
-
-
-
-    size_t len = req->content_len;
-    uint8_t uint8_data[len];
-
-    for (size_t i = 0; i < len; i++)
-    {
-        uint8_data[i] = content[i];
-    }
-
-    size_t msx_sz = sizeof(msx_message_t);
-    msx_message_t *msg = os_malloc(msx_sz);
-    memset(msg, 0, msx_sz);
-    memcpy(msg, uint8_data, msx_sz);
-
-    msg->len = (msg->len > 200 ? 200 : msg->len);
-
-
-    os_printf("\n\n\nmsx_message_t through http >> \n");
-    os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
-    os_printf("magic -> 0x%08X \n", msg->magic);
-    os_printf("size -> %d \n", msg->len);
-    for (size_t i = 0; i < msg->len; i++)
-    {
-        os_printf("%c", msg->buffer[i]);
-    }
-    os_printf("\n\n\n");
-
-
-    return; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
+    return; // !!!!!!!!!!!!!!!!! */
 
 	buffer = cJSON_Parse((const char *) content);
 	const char *resp = (const char *) exec_packet(buffer);
