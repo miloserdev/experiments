@@ -735,18 +735,14 @@ void event_loop(void *params)
                 
                 cJSON *pack = cJSON_Parse( (char *) evt.data );
 
+                char *exec_data = exec_packet(pack);
+                os_free(exec_data);
+
                 //cJSON_free(pack);
                 cJSON_Delete(pack);
-
                 os_free(pack);
 
                 os_free(evt.data);
-
-/*                 char *exec_data = exec_packet(pack);
-                                                                            BACCCCCCKKKKK!!!
-                os_free(exec_data); */
-
-
 
                 break;
             }
