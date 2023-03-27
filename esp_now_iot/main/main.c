@@ -1,3 +1,13 @@
+/////////////////////////////////////////////////////
+/*
+    1. Print cJSON number variables causes Guru Meditation :D;
+        FIX: Need to disable "nano" formatting in menuconfig;
+        make menuconfig -> Component config -> Newlib -> "nano" formatting
+*/
+/////////////////////////////////////////////////////
+
+
+
 #include "sdkconfig.h"
 
 #include "nvs.h"
