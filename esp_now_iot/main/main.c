@@ -16,6 +16,7 @@
 
 
 
+
 #include <esp_libc.h>
 #include <esp_err.h>
 #include <tcpip_adapter.h>
@@ -296,6 +297,8 @@ bool add_peer(uint8_t *mac_addr, uint8_t *lmk, uint8_t channel, wifi_interface_t
     os_printf("______ esp_now_add_peer ______%d_\n", esp_now_add_peer(peer) );
 
     os_free(peer);
+    os_free(mac_addr);
+    os_free(lmk);
     return ESP_OK;
 }
 
@@ -643,8 +646,9 @@ char *exec_packet(cJSON *pack)
     //cJSON_Delete(&buf_val);
     //os_printf("exec_packet cJSON_Delete \n");
 
-    cJSON_free(buf_val);
-	os_printf("exec_packet cJSON_free \n");
+    //cJSON_free(buf_val);
+    cJSON_Delete(buf_val);
+	os_printf("exec_packet cJSON_Delete \n");
 
 
     os_free(buf_val);
@@ -724,59 +728,25 @@ void event_loop(void *params)
             {
                 os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
 
-                uint8_t *data = evt.data;
-                size_t dat_sz = 0;
-                char *datas = /*may cause crash*/ os_malloc(evt.len);
-                os_printf("MSX_ESP_NOW_RECV_CB >> wtf buf \n");
-                for (; dat_sz < evt.len; dat_sz++)
-                {
-                    datas[dat_sz] = data[dat_sz];
-                    os_printf("%c", data[dat_sz]);
-                }
-                os_printf("\n");
-
-
-                 cJSON *pack = cJSON_Parse(datas);
-/*                pack = cJSON_GetArrayItem(pack, 1);
-
-                os_printf("fuckin buf %s \n", datas);
-
-                if ( cJSON_GetObjectItemCaseSensitive(pack, "magic") == NULL )
-                {
-                    printf("MSX_ESP_NOW_RECV_CB >> no magic >> return \n");
-                    break;
-                }
-
-                char *char_magic = cJSON_GetObjectItem(data, "magic")->valuestring;
-                os_printf("MAGIC IS_____________ %s \n", char_magic);
+            //    char *datas = /*may cause crash*/ (char *) os_malloc(evt.len);
+            //    memcpy(datas, evt.data, evt.len);
                 
-                uint32_t _magic = atoi(char_magic);
-                os_printf("MAGIC IS_____________ 0x%08x \n", _magic);
-
-                stack_print(msg_stack);
-                if ( stack_exists(msg_stack, _magic) )
-                {
-                    os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB >> message exists in stack >> exit \n" );
-                    break;
-                }
-
-                stack_push(msg_stack, _magic);
-
+            //    os_printf("MSX_ESP_NOW_RECV_CB >> wtf buf | size %d | buf %s \n", evt.len, datas);   // fucking memory leak
                 
-                if ( cJSON_IsInvalid(pack) )
-                {
-                    os_printf("recv_cb >> json receive malfunction \n");
-                    return;
-                } */
+                cJSON *pack = cJSON_Parse( (char *) evt.data );
 
+                //cJSON_free(pack);
+                cJSON_Delete(pack);
+
+                os_free(pack);
+
+                os_free(evt.data);
 
 /*                 char *exec_data = exec_packet(pack);
                                                                             BACCCCCCKKKKK!!!
                 os_free(exec_data); */
 
-                cJSON_free(pack);
-                os_free(pack);
-                os_free(datas);
+
 
                 break;
             }
@@ -804,9 +774,9 @@ void event_loop(void *params)
             }
         }
 
-        //os_free(evt.data);
+        os_free(evt.data);
+        os_free(&evt);
     }
-    //  os_free(&evt);
 }
 
 
@@ -882,12 +852,11 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     evt->base = (base ? base : NULL);
     evt->status = (status ? status : 0);
     evt->data = (data ? data : NULL);
-    evt->len = (len ? len : 0);
+    evt->len = len;
     /* os_printf("______ event_handler ______%d_\n", (  */
     bool x = (xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE);
     /*  ) ); */
-
-    os_free(evt);
+    os_free(evt); // causes crash
     return pdTRUE;
 }
 
@@ -966,14 +935,18 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     os_printf("\n\n\n");
 
     // return; // !!!!!!!!!!!!!!!!!!!!
+    
+    uint8_t msg_buf[msg->len];
+    memcpy(msg_buf, msg->buffer, msg->len);
 
-    if ( !raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg->buffer, msg->len) )
+    if ( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) != pdTRUE )
     {
         os_printf("recv_cb >> raise_event error >> \n");
         os_free(msg->buffer);
+        os_free(msg_buf);
     }
 
-    // os_free(msg); causes ^&W%#*&$W%^&Q@$%^#
+    os_free(msg); // need to memcpy bcuz causes ^&W%#*&$W%^&Q@$%^#
     os_free(mac_addr);
     //os_free(evt);
 }
@@ -1136,9 +1109,9 @@ esp_err_t get_handler(httpd_req_t *req)
 
 	httpd_resp_send(req, string, strlen(string));
 
+    cJSON_Delete(root); // crash warning
     os_free(root);
     os_free(string);
-    //cJSON_Delete(obj);
 
 	os_printf("get_handler end \n");
 
@@ -1201,6 +1174,7 @@ esp_err_t post_handler(httpd_req_t *req)
 	os_printf("post_handler end \n");
 
     os_free(resp);
+    cJSON_Delete(buffer); // crash warning
     os_free(buffer);
     os_free(&content);
 
@@ -1324,22 +1298,16 @@ void vTaskFunction( void * pvParameters )
 {
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 10;
-    // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
     for( ;; )
     {
-        // Wait for the next cycle.
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
         app_loop();
 
         os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
-
-        // Perform action here.
     }
 }
-
-
 
 
 
@@ -1348,17 +1316,27 @@ void app_main()
     event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
     xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
 
-    // Initialize NVS
     os_printf("______ nvs_flash_init ______%d_\n", nvs_flash_init() );
 
     uart_set_baudrate(0, 115200);
 
-    //initialize_console();
 
-    //wifi_init();
+
+    //                           41648 <-- app_loop
+    // esp_get_free_heap_size >> 41692 <-- app_loop
+    // esp_get_free_heap_size >> 42088 <-- espnow_init
+    // esp_get_free_heap_size >> 42168 <-- wifi_init
+    // esp_get_free_heap_size >> 84064 <-- with event_loop
+    // esp_get_free_heap_size >> 100824 
+    //                              ^
+    //                              |
+    //                              ok
+
+
+
     wifi_init();
     espnow_init();
-    server = start_webserver();
+    // server = start_webserver();
 
     xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
 
