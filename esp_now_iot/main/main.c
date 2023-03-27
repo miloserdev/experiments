@@ -278,48 +278,6 @@ cJSON * read_pin(int pin)
 
 
 
-void send_packet_raw(const uint8_t *peer_addr, const uint8_t *data, size_t len)
-{
-    //espnow_send_param_t *msg = /*may cause crash*/ os_malloc(sizeof(espnow_send_param_t));
-    //memset(msg, 0, sizeof(espnow_send_param_t));
-
-    size_t msx_sz = sizeof(msx_message_t);
-    msx_message_t *msg = os_malloc(msx_sz);
-    memset(msg, 0, sizeof(msx_message_t));
-
-    uint32_t _magic = esp_random();
-    msg->magic = _magic;
-    msg->len = len;
-    //msg->buffer = os_malloc(CONFIG_ESPNOW_SEND_LEN);
-
-    memset(msg->buffer, 0, CONFIG_ESPNOW_SEND_LEN);
-    memcpy(msg->buffer, data, /* len */CONFIG_ESPNOW_SEND_LEN);
-    memcpy(msg->mac_addr, peer_addr, ESP_NOW_ETH_ALEN);
-
-    
-    uint8_t buffer[msx_sz];
-    memset(buffer, 0, msx_sz);
-    memcpy(buffer, msg, msx_sz);
-
-    if (esp_now_send(msg->mac_addr, buffer, msx_sz) != ESP_OK) {
-    //          if (esp_now_send(msg->mac_addr, msg->buffer, msg->len) != ESP_OK) {
-    //if (esp_now_send(broadcast_mac, data, sizeof(data)) != ESP_OK) {
-        os_printf("Send error \n");
-    }
-
-    if ( !stack_exists(msg_stack, _magic) )
-    {
-        stack_push(msg_stack, _magic);
-    } else
-    {
-        os_printf("WARNING BLYAT!!! send_packet_raw >> generates _magic number that same as previous \n");
-    }
-
-    // bugfix os_free(msg->buffer);
-    // bugfix os_free(msg->mac_addr);
-    // bugfix os_free(msg);
-}
-
 void send_packet(const uint8_t *peer_addr, const cJSON *data)
 {
     char *char_data = cJSON_Print(data);
@@ -331,16 +289,11 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
         uint8_data[i] = char_data[i];
     }
 
-    os_printf("fuckin buf %s \n", char_data);
+    os_printf("send_packet >> char data of cJSON buffer %s \n", char_data);
     
+
+    // check if _magic is exist >> ?
     cJSON *new_data = cJSON_GetArrayItem(data, 0);
-
-    if ( !cJSON_GetObjectItemCaseSensitive(new_data, "magic") )
-    {
-        printf("send_packet >> no magic >> return \n");
-        return;
-    }
-
     uint32_t _magic = cJSON_GetObjectItem(new_data, "magic");
     stack_print(msg_stack);
     if ( stack_exists(msg_stack, _magic) )
@@ -351,8 +304,9 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
         stack_push(msg_stack, _magic);
     }
 
-
-    send_packet_raw(peer_addr, uint8_data, len);
+    if (esp_now_send(peer_addr, uint8_data, len) != ESP_OK) {
+        os_printf("send_packet > send error \n");
+    }
 }
 
 
@@ -442,7 +396,7 @@ char *exec_packet(cJSON *pack)
                 size_t to_size = strlen(to_str);
                 os_printf("    get 'to' valuestring %s \n", to_str);
 
-                char *datas_raw = cJSON_Print(pack);
+                char *datas_raw = cJSON_Print(pack); // cJSON_PrintUnformatted
                 os_printf("string: %s\n", datas_raw);
 
                 int datas_size = strlen((const char *)datas_raw);
@@ -499,19 +453,6 @@ char *exec_packet(cJSON *pack)
                 {
                     to_me = false;
                     os_printf("exex_packet >> not for me... \n");
-
-                    if ( cJSON_GetObjectItemCaseSensitive(pack, "magic") == NULL )
-                    {
-                        printf("send_packet >> no magic >> added self generated \n");
-
-                        uint32_t _magic = esp_random();
-                        char *char_magic[sizeof(_magic)];
-                        sprintf(char_magic, "%08x", _magic);
-
-                        cJSON *crs = cJSON_GetArrayItem(pack, 0);
-                        cJSON_AddStringToObject(crs, "magic", char_magic);
-                        //cJSON_AddItemToArray(pack, crs);
-                    }
     
                     esp_now_del_peer(peer_addrs);
                     if (!esp_now_is_peer_exist(peer_addrs))
@@ -576,13 +517,8 @@ char *exec_packet(cJSON *pack)
                     if (cJSON_GetObjectItemCaseSensitive(digital_write_val, "pin") != NULL &&
                         cJSON_GetObjectItemCaseSensitive(digital_write_val, "value") != NULL)
                     {
-                        char *pin_ = cJSON_GetObjectItem(digital_write_val, "pin")->valuestring;
-                        int pin = 255;
-                        sscanf(pin_, "%d", &pin);
-
-                        char *val_ = cJSON_GetObjectItem(digital_write_val, "value")->valuestring;
-                        int val = 255;
-                        sscanf(val_, "%d", &val);
+                        int pin = (gpio_num_t) cJSON_GetObjectItem(digital_write_val, "pin")->valueint;
+                        int val = cJSON_GetObjectItem(digital_write_val, "value")->valueint;
 
                         os_printf("pin %d | val %d \n", pin, val);
 
@@ -600,8 +536,8 @@ char *exec_packet(cJSON *pack)
                         cJSON_Delete(tmp_val);
                         os_free(tmp_val);
 
-                        os_free(pin_);
-                        os_free(val_);
+                        os_free(pin);
+                        os_free(val);
                         continue;
                     }
                 }
@@ -720,33 +656,30 @@ void event_loop(void *params)
             {
                 os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
 
+                size_t sz = evt.len;
                 uint8_t *data = evt.data;
-                size_t dat_sz = 0;
-                char *datas = /*may cause crash*/ os_malloc(evt.len);
-                for (; dat_sz < evt.len - 1; dat_sz++)
+                char char_data[sz];
+                for (size_t i = 0; i < sz; i++) { char_data[i] = data[i]; }
+
+                os_printf("char_data raise >> %s \n", char_data);
+
+                cJSON *pack = cJSON_Parse(char_data);
+
+                cJSON *piece = cJSON_GetArrayItem(pack, 0);
+                if ( cJSON_GetObjectItemCaseSensitive(piece, "magic") == NULL )
                 {
-                    datas[dat_sz] = data[dat_sz];
-                }
-
-
-                cJSON *pack = cJSON_Parse(datas);
-                pack = cJSON_GetArrayItem(pack, 1);
-
-                os_printf("fuckin buf %s \n", datas);
-
-                if ( cJSON_GetObjectItemCaseSensitive(pack, "magic") == NULL )
-                {
-                    printf("send_packet >> no magic >> return \n");
+                    printf("MSX_ESP_NOW_RECV_CB >> no magic >> return \n");
                     break;
                 }
 
-                char *char_magic = cJSON_GetObjectItem(data, "magic")->valuestring;
+                char *char_magic = cJSON_GetObjectItem(piece, "magic")->valuestring;
                 os_printf("MAGIC IS_____________ %s \n", char_magic);
                 
-                uint32_t _magic = atoi(char_magic);
+                uint32_t _magic = 0x00000000;
+                memcpy(&_magic, char_magic, sizeof(uint32_t)); //////////////// FIX ME
                 os_printf("MAGIC IS_____________ 0x%08x \n", _magic);
 
-                stack_print(msg_stack);
+                
                 if ( stack_exists(msg_stack, _magic) )
                 {
                     os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB >> message exists in stack >> exit \n" );
@@ -755,18 +688,15 @@ void event_loop(void *params)
 
                 stack_push(msg_stack, _magic);
 
-                
-                if ( cJSON_IsInvalid(pack) )
-                {
-                    os_printf("recv_cb >> json receive malfunction \n");
-                    return;
-                }
+                stack_print(msg_stack);
+
+
                 char *exec_data = exec_packet(pack);
 
                 os_free(exec_data);
                 cJSON_free(pack);
                 os_free(pack);
-                os_free(datas);
+                //os_free(datas);
                 break;
             }
             case WIFI_EVENT_STA_START:
@@ -917,15 +847,6 @@ static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     os_printf("send_cb >> mac: "MACSTR" status: %d \n", MAC2STR(mac_addr), status);
 
-/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
-    //evt->base = event_base;
-    evt->id = MSX_ESP_NOW_SEND_CB;
-    evt->status = status;
-    evt->data = NULL;
-    evt->len = 0;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
-
-
     raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0);
 
     os_free(mac_addr);
@@ -938,41 +859,11 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
     os_printf("recv_cb >> mac: "MACSTR" size: %d \n", MAC2STR(mac_addr), len);
     
-/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
-    //evt->base = event_base;
-    evt->id = MSX_ESP_NOW_RECV_CB;
-    evt->data = data;
-    evt->len = len;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
-
-    size_t msx_sz = sizeof(msx_message_t);
-    msx_message_t *msg = os_malloc(msx_sz);
-    memset(msg, 0, msx_sz);
-    memcpy(msg, data, msx_sz);
-
-    if ( !stack_exists(msg_stack, msg->magic) )
-    {
-        stack_push(msg_stack, msg->magic);
-    } else
-    {
-        os_printf("SHITTY WARNING!!! recv_cb >> _magic is already exists in msg_stack \n");
-        return;
-    }
-
-    os_printf("\n\n\nmsx_message_t through esp_now >> \n");
-    os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
-    os_printf("magic -> 0x%08X \n", msg->magic);
-    os_printf("size -> %d \n", msg->len);
-    for (size_t i = 0; i < msg->len; i++)
-    {
-        os_printf("%c", msg->buffer[i]);
-    }
-    os_printf("\n\n\n");
-
-    return; // !!!!!!!!!!!!!!!!!!!!
+    //cJSON *recv_json = cJSON_Parse(data);
 
     raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, data, len);
 
+    //os_free(recv_json);
     os_free(mac_addr);
     //os_free(evt);
 }
@@ -1164,7 +1055,7 @@ esp_err_t get_handler(httpd_req_t *req)
     cJSON_AddItemToArray(root, read_pin(1));
     cJSON_AddItemToArray(root, read_pin(2));
 
-    char *string = cJSON_Print(root);
+    char *string = cJSON_Print(root); // cJSON_PrintUnformatted
 
     os_printf("string: %s\n", string);
 
@@ -1312,7 +1203,7 @@ static void app_loop()
 
     vTaskDelay(5000 / portTICK_RATE_MS);
 
-    char *char_data = "asdgggfd fuckyou shit";
+/*     char *char_data = "asdgggfd fuckyou shit";
     size_t len = strlen(char_data);
     uint8_t uint8_data[len];
     
@@ -1323,7 +1214,7 @@ static void app_loop()
 
     send_packet_raw(broadcast_mac, uint8_data, len);
 
-    return; // !!!!!!!!!!!!
+    return; // !!!!!!!!!!!! */
 
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
