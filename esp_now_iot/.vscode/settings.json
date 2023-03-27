@@ -12,6 +12,11 @@
         "esp_wifi_types.h": "c",
         "gpio.h": "c",
         "random": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "string": "c",
+        "vector": "c",
+        "memory": "c",
+        "string_view": "c",
+        "system_error": "c"
     }
 }

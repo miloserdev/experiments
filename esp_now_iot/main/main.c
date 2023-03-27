@@ -52,6 +52,17 @@ static xQueueHandle event_loop_queue;
 #define MIN(a, b)(((a) < (b)) ? (a) : (b))
 #define MAX(a, b)(((a) > (b)) ? (a) : (b))
 
+uint32_t get_hash(char *data, size_t sz)
+{
+    uint32_t ret = 0x00000001;
+    while (sz--)
+    {
+        ret = 31 * ret + data[sz];
+    }
+    return ret;
+}
+
+
 
 uint8_t pingmsg[128];
 uint8_t my_mac[ESP_NOW_ETH_ALEN];
@@ -60,16 +71,15 @@ static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF,
 
 
 
-
+#pragma pack(1)
 typedef struct {
     //add bool broadcast unicast;
     uint32_t magic;
-    size_t len;
-    uint8_t *buffer;
     uint8_t mac_addr[ESP_NOW_ETH_ALEN];
-    esp_now_send_status_t status;
+    uint8_t buffer[CONFIG_ESPNOW_SEND_LEN];
+    size_t len;
 } msx_message_t;
-
+#pragma pack(0)
 
 typedef enum {
     MSX_ESP_NOW_SEND_CB = 99,
@@ -125,13 +135,13 @@ void stack_print (uint32_t *stack)
 {
     for (size_t i = 0; i < MSG_STACK_SIZE; i++)
     {
-            printf("%d -> 0x%08X \n", i, stack[i]);
+        os_printf("%d -> 0x%08X \n", i, stack[i]);
     }
 }
 
 bool stack_push (uint32_t *dest, uint32_t data)
 {
-//     printf("data is 0x%08X \n", data);
+//     os_printf("data is 0x%08X \n", data);
     size_t i = MSG_STACK_SIZE;
     if (i == 0) return false;
     do {
@@ -147,7 +157,7 @@ bool stack_null (uint32_t *stack)
     //memset
     for (size_t i = 0; i < MSG_STACK_SIZE; i++)
     {
-            stack[i] = 0x00000000;
+        stack[i] = 0x00000000;
     }
     return true;
 }
@@ -156,7 +166,7 @@ bool stack_exists (uint32_t *stack, uint32_t data)
 {
     for (size_t i = 0; i < MSG_STACK_SIZE; i++)
     {
-            if (stack[i] == data) return true;
+        if (stack[i] == data) return true;
     }
     return false;
 }
@@ -258,37 +268,82 @@ cJSON * read_pin(int pin)
 
 
 
-void send_packet(const uint8_t *peer_addr, const uint8_t *strs, size_t len)
+void send_packet_raw(const uint8_t *peer_addr, const uint8_t *data, size_t len)
 {
-    //espnow_send_param_t *data = /*may cause crash*/ os_malloc(sizeof(espnow_send_param_t));
-    //memset(data, 0, sizeof(espnow_send_param_t));
+    //espnow_send_param_t *msg = /*may cause crash*/ os_malloc(sizeof(espnow_send_param_t));
+    //memset(msg, 0, sizeof(espnow_send_param_t));
 
-    msx_message_t *data = os_malloc(sizeof(msx_message_t));
-    memset(data, 0, sizeof(msx_message_t));
+    size_t msx_sz = sizeof(msx_message_t);
+    msx_message_t *msg = os_malloc(msx_sz);
+    memset(msg, 0, sizeof(msx_message_t));
 
     uint32_t _magic = esp_random();
+    msg->magic = _magic;
+    msg->len = len;
+    //msg->buffer = os_malloc(CONFIG_ESPNOW_SEND_LEN);
+
+    memset(msg->buffer, 0, CONFIG_ESPNOW_SEND_LEN);
+    memcpy(msg->buffer, data, /* len */CONFIG_ESPNOW_SEND_LEN);
+    memcpy(msg->mac_addr, peer_addr, ESP_NOW_ETH_ALEN);
+
     
-    data->magic = _magic;
-    data->len = CONFIG_ESPNOW_SEND_LEN;
-    data->buffer = os_malloc(CONFIG_ESPNOW_SEND_LEN);
+    uint8_t buffer[msx_sz];
+    memset(buffer, 0, msx_sz);
+    memcpy(buffer, msg, msx_sz);
 
-    memset(data->buffer, 0, CONFIG_ESPNOW_SEND_LEN);
-    memcpy(data->buffer, strs, len);
-    memcpy(data->mac_addr, peer_addr, ESP_NOW_ETH_ALEN);
-
-    if (esp_now_send(data->mac_addr, data->buffer, data->len) != ESP_OK) {
-    //if (esp_now_send(broadcast_mac, strs, sizeof(strs)) != ESP_OK) {
+    if (esp_now_send(msg->mac_addr, buffer, msx_sz) != ESP_OK) {
+    //          if (esp_now_send(msg->mac_addr, msg->buffer, msg->len) != ESP_OK) {
+    //if (esp_now_send(broadcast_mac, data, sizeof(data)) != ESP_OK) {
         os_printf("Send error \n");
     }
 
-    stack_push(msg_stack, _magic);
+    if ( !stack_exists(msg_stack, _magic) )
+    {
+        stack_push(msg_stack, _magic);
+    } else
+    {
+        os_printf("WARNING BLYAT!!! send_packet_raw >> generates _magic number that same as previous \n");
+    }
 
-    os_free(data->buffer);
-    os_free(data->mac_addr);
-    os_free(data);
+    // bugfix os_free(msg->buffer);
+    // bugfix os_free(msg->mac_addr);
+    // bugfix os_free(msg);
 }
 
+void send_packet(const uint8_t *peer_addr, const cJSON *data)
+{
+    char *char_data = cJSON_Print(data);
+    size_t len = strlen(char_data);
+    uint8_t uint8_data[len];
+    
+    for (size_t i = 0; i < len; i++)
+    {
+        uint8_data[i] = char_data[i];
+    }
 
+    os_printf("fuckin buf %s \n", char_data);
+    
+    cJSON *new_data = cJSON_GetArrayItem(data, 0);
+
+    if ( !cJSON_GetObjectItemCaseSensitive(new_data, "magic") )
+    {
+        printf("send_packet >> no magic >> return \n");
+        return;
+    }
+
+    uint32_t _magic = cJSON_GetObjectItem(new_data, "magic");
+    stack_print(msg_stack);
+    if ( stack_exists(msg_stack, _magic) )
+    {
+        os_printf( "send_packet >> message exists in stack \n" );
+    } else
+    {
+        stack_push(msg_stack, _magic);
+    }
+
+
+    send_packet_raw(peer_addr, uint8_data, len);
+}
 
 
 
@@ -337,9 +392,9 @@ char *exec_packet(cJSON *pack)
         // os_printf("data: %s \n", data_tmp);
         // printf("data: %s type: %s\n", data_tmp, data_type);
 
-        //    printf(data["pin"]);
-        //    printf(data.hasOwnProperty("schedule"));
-        //    printf(data.hasOwnProperty("pin"));
+        //    os_printf(data["pin"]);
+        //    os_printf(data.hasOwnProperty("schedule"));
+        //    os_printf(data.hasOwnProperty("pin"));
 
         if (cJSON_IsString(data))
         {
@@ -406,7 +461,7 @@ char *exec_packet(cJSON *pack)
                 {
                     peer_addrs[i] = (uint8_t)peer_addrs_int[i];
                 }
-                printf("parse is fuck %d \n", res);
+                os_printf("parse is fuck %d \n", res);
 
                 os_printf("    peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
                           peer_addrs[0],
@@ -433,8 +488,23 @@ char *exec_packet(cJSON *pack)
                 else
                 {
                     to_me = false;
-                    os_printf("exex_packet >> not to me... \n");
-                    if (esp_now_is_peer_exist(peer_addrs) == false)
+                    os_printf("exex_packet >> not for me... \n");
+
+                    if ( cJSON_GetObjectItemCaseSensitive(pack, "magic") == NULL )
+                    {
+                        printf("send_packet >> no magic >> added self generated \n");
+
+                        uint32_t _magic = esp_random();
+                        char *char_magic[sizeof(_magic)];
+                        sprintf(char_magic, "%08x", _magic);
+
+                        cJSON *crs = cJSON_GetArrayItem(pack, 0);
+                        cJSON_AddStringToObject(crs, "magic", char_magic);
+                        //cJSON_AddItemToArray(pack, crs);
+                    }
+    
+                    esp_now_del_peer(peer_addrs);
+                    if (!esp_now_is_peer_exist(peer_addrs))
                     {
                         os_printf("    peer not found \n");
                         esp_now_peer_info_t *peer = /*may cause crash*/ os_malloc(sizeof(esp_now_peer_info_t));
@@ -452,18 +522,18 @@ char *exec_packet(cJSON *pack)
                         if (esp_now_add_peer(peer) == 0)
                         {
                             os_printf("    add peer \n");
-                            send_packet(peer_addrs, datas_u8, datas_size);
+                            send_packet(peer_addrs, pack);
                         }
                         else
                         {
                             os_printf("    failed to add peer >> broadcast \n");
-                            send_packet(broadcast_mac, datas_u8, datas_size);
+                            send_packet(broadcast_mac, pack);
                         }
                         os_free(peer);
                     }
                     else
                     {
-                        send_packet(peer_addrs, datas_u8, datas_size);
+                        send_packet(peer_addrs, pack);
                     }
                 }
             }
@@ -638,15 +708,44 @@ void event_loop(void *params)
             }
             case MSX_ESP_NOW_RECV_CB:
             {
+                os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
+
                 uint8_t *data = evt.data;
+                size_t dat_sz = 0;
                 char *datas = /*may cause crash*/ os_malloc(evt.len);
-                for (int i = 0; i < evt.len - 1; i++)
+                for (; dat_sz < evt.len - 1; dat_sz++)
                 {
-                    datas[i] = data[i];
-                    os_printf("%c", data[i]);
+                    datas[dat_sz] = data[dat_sz];
                 }
 
+
                 cJSON *pack = cJSON_Parse(datas);
+                pack = cJSON_GetArrayItem(pack, 1);
+
+                os_printf("fuckin buf %s \n", datas);
+
+                if ( cJSON_GetObjectItemCaseSensitive(pack, "magic") == NULL )
+                {
+                    printf("send_packet >> no magic >> return \n");
+                    break;
+                }
+
+                char *char_magic = cJSON_GetObjectItem(data, "magic")->valuestring;
+                os_printf("MAGIC IS_____________ %s \n", char_magic);
+                
+                uint32_t _magic = atoi(char_magic);
+                os_printf("MAGIC IS_____________ 0x%08x \n", _magic);
+
+                stack_print(msg_stack);
+                if ( stack_exists(msg_stack, _magic) )
+                {
+                    os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB >> message exists in stack >> exit \n" );
+                    break;
+                }
+
+                stack_push(msg_stack, _magic);
+
+                
                 if ( cJSON_IsInvalid(pack) )
                 {
                     os_printf("recv_cb >> json receive malfunction \n");
@@ -654,8 +753,10 @@ void event_loop(void *params)
                 }
                 char *exec_data = exec_packet(pack);
 
-                os_printf("] \n");
-                os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
+                os_free(exec_data);
+                cJSON_free(pack);
+                os_free(pack);
+                os_free(datas);
                 break;
             }
             case WIFI_EVENT_STA_START:
@@ -672,6 +773,7 @@ void event_loop(void *params)
             {
                 ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt.data;
                 os_printf( "event_loop >> MSX_IP_EVENT_STA_GOT_IP %s \n", ip4addr_ntoa(&event->ip_info.ip) );
+                os_free(event);
                 break;
             }
             default:
@@ -681,7 +783,92 @@ void event_loop(void *params)
             }
         }
     }
+    os_free(&evt);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///memory free
+//esp01 33836
+//esp8266 34064
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, void *data, size_t len)
+{
+    if (id < 0)
+    {
+        printf("ERROR >> raise_event >> no id specified \n");
+        return pdFAIL;
+    }
+    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+    evt->id = id;
+    evt->base = (base ? base : NULL);
+    evt->status = (status ? status : 0);
+    evt->data = (data ? data : NULL);
+    evt->len = (len ? len : 0);
+    /* os_printf("______ event_handler ______%d_\n", (  */
+    bool x = (xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE);
+    /*  ) ); */
+    os_free(evt);
+    return pdTRUE;
+}
+
+
+
 
 
 
@@ -720,16 +907,19 @@ static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     os_printf("send_cb >> mac: "MACSTR" status: %d \n", MAC2STR(mac_addr), status);
 
-    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     //evt->base = event_base;
     evt->id = MSX_ESP_NOW_SEND_CB;
     evt->status = status;
     evt->data = NULL;
     evt->len = 0;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
-    os_free(&mac_addr);
-    os_free(&evt);
+
+    raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0);
+
+    os_free(mac_addr);
+    //os_free(evt);
 }
 
 
@@ -738,15 +928,43 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
     os_printf("recv_cb >> mac: "MACSTR" size: %d \n", MAC2STR(mac_addr), len);
     
-    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     //evt->base = event_base;
     evt->id = MSX_ESP_NOW_RECV_CB;
     evt->data = data;
     evt->len = len;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
-    os_free(&mac_addr);
-    os_free(&evt);
+    size_t msx_sz = sizeof(msx_message_t);
+    msx_message_t *msg = os_malloc(msx_sz);
+    memset(msg, 0, msx_sz);
+    memcpy(msg, data, msx_sz);
+
+    if ( !stack_exists(msg_stack, msg->magic) )
+    {
+        stack_push(msg_stack, msg->magic);
+    } else
+    {
+        os_printf("SHITTY WARNING!!! recv_cb >> _magic is already exists in msg_stack \n");
+        return;
+    }
+
+    os_printf("\n\n\nmsx_message_t through esp_now >> \n");
+    os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
+    os_printf("magic -> 0x%08X \n", msg->magic);
+    os_printf("size -> %d \n", msg->len);
+    for (size_t i = 0; i < msg->len; i++)
+    {
+        os_printf("%c", msg->buffer[i]);
+    }
+    os_printf("\n\n\n");
+
+    return; // !!!!!!!!!!!!!!!!!!!!
+
+    raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, data, len);
+
+    os_free(mac_addr);
+    //os_free(evt);
 }
 
 
@@ -759,17 +977,19 @@ void set_pingmsg(uint8_t *data, size_t len)
 static esp_err_t espnow_init(void)
 {
 
-    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     //evt->base = event_base;
     evt->id = MSX_ESP_NOW_INIT;
     evt->status = 0;
     evt->data = NULL;
     evt->len = 0;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
+    raise_event(MSX_ESP_NOW_INIT, NULL, 0, NULL, 0);
 
     uint8_t asd[] = "-ping-";
     set_pingmsg(asd, sizeof(asd));
+    os_free(&asd);
 
     /* Initialize ESPNOW and register sending and receiving callback function. */
     os_printf("______ esp_now_init ______%d_\n", esp_now_init() );
@@ -793,7 +1013,7 @@ static esp_err_t espnow_init(void)
     ESP_ERROR_CHECK( esp_now_add_peer(peer) );
 
     os_free(peer);
-    os_free(&evt);
+    //os_free(evt);
 
     return ESP_OK;
 }
@@ -828,14 +1048,16 @@ static esp_err_t espnow_init(void)
 
 static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     evt->base = event_base;
     evt->id = event_id;
     evt->data = event_data;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
-    os_free(&evt);
-    os_free(&event_data);
+    raise_event(event_id, event_base, 0, event_data, 0);
+
+    //os_free(evt);
+    os_free(event_data);
 }
 
 
@@ -843,9 +1065,7 @@ static void wifi_init(void)
 {
     tcpip_adapter_init();
     os_printf("______ tcpip_adapter_init ______%d_\n", 0 );
-
     os_printf("______ esp_event_loop_create_default ______%d_\n", esp_event_loop_create_default() );
-
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     //wifi_sta_config_t sta = WIFI_INIT_CONFIG_DEFAULT();
@@ -857,34 +1077,43 @@ static void wifi_init(void)
         },
     };
     os_printf("______ esp_wifi_init ______%d_\n", esp_wifi_init(&cfg) );
-
     os_printf("______ esp_event_handler_register WIFI_EVENT ______%d_\n", esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
     os_printf("______ esp_event_handler_register IP_EVENT ______%d_\n", esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
-
     os_printf("______ esp_wifi_set_storage ______%d_\n", esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     os_printf("______ esp_wifi_set_mode ______%d_\n", esp_wifi_set_mode(WIFI_MODE_APSTA) );
     os_printf("______ esp_wifi_set_config ______%d_\n", esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     os_printf("______ esp_wifi_start ______%d_\n", esp_wifi_start() );
     os_printf("______ esp_wifi_set_channel ______%d_\n", esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
     os_printf("______ esp_wifi_connect ______%d_\n", esp_wifi_connect() );
-
-
-     os_printf("______ esp_wifi_get_mac ______%d_\n", esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
-
+    os_printf("______ esp_wifi_get_mac ______%d_\n", esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
     os_printf("______ esp_wifi_set_ps ______%d_\n", esp_wifi_set_ps(WIFI_PS_NONE) );
 
-
-    msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
+    raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0);
+/*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     evt->id = MSX_WIFI_EVENT_WIFI_INIT;
     evt->base = NULL;
     evt->data = NULL;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) );
+    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
     os_free(&cfg);
     os_free(&wifi_config);
 }
 
 
+
+
+/*
+typedef struct {
+    //msx_event_id_t id;
+    //msx_event_data_t data;
+    //uint8_t *from;
+    esp_event_base_t base;
+    esp_now_send_status_t status;
+    int32_t id;
+    void *data;
+    size_t len;
+} msx_event_t;
+*/
 
 
 
@@ -968,6 +1197,59 @@ esp_err_t post_handler(httpd_req_t *req)
 	}
 
 	os_printf("buffer: %.*s \n", req->content_len, content);
+
+    cJSON *parsed_buffer = cJSON_Parse((const char *) content);
+    os_printf("parsing buffer ... \n");
+    size_t buf_len = cJSON_GetArraySize(parsed_buffer);
+    os_printf("parsing buffer ... len %d \n", buf_len);
+    
+    /////////////////////////////////////////////////////
+    // NEED TO DISABLE "nano" formatting in menuconfig //
+    /////////////////////////////////////////////////////
+
+    for (size_t i = 0; i < buf_len; i++)
+    {
+        cJSON *item = cJSON_GetArrayItem(parsed_buffer, i);
+        os_printf("getting item %d \n", i);
+        char *printed = cJSON_PrintUnformatted(item);// cJSON_Print(item);
+        os_printf("parsed_buffer item %d --> %s \n", i, printed);
+    }
+
+    return; // !!!!!!!!!!!!!!!!!
+
+
+
+    size_t len = req->content_len;
+    uint8_t uint8_data[len];
+
+    for (size_t i = 0; i < len; i++)
+    {
+        uint8_data[i] = content[i];
+    }
+
+    size_t msx_sz = sizeof(msx_message_t);
+    msx_message_t *msg = os_malloc(msx_sz);
+    memset(msg, 0, msx_sz);
+    memcpy(msg, uint8_data, msx_sz);
+
+    msg->len = (msg->len > 200 ? 200 : msg->len);
+
+
+    os_printf("\n\n\nmsx_message_t through http >> \n");
+    os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
+    os_printf("magic -> 0x%08X \n", msg->magic);
+    os_printf("size -> %d \n", msg->len);
+    for (size_t i = 0; i < msg->len; i++)
+    {
+        os_printf("%c", msg->buffer[i]);
+    }
+    os_printf("\n\n\n");
+
+
+    return; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
 	buffer = cJSON_Parse((const char *) content);
 	const char *resp = (const char *) exec_packet(buffer);
 
@@ -1053,12 +1335,41 @@ static void app_loop()
 
     vTaskDelay(5000 / portTICK_RATE_MS);
 
+    char *char_data = "asdgggfd fuckyou shit";
+    size_t len = strlen(char_data);
+    uint8_t uint8_data[len];
+    
+    for (size_t i = 0; i < len; i++)
+    {
+        uint8_data[i] = char_data[i];
+    }
+
+    send_packet_raw(broadcast_mac, uint8_data, len);
+
+    return; // !!!!!!!!!!!!
+
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
-    //cJSON *datas = cJSON_Parse(&data);
+    uint32_t _magic = esp_random();
+    char *char_magic[sizeof(_magic)];
+    sprintf(char_magic, "%08x", _magic);
 
+                                             // \"magic\": \"0\",
+                                             // char *char_data = "[{\"broadcast\":\"hello fuck\"}]";
+                                             // = cJSON_Parse(char_data);
 
-    send_packet(broadcast_mac, pingmsg, sizeof(pingmsg)); // BACK!
+    cJSON *data;
+    data = cJSON_CreateNull();
+    data = cJSON_CreateArray();
+
+    cJSON *crs = cJSON_CreateObject();
+    cJSON_AddStringToObject(crs, "magic", char_magic);
+    cJSON_AddStringToObject(crs, "broadcast", "hello fuck");
+
+    cJSON_AddItemToArray(data, crs);
+
+    send_packet(broadcast_mac, data); // BACK!
+    stack_print(msg_stack);
 }
 
 
