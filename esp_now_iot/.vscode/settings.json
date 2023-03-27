@@ -17,6 +17,8 @@
         "vector": "c",
         "memory": "c",
         "string_view": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "*.c2": "c",
+        "cstring": "c"
     }
 }
