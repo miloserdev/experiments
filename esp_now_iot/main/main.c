@@ -23,8 +23,11 @@
 #include <esp_http_server.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include "driver/uart.h"
 #include "driver/gpio.h"
+#include "driver/uart.h"
+const uart_port_t uart_port = UART_NUM_0;
+const uint32_t uart_buffer_size = (1024 * 1);
+const uint32_t uart_buffer_size_x2 = (uart_buffer_size * 2);
 
 #include "FreeRTOS.h"
 #include "freertos/FreeRTOS.h"
@@ -36,6 +39,9 @@
 #include <cJSON.h>
 
 httpd_handle_t server = NULL;
+
+//static xQueueHandle uart_queue;
+static QueueHandle_t uart_queue;
 static xQueueHandle event_loop_queue;
 
 
@@ -773,6 +779,8 @@ void event_loop(void *params)
         os_free(evt.data);
         os_free(&evt);
     }
+
+    vTaskDelete(NULL);
 }
 
 
@@ -791,7 +799,82 @@ void event_loop(void *params)
 
 
 
+static void uart_task(void *params)
+{
+    uart_event_t evt;
+    uint8_t *uart_buf = (uint8_t *) os_malloc( sizeof(uint8_t) );
+    uint8_t *cmp_buf = (uint8_t *) os_malloc( uart_buffer_size );
+    size_t cmp_ptr = 0;
 
+
+        while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY )/*  == pdTRUE */ )
+        {
+            //memset(uart_buf, 0, uart_buffer_size);
+            bzero(uart_buf, sizeof(uint8_t));
+
+            // os_printf( "uart_task >> _________%d__________ \n", evt.type);
+
+            switch(evt.type)
+            {
+                case UART_DATA:
+                {
+                    uart_read_bytes(uart_port, uart_buf, evt.size, portMAX_DELAY);
+                    //uart_write_bytes(uart_port, (const char *) uart_buf, evt.size);
+
+/*                     for (size_t i = 0; i < evt.size; i++)
+                    {
+                        cmp_buf[cmp_ptr] = uart_buf[i];
+                        cmp_ptr++;
+                    } */
+
+                    //os_printf("%s ", uart_buf);
+
+                    if (uart_buf[0] == 13)
+                    {
+                        os_printf(" >>> %s \n", cmp_buf);
+                        memset(cmp_buf, 0, uart_buffer_size);
+                        cmp_ptr = 0;
+                    }
+
+                    break;
+                }
+                case UART_BUFFER_FULL:
+                {
+                    os_printf( "uart_task >> UART_BUFFER_FULL \n");
+                    uart_flush_input(uart_port);
+                    xQueueReset(uart_queue);
+                    break;
+                }
+                case UART_FIFO_OVF:
+                {
+                    os_printf( "uart_task >> UART_FIFO_OVF \n");
+                    uart_flush_input(uart_port);
+                    xQueueReset(uart_queue);
+                    break;
+                }
+                case UART_FRAME_ERR:
+                {
+                    os_printf( "uart_task >> UART_FRAME_ERR \n");
+                    break;
+                }
+                case UART_PARITY_ERR:
+                {
+                    os_printf( "uart_task >> UART_PARITY_ERR \n");
+                    break;
+                }
+                default:
+                {
+                    os_printf( "uart_task >> UNKNOWN EVENT \n");
+                    break;
+                }
+            }
+        }
+    
+
+    os_free(uart_buf);
+    uart_buf = NULL;
+    vTaskDelete(NULL);
+}
 
 
 
@@ -1299,7 +1382,7 @@ void vTaskFunction( void * pvParameters )
     {
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
-        app_loop();
+        vTaskDelay(2000 / portTICK_RATE_MS); // app_loop();
 
         os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
     }
@@ -1307,14 +1390,46 @@ void vTaskFunction( void * pvParameters )
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void app_main()
 {
-    event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
-    xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
+    //event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
+    //xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
+                                                // ??????
+
 
     os_printf("______ nvs_flash_init ______%d_\n", nvs_flash_init() );
 
-    uart_set_baudrate(0, 115200);
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+    };
+    uart_param_config(uart_port, &uart_config);
+
+    uart_driver_install(uart_port, uart_buffer_size_x2, uart_buffer_size_x2, 10, &uart_queue, 0);
+    
+    //uart_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, uart_buffer_size );
+    //uart_set_baudrate(uart_port, 115200);
+    xTaskCreate(uart_task, "vTask_uart_task", uart_buffer_size_x2, NULL, 0, NULL);
 
 
     // esp_get_free_heap_size >> 41616 <-- exec_packet
@@ -1330,11 +1445,12 @@ void app_main()
 
 
 
-    wifi_init();
-    espnow_init();
+    // wifi_init();
+    // espnow_init();
     // server = start_webserver();
 
     xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
+
 
     os_printf("________TASK_INIT_DONE________\n");
 
