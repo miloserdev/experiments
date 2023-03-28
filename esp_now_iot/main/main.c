@@ -3,6 +3,10 @@
     1. Print cJSON number variables causes Guru Meditation :D;
         FIX: Need to disable "nano" formatting in menuconfig;
         make menuconfig -> Component config -> Newlib -> "nano" formatting
+
+    2. UART data sending only in non separated format;
+        i will make a buffer concatenator (maybe later XD);
+        echo -en '\x12\x02[{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]' > /dev/ttyUSB1
 */
 /////////////////////////////////////////////////////
 
