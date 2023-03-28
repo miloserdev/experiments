@@ -802,39 +802,56 @@ void event_loop(void *params)
 static void uart_task(void *params)
 {
     uart_event_t evt;
-    uint8_t *uart_buf = (uint8_t *) os_malloc( sizeof(uint8_t) );
-    uint8_t *cmp_buf = (uint8_t *) os_malloc( uart_buffer_size );
+
+    char *cmp_buf = (char *) os_malloc( uart_buffer_size );
     size_t cmp_ptr = 0;
 
 
-        while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY )/*  == pdTRUE */ )
+        while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY ) /*  == pdTRUE */ )
         {
-            //memset(uart_buf, 0, uart_buffer_size);
-            bzero(uart_buf, sizeof(uint8_t));
-
             // os_printf( "uart_task >> _________%d__________ \n", evt.type);
 
             switch(evt.type)
             {
                 case UART_DATA:
                 {
-                    uart_read_bytes(uart_port, uart_buf, evt.size, portMAX_DELAY);
-                    //uart_write_bytes(uart_port, (const char *) uart_buf, evt.size);
+                    size_t one_size = evt.size;
+                    uint8_t *one_buf = (uint8_t *) os_malloc(one_size);
+                    memset(one_buf, 0, one_size);
 
-/*                     for (size_t i = 0; i < evt.size; i++)
+                    uart_read_bytes(uart_port, one_buf, one_size, portMAX_DELAY);
+
+                    // uart_write_bytes(uart_port, (const char *) uart_buf, evt.size);
+
+                     for (size_t i = 0; i < one_size; i++)
                     {
-                        cmp_buf[cmp_ptr] = uart_buf[i];
+                        cmp_buf[cmp_ptr] = one_buf[i];
                         cmp_ptr++;
-                    } */
+                    }
 
                     //os_printf("%s ", uart_buf);
 
-                    if (uart_buf[0] == 13)
+                    if (one_buf[0] == 13)
                     {
-                        os_printf(" >>> %s \n", cmp_buf);
+                        os_printf("\n");
+                        //uart_write_bytes(uart_port, (const char*) uart_buf, strlen(uart_buf));
+
+                        os_printf("uart_task >> input: %s parsing ... \n", cmp_buf);
+
+                        cJSON *tmp = cJSON_Parse(cmp_buf);
+
+                        char *exec_tmp = exec_packet(tmp);
+
+                        os_free(exec_tmp);
+
+                        cJSON_Delete(tmp);
+
                         memset(cmp_buf, 0, uart_buffer_size);
+                        os_free(cmp_buf);
                         cmp_ptr = 0;
                     }
+
+                    os_free(one_buf);       ///     VERY IMPORTANT !!!
 
                     break;
                 }
@@ -871,8 +888,8 @@ static void uart_task(void *params)
         }
     
 
-    os_free(uart_buf);
-    uart_buf = NULL;
+/*     os_free(uart_buf);
+    uart_buf = NULL; */     //         memory leak;
     vTaskDelete(NULL);
 }
 
