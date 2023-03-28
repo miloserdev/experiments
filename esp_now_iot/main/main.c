@@ -804,8 +804,9 @@ static void uart_task(void *params)
 
     uint8_t *uart_buf = (uint8_t *) os_malloc( uart_buffer_size );
 
-        while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY ) /*  == pdTRUE */ )
+        while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY ) == pdTRUE )
         {
+            memset(uart_buf, 0, uart_buffer_size);
             size_t sz = evt.size;
             os_printf( "uart_task >> _________type: %d____size: %d______ \n", evt.type, sz);
 
@@ -817,12 +818,27 @@ static void uart_task(void *params)
 //          [{"to": "34:94:54:62:9f:74", "digitalWrite":{"pin": 2, "value": 0} }]
 
                     uart_read_bytes(uart_port, uart_buf, sz, portMAX_DELAY);
+                    os_printf("\n\n>>>>>>>>>>>> UART DATA RECEIVED | size %d <<<<<<<<<<<<<<<\n\n", sz);
+
+                    /* if (uart_buf[sz] == '\n')
+                    { */
+                    char exit_buf[sz];
+                    bzero(exit_buf, sz);
+                    for (size_t i = 0; i < sz; i++)
+                    {
+                        os_printf("%c", uart_buf[i]);
+                        exit_buf[i] = uart_buf[i];
+                    }
+                    
+                    os_printf("\n\n>>>>>>>>>>>> UART COMPLETE RECEIVED | data %s | size %d <<<<<<<<<<<<<<<\n\n", exit_buf, sz);
+                    os_free(&exit_buf);
+                    //}
 
 
-                    char char_buf[sz];
+/*                     char char_buf[sz];
                     for (size_t i = 0; i < sz; i++) char_buf[i] = uart_buf[i];
 
-                    os_printf("\n\n>>>>>>>>>>>>UART DATA RECEIVED | data %s | size %d <<<<<<<<<<<<<<<\n\n", char_buf, sz);
+                    
                         //uart_write_bytes(uart_port, (const char*) uart_buf, strlen(uart_buf));
 
                     cJSON *tmp = cJSON_Parse(char_buf);
@@ -833,7 +849,7 @@ static void uart_task(void *params)
                     cJSON_Delete(tmp);
 
                     memset(char_buf, 0, sz);
-                    os_free(char_buf);
+                    os_free(char_buf); */
 
                     break;
                 }
