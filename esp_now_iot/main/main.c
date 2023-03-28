@@ -374,7 +374,7 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
     os_printf("fuckin buf %s \n", char_data);
     
-    cJSON *new_data = cJSON_GetArrayItem(data, 0);
+/*     cJSON *new_data = cJSON_GetArrayItem(data, 0);
 
     if ( !cJSON_GetObjectItemCaseSensitive(new_data, "magic") )
     {
@@ -382,18 +382,16 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
         return;
     }
 
-    uint32_t _magic = cJSON_GetObjectItem(new_data, "magic");
-    stack_print(msg_stack);
-    if ( stack_exists(msg_stack, _magic) )
-    {
-        os_printf( "send_packet >> message exists in stack \n" );
-    } else
-    {
-        stack_push(msg_stack, _magic);
-    }
-
+    uint32_t _magic = cJSON_GetObjectItem(new_data, "magic"); */
 
     send_packet_raw(peer_addr, uint8_data, len);
+
+    memset(char_data, 0, len);
+    os_free(char_data);
+
+
+    memset(uint8_data, 0, len);
+    os_free(uint8_data);            //      maybe crash
 }
 
 
@@ -595,7 +593,8 @@ char *exec_packet(cJSON *pack)
                         int pin = (gpio_num_t) cJSON_GetObjectItem(digital_write_val, "pin")->valueint;
                         int val = cJSON_GetObjectItem(digital_write_val, "value")->valueint;
 
-                        val = (val > 1) ? (rand() % 2) : val;
+                        //val = (val > 1) ? (rand() % 2) : val;
+                        val = (int) ( (bool) !gpio_get_level(pin) );
 
                         os_printf("pin %d | val %d \n", pin, val);
 
@@ -803,55 +802,38 @@ static void uart_task(void *params)
 {
     uart_event_t evt;
 
-    char *cmp_buf = (char *) os_malloc( uart_buffer_size );
-    size_t cmp_ptr = 0;
-
+    uint8_t *uart_buf = (uint8_t *) os_malloc( uart_buffer_size );
 
         while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY ) /*  == pdTRUE */ )
         {
-            // os_printf( "uart_task >> _________%d__________ \n", evt.type);
+            size_t sz = evt.size;
+            os_printf( "uart_task >> _________type: %d____size: %d______ \n", evt.type, sz);
 
             switch(evt.type)
             {
                 case UART_DATA:
                 {
-                    size_t one_size = evt.size;
-                    uint8_t *one_buf = (uint8_t *) os_malloc(one_size);
-                    memset(one_buf, 0, one_size);
 
-                    uart_read_bytes(uart_port, one_buf, one_size, portMAX_DELAY);
+//          [{"to": "34:94:54:62:9f:74", "digitalWrite":{"pin": 2, "value": 0} }]
 
-                    // uart_write_bytes(uart_port, (const char *) uart_buf, evt.size);
+                    uart_read_bytes(uart_port, uart_buf, sz, portMAX_DELAY);
 
-                     for (size_t i = 0; i < one_size; i++)
-                    {
-                        cmp_buf[cmp_ptr] = one_buf[i];
-                        cmp_ptr++;
-                    }
 
-                    //os_printf("%s ", uart_buf);
+                    char char_buf[sz];
+                    for (size_t i = 0; i < sz; i++) char_buf[i] = uart_buf[i];
 
-                    if (one_buf[0] == 13)
-                    {
-                        os_printf("\n");
+                    os_printf("\n\n>>>>>>>>>>>>UART DATA RECEIVED | data %s | size %d <<<<<<<<<<<<<<<\n\n", char_buf, sz);
                         //uart_write_bytes(uart_port, (const char*) uart_buf, strlen(uart_buf));
 
-                        os_printf("uart_task >> input: %s parsing ... \n", cmp_buf);
+                    cJSON *tmp = cJSON_Parse(char_buf);
 
-                        cJSON *tmp = cJSON_Parse(cmp_buf);
+                    char *exec_tmp = exec_packet(tmp);
+                    os_free(exec_tmp);
 
-                        char *exec_tmp = exec_packet(tmp);
+                    cJSON_Delete(tmp);
 
-                        os_free(exec_tmp);
-
-                        cJSON_Delete(tmp);
-
-                        memset(cmp_buf, 0, uart_buffer_size);
-                        os_free(cmp_buf);
-                        cmp_ptr = 0;
-                    }
-
-                    os_free(one_buf);       ///     VERY IMPORTANT !!!
+                    memset(char_buf, 0, sz);
+                    os_free(char_buf);
 
                     break;
                 }
@@ -888,8 +870,8 @@ static void uart_task(void *params)
         }
     
 
-/*     os_free(uart_buf);
-    uart_buf = NULL; */     //         memory leak;
+    os_free(uart_buf);       ///     VERY IMPORTANT !!!
+    uart_buf = NULL;     //         memory leak;
     vTaskDelete(NULL);
 }
 
@@ -1426,8 +1408,8 @@ void vTaskFunction( void * pvParameters )
 
 void app_main()
 {
-    //event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
-    //xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
+    event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
+    xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
                                                 // ??????
 
 
@@ -1462,8 +1444,8 @@ void app_main()
 
 
 
-    // wifi_init();
-    // espnow_init();
+    wifi_init();
+    espnow_init();
     // server = start_webserver();
 
     xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
