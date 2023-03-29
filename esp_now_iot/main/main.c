@@ -773,14 +773,11 @@ void event_loop(void *params)
             {
                 os_printf( "event_loop >> MSX_UART_DATA \n" );
 
-                cJSON *pack = cJSON_Parse( (char *) evt.data );
 
-                char *exec_data = exec_packet_json(pack);
-                os_free(exec_data);
+                    char *asd = exec_packet(evt.data);
+                    // os_free(asd);
+                    //os_free(tmp1);
 
-                //cJSON_free(pack);
-                cJSON_Delete(pack);
-                os_free(pack);
 
                 os_free(evt.data);
 
@@ -903,11 +900,15 @@ static void uart_task(void *pvParameters)
                     char buff[event.size];
                     memset(buff, 0, event.size);
                     for (size_t i = 0; i < event.size; i++) buff[i] = dtmp[i];
+
                     os_printf("\n\n da fuck uart shit is coming %s \n\n", buff);
 
-                    char *asd = exec_packet(&buff);
-                    // os_free(asd);
-                    //os_free(tmp1);
+                    if ( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE )
+                    {
+                        os_printf("recv_cb >> raise_event error >> \n");
+                        os_free(dtmp);
+                        os_free(buff);
+                    }
 
                     uart_flush_input(EX_UART_NUM);
                     xQueueReset(uart_queue);
