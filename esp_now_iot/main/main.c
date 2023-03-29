@@ -397,7 +397,7 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
 
     memset(uint8_data, 0, len);
-    os_free(uint8_data);            //      maybe crash
+    os_free(&uint8_data);            //      maybe crash
 }
 
 
@@ -414,18 +414,16 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
 
 
-char *exec_packet_json(cJSON *pack)
+char *exec_packet(char *fuckdata)
 {
-	cJSON *buf_val = NULL;
-    char *ret_ = "ok";
-    int arr_sz = cJSON_GetArraySize(pack);
-	os_printf("exec_packet start \n");
-    os_printf("packet length %d \n", arr_sz);
 
-    bool to_me = true;
+    os_printf("exec_packet >> input data size: %d \n", strlen(fuckdata));
 
+    cJSON *pack = cJSON_Parse(fuckdata);
 
-	// USE STRCMP
+    cJSON *ret_arr = cJSON_CreateArray();
+
+    cJSON *tmp_val;
 
 	if (pack == NULL || cJSON_IsInvalid(pack))
 	{
@@ -433,12 +431,15 @@ char *exec_packet_json(cJSON *pack)
 		return "parser malfunction";
 	}
 
-	if (cJSON_GetArraySize(pack) < 0)
+    int arr_sz = cJSON_GetArraySize(pack);
+	if (arr_sz < /* <= */ 0)
 	{
 		return "data misfunction";
 	}
 
-	for (uint32_t i = 0; i < cJSON_GetArraySize(pack); i++)
+    bool to_me = true;
+
+	for (uint32_t i = 0; i < arr_sz; i++)
 	{
         os_printf("using pack %d \n", i);
         const cJSON *data = cJSON_GetArrayItem(pack, i);
@@ -463,101 +464,64 @@ char *exec_packet_json(cJSON *pack)
                 // float temp_celsius = ( temp_farenheit - 32 ) / 1.8;
                 // ^ need to include to status packet;
 
-                buf_val = cJSON_CreateNull();
-                buf_val = cJSON_CreateArray();
+                cJSON *buf_val = cJSON_CreateArray();
 
                 cJSON_AddItemToArray(buf_val, read_pin(0));
                 cJSON_AddItemToArray(buf_val, read_pin(1));
                 cJSON_AddItemToArray(buf_val, read_pin(2));
 
-                ret_ = cJSON_Print(buf_val);
+                /* ret_ = cJSON_Print(buf_val); */
                 cJSON_Delete(buf_val);
                 continue;
             }
         }
+
         else if (cJSON_IsObject(data))
         {
 
-            os_printf("    data is object \n");
+            os_printf("exec_packet >> data is object \n");
 
             if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
             {
-                os_printf("    parsing 'to' \n");
                 char *to_str = cJSON_GetObjectItem(data, "to")->valuestring;
                 size_t to_size = strlen(to_str);
-                os_printf("    get 'to' valuestring %s \n", to_str);
 
-                char *datas_raw = cJSON_Print(pack); // cJSON_PrintUnformatted
-                os_printf("string: %s\n", datas_raw);
-
+/*                 char *datas_raw = cJSON_Print(pack); // cJSON_PrintUnformatted
                 int datas_size = strlen((const char *)datas_raw);
-                os_printf("    strlen %d \n", datas_size);
                 uint8_t datas_u8[datas_size];
-                os_printf("    datas_u8 alloc >> size: %d \n", datas_size);
+                for (size_t i = 0; i < datas_size; i++) datas_u8[i] = datas_raw[i]; */
 
-                for (size_t i = 0; i < datas_size; i++)
-                {
-                    datas_u8[i] = datas_raw[i];
-                }
-
-                os_printf("    datas_u8 parsed \n");
-
-                uint8_t my_mac[ESP_NOW_ETH_ALEN];
+                uint8_t my_mac[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
                 esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac);
+                // esp_efuse_mac_get_default();
 
-                uint8_t peer_addrs[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                int peer_addrs_int[6] = {0, 0, 0, 0, 0, 0};
-                // sscanf(to_str, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx", &peer_addr[0], &peer_addr[1], &peer_addr[2], &peer_addr[3], &peer_addr[4], &peer_addr[5] );
+                uint8_t peer_addrs[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                /* int addr_int[6] = {0, 0, 0, 0, 0, 0}; */
+                int res = sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer_addrs[0], &peer_addrs[1], &peer_addrs[2], &peer_addrs[3], &peer_addrs[4], &peer_addrs[5]);
+                //for (size_t i = 0; i < 6; i++) peer_addrs[i] = (uint8_t)addr_int[i];
 
-                int res = sscanf(to_str, "%x:%x:%x:%x:%x:%x",
-                                 &peer_addrs_int[0], &peer_addrs_int[1], &peer_addrs_int[2], &peer_addrs_int[3], &peer_addrs_int[4], &peer_addrs_int[5]);
+                os_printf("exec_packet >> peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n", peer_addrs[0], peer_addrs[1], peer_addrs[2], peer_addrs[3], peer_addrs[4], peer_addrs[5]);
+                os_printf("exec_packet >> my mac is %02x:%02x:%02x:%02x:%02x:%02x\n", my_mac[0], my_mac[1], my_mac[2], my_mac[3], my_mac[4], my_mac[5]);
 
-                for (size_t i = 0; i < 6; i++)
+                to_me = ( memcmp(peer_addrs, my_mac, ESP_NOW_ETH_ALEN) == 0 );
+
+                if (!to_me)
                 {
-                    peer_addrs[i] = (uint8_t)peer_addrs_int[i];
-                }
-                os_printf("parse is fuck %d \n", res);
-
-                os_printf("    peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
-                          peer_addrs[0],
-                          peer_addrs[1],
-                          peer_addrs[2],
-                          peer_addrs[3],
-                          peer_addrs[4],
-                          peer_addrs[5]);
-
-                os_printf("    my mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
-                          my_mac[0],
-                          my_mac[1],
-                          my_mac[2],
-                          my_mac[3],
-                          my_mac[4],
-                          my_mac[5]);
-
-                int mcmp = memcmp(peer_addrs, my_mac, ESP_NOW_ETH_ALEN);
-                os_printf("MCMP >> %d \n", mcmp);
-                if (mcmp == 0)
-                {
-                    to_me = true;
-                }
-                else
-                {
-                    to_me = false;
                     os_printf("exex_packet >> not for me... \n");
                     
                     esp_now_del_peer(peer_addrs);
                     if (!esp_now_is_peer_exist(peer_addrs))
                     {
-                        os_printf("    peer not found \n");
+                        os_printf("exec_packet >> peer not found \n");
 
                         if ( add_peer(peer_addrs, /* & */(uint8_t *) CONFIG_ESPNOW_LMK, MESH_CHANNEL, ESPNOW_WIFI_IF, false) == 0)
                         {
-                            os_printf("    peer added >> sending direct message \n");
+                            os_printf("exec_packet >> peer added >> sending direct message \n");
                             send_packet(peer_addrs, pack);
                         }
                         else
                         {
-                            os_printf("    failed to add peer >> broadcast \n");
+                            os_printf("exec_packet >> failed to add peer >> broadcast \n");
                             send_packet(broadcast_mac, pack);
                         }
                     }
@@ -566,23 +530,34 @@ char *exec_packet_json(cJSON *pack)
                         send_packet(peer_addrs, pack);
                     }
                 }
+
+                /* os_free(&addr_int); */
+                /* os_free(&peer_addrs); */
+                /* os_free(&my_mac); */
+/*                 os_free(&datas_u8);
+                os_free(datas_raw); */
+                os_free(to_str);
             }
 
             // IF SENDER IS NOT EQUALS TO RECV_CB MAC >> DO NOT SEND PACKET FOR HIM
 
             if (to_me)
             {
-                os_printf("packet to me >> parsing... \n");
+                os_printf("exec_packet >> packet to me >> parsing... \n");
                 if (cJSON_GetObjectItemCaseSensitive(data, "pingmsg") != NULL)
                 {
                     // buf_val = cJSON_GetObjectItem(data, "pingmsg");
                     char *msg = cJSON_GetObjectItem(data, "pingmsg")->valuestring;
 
                     memset(pingmsg, 0, sizeof(pingmsg));
-                    uint8_t *msg8t = (uint8_t *)msg; // working convertion
-                    memcpy(pingmsg, msg8t, strlen(msg));
+                    
+                    //uint8_t *msg8t = (uint8_t *)msg; // working convertion;
+                    //memcpy(pingmsg, msg8t, strlen(msg));
 
-                    os_free(msg8t);
+                    size_t lens = strlen(msg);
+                    for (size_t i = 0; i < lens; i++) pingmsg[i] = msg[i];
+
+                    // os_free(msg8t);
                     os_free(msg);
                 }
 
@@ -602,90 +577,80 @@ char *exec_packet_json(cJSON *pack)
                         //val = (val > 1) ? (rand() % 2) : val;
                         val = (int) ( (bool) !gpio_get_level(pin) );
 
-                        os_printf("pin %d | val %d \n", pin, val);
+                        os_printf("exec_packet >> digitalWrite >> pin %d | val %d \n", pin, val);
 
                         gpio_set_direction(pin, GPIO_MODE_OUTPUT);
                         gpio_set_level(pin, val);
-                        // digitalWrite(pin, val);
-                        os_printf("digitalWrite \n");
 
-                        cJSON *tmp_val = cJSON_CreateArray();
+                        cJSON_AddItemToArray(ret_arr, read_pin(pin));
 
-                        cJSON_AddItemToArray(tmp_val, read_pin(pin));
-
-                        ret_ = cJSON_Print(tmp_val);
-
-                        cJSON_Delete(tmp_val);
-                        // os_free(tmp_val); // maybe crash cause;
-
-                        os_free(pin);
-                        os_free(val);
+                        // cJSON_Delete(tmp_val);
                         continue;
                     }
                 }
 
                 if (cJSON_GetObjectItemCaseSensitive(data, "digitalRead") != NULL)
                 {
-                    buf_val = cJSON_GetObjectItem(data, "digitalRead");
+                    cJSON *buf_val = cJSON_GetObjectItem(data, "digitalRead");
                     if (cJSON_GetObjectItemCaseSensitive(buf_val, "pin") != NULL)
                     {
                         int pin = cJSON_GetObjectItem(buf_val, "pin")->valueint;
 
-                        cJSON *tmp_val = cJSON_CreateArray();
-                        cJSON_AddItemToArray(tmp_val, read_pin(pin));
+                        // cJSON_AddItemToArray(tmp_val, read_pin(pin));
 
-                        ret_ = cJSON_Print(tmp_val);
-                        cJSON_Delete(tmp_val);
-                        // os_free(tmp_val); // maybe crash cause;
-                        os_free(pin);
+                        char pin_name[10] = "0";
+                        sprintf(pin_name, "%d", pin);
+
+                        int val = gpio_get_level(pin);
+                        char *ret_ = parse_value(val, false);
+
+                        cJSON *pin_obj = cJSON_CreateObject();
+                        cJSON_AddStringToObject(pin_obj, "pin", pin_name);
+                        cJSON_AddStringToObject(pin_obj, "value", ret_);
+
+                        cJSON_AddItemToArray(ret_arr, pin_obj);
+
+                        os_printf("exec_packet >> digitalRead >> pin %d | val %d \n", pin, val);
+
+                        // cJSON_Delete(tmp_val);
                         continue;
                     }
                 }
             }
         }
-        /*                 cJSON *datas_arr = cJSON_GetObjectItem(data, "data");
-                        os_printf("    get 'data' cJSON object \n");
-                        char *datas = cJSON_Print(datas_arr);
-                        os_printf("    get 'data' cJSON_Print \n");
-                        size_t datas_size = 100; // ESP_NOW_MAX_DATA_LEN ??? //strlen(datas);
-                        os_printf("    get 'data' strlen \n");
-        */
-       cJSON_Delete(data);
-       // os_free(data); // maybe crash cause;
+       /* cJSON_Delete(data); */
     }
 
-    //cJSON_Delete(&buf_val);
-    //os_printf("exec_packet cJSON_Delete \n");
-
-    //cJSON_free(buf_val);
-    cJSON_Delete(buf_val);
-    // os_free(buf_val); // maybe crash cause;
-	os_printf("exec_packet cJSON_Delete \n");
-
-
-    
-    os_printf("exec_packet os_free(buf_val) \n");
-    os_free(pack);
-    os_printf("exec_packet os_free(pack) \n");
+    cJSON_Delete(pack);
+    os_free(fuckdata);
 
     os_printf("exec_packet end \n");
 
-    os_printf("return is %s \n\n", ret_);
+    char *ret_ = cJSON_PrintUnformatted(ret_arr);
+
+    os_printf("exec_packet >> return is %s \n", ret_);
 
 	return ret_;
 }
 
 
-char *exec_packet(char *buff)
+/* char *exec_packet(char *buff, size_t len)
 {
-    cJSON *tmp = cJSON_Parse(buff);
-    char *ret = exec_packet_json(tmp);
+    char fuck[len];
+    memcpy(fuck, buff, len);
+
+    cJSON *tmp = cJSON_Parse(fuck);
+    char *ret = exec_packet(tmp);
+
     os_printf(">>>>>>>>>>>>>>>>>>>>>>>>>> cJSON_Delete(tmp) trying \n");
     cJSON_Delete(tmp);
+    cJSON_free(tmp);
+    os_free(ret);
+    os_free(&fuck);
     os_printf(">>>>>>>>>>>>>>>>>>>>>>>>>> cJSON_Delete(tmp) ok \n");
     return ret;
 }
-
+ */
 
 
 
@@ -755,14 +720,14 @@ void event_loop(void *params)
                 
             //    os_printf("MSX_ESP_NOW_RECV_CB >> wtf buf | size %d | buf %s \n", evt.len, datas);   // fucking memory leak
                 
-                cJSON *pack = cJSON_Parse( (char *) evt.data );
+                //cJSON *pack = cJSON_Parse( (char *) evt.data );
 
-                char *exec_data = exec_packet_json(pack);
+                char *exec_data = exec_packet((char *) evt.data);
                 os_free(exec_data);
 
                 //cJSON_free(pack);
-                cJSON_Delete(pack);
-                os_free(pack);
+                //cJSON_Delete(pack);
+                //os_free(pack);
 
                 os_free(evt.data);
 
@@ -1157,8 +1122,10 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         os_free(msg_buf); */
     }
 
-    os_free(msg->buffer);
-    os_free(msg_buf);
+
+    os_printf("recv_cb >> free memory section \n");
+    // os_free(msg->buffer);
+    // os_free(msg_buf);
 
     os_free(msg); // need to memcpy bcuz causes ^&W%#*&$W%^&Q@$%^#
     os_free(mac_addr);
@@ -1380,8 +1347,8 @@ esp_err_t post_handler(httpd_req_t *req)
 
     return; // !!!!!!!!!!!!!!!!! */
 
-	buffer = cJSON_Parse((const char *) content);
-	const char *resp = (const char *) exec_packet_json(buffer);
+	//buffer = cJSON_Parse((const char *) content);
+	const char *resp = (const char *) exec_packet((const char *) content);
 
 	httpd_resp_send(req, resp, sizeof(resp));
 
@@ -1464,7 +1431,7 @@ void stop_webserver(httpd_handle_t server)
 static void app_loop()
 {
 
-    vTaskDelay(1000 / portTICK_RATE_MS);
+    vTaskDelay(2000 / portTICK_RATE_MS);
 
     char *char_data = "[{\"digitalWrite\":{\"pin\":2,\"value\":2}}]";
     size_t len = strlen(char_data);
@@ -1492,9 +1459,7 @@ static void app_loop()
                                              // char *char_data = "[{\"broadcast\":\"hello fuck\"}]";
                                              // = cJSON_Parse(char_data);
 
-    cJSON *data;
-    data = cJSON_CreateNull();
-    data = cJSON_CreateArray();
+    cJSON *data = cJSON_CreateArray();
 
     cJSON *crs = cJSON_CreateObject();
     cJSON_AddStringToObject(crs, "magic", char_magic);
@@ -1517,7 +1482,7 @@ void vTaskFunction( void * pvParameters )
     {
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
-        vTaskDelay(2000 / portTICK_RATE_MS); // app_loop();
+        app_loop();
 
         os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
     }
