@@ -107,6 +107,8 @@ typedef enum {
     MSX_ESP_NOW_RECV_CB,
     MSX_ESP_NOW_INIT,
 
+    MSX_UART_DATA,
+
     MSX_WIFI_EVENT_STA_START,
     MSX_WIFI_EVENT_STA_DISCONNECTED,
     MSX_WIFI_EVENT_WIFI_INIT,
@@ -412,10 +414,10 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
 
 
-char *exec_packet(cJSON *pack)
+char *exec_packet_json(cJSON *pack)
 {
 	cJSON *buf_val = NULL;
-    char *ret_ = "";
+    char *ret_ = "ok";
     int arr_sz = cJSON_GetArraySize(pack);
 	os_printf("exec_packet start \n");
     os_printf("packet length %d \n", arr_sz);
@@ -614,7 +616,7 @@ char *exec_packet(cJSON *pack)
                         ret_ = cJSON_Print(tmp_val);
 
                         cJSON_Delete(tmp_val);
-                        os_free(tmp_val);
+                        // os_free(tmp_val); // maybe crash cause;
 
                         os_free(pin);
                         os_free(val);
@@ -634,7 +636,7 @@ char *exec_packet(cJSON *pack)
 
                         ret_ = cJSON_Print(tmp_val);
                         cJSON_Delete(tmp_val);
-                        os_free(tmp_val);
+                        // os_free(tmp_val); // maybe crash cause;
                         os_free(pin);
                         continue;
                     }
@@ -649,7 +651,7 @@ char *exec_packet(cJSON *pack)
                         os_printf("    get 'data' strlen \n");
         */
        cJSON_Delete(data);
-       os_free(data);
+       // os_free(data); // maybe crash cause;
     }
 
     //cJSON_Delete(&buf_val);
@@ -657,21 +659,32 @@ char *exec_packet(cJSON *pack)
 
     //cJSON_free(buf_val);
     cJSON_Delete(buf_val);
+    // os_free(buf_val); // maybe crash cause;
 	os_printf("exec_packet cJSON_Delete \n");
 
 
-    os_free(buf_val);
+    
     os_printf("exec_packet os_free(buf_val) \n");
     os_free(pack);
     os_printf("exec_packet os_free(pack) \n");
 
     os_printf("exec_packet end \n");
 
+    os_printf("return is %s \n\n", ret_);
+
 	return ret_;
 }
 
 
-
+char *exec_packet(char *buff)
+{
+    cJSON *tmp = cJSON_Parse(buff);
+    char *ret = exec_packet_json(tmp);
+    os_printf(">>>>>>>>>>>>>>>>>>>>>>>>>> cJSON_Delete(tmp) trying \n");
+    cJSON_Delete(tmp);
+    os_printf(">>>>>>>>>>>>>>>>>>>>>>>>>> cJSON_Delete(tmp) ok \n");
+    return ret;
+}
 
 
 
@@ -744,7 +757,7 @@ void event_loop(void *params)
                 
                 cJSON *pack = cJSON_Parse( (char *) evt.data );
 
-                char *exec_data = exec_packet(pack);
+                char *exec_data = exec_packet_json(pack);
                 os_free(exec_data);
 
                 //cJSON_free(pack);
@@ -755,6 +768,25 @@ void event_loop(void *params)
 
                 break;
             }
+
+            case MSX_UART_DATA:
+            {
+                os_printf( "event_loop >> MSX_UART_DATA \n" );
+
+                cJSON *pack = cJSON_Parse( (char *) evt.data );
+
+                char *exec_data = exec_packet_json(pack);
+                os_free(exec_data);
+
+                //cJSON_free(pack);
+                cJSON_Delete(pack);
+                os_free(pack);
+
+                os_free(evt.data);
+
+                break;
+            }
+
             case WIFI_EVENT_STA_START:
             {
                 os_printf( "event_loop >> MSX_WIFI_EVENT_STA_START \n" );
@@ -785,128 +817,6 @@ void event_loop(void *params)
 
     vTaskDelete(NULL);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static void uart_task(void *params)
-{
-    uart_event_t evt;
-
-    uint8_t *uart_buf = (uint8_t *) os_malloc( uart_buffer_size );
-
-        while ( xQueueReceive( uart_queue, (void *const) &evt, (TickType_t) portMAX_DELAY ) == pdTRUE )
-        {
-            memset(uart_buf, 0, uart_buffer_size);
-            size_t sz = evt.size;
-            os_printf( "uart_task >> _________type: %d____size: %d______ \n", evt.type, sz);
-
-            switch(evt.type)
-            {
-                case UART_DATA:
-                {
-
-//          [{"to": "34:94:54:62:9f:74", "digitalWrite":{"pin": 2, "value": 0} }]
-
-                    uart_read_bytes(uart_port, uart_buf, sz, portMAX_DELAY);
-                    os_printf("\n\n>>>>>>>>>>>> UART DATA RECEIVED | size %d <<<<<<<<<<<<<<<\n\n", sz);
-
-                    /* if (uart_buf[sz] == '\n')
-                    { */
-                    char exit_buf[sz];
-                    bzero(exit_buf, sz);
-                    for (size_t i = 0; i < sz; i++)
-                    {
-                        os_printf("%c", uart_buf[i]);
-                        exit_buf[i] = uart_buf[i];
-                    }
-                    
-                    os_printf("\n\n>>>>>>>>>>>> UART COMPLETE RECEIVED | data %s | size %d <<<<<<<<<<<<<<<\n\n", exit_buf, sz);
-                    os_free(&exit_buf);
-                    //}
-
-
-/*                     char char_buf[sz];
-                    for (size_t i = 0; i < sz; i++) char_buf[i] = uart_buf[i];
-
-                    
-                        //uart_write_bytes(uart_port, (const char*) uart_buf, strlen(uart_buf));
-
-                    cJSON *tmp = cJSON_Parse(char_buf);
-
-                    char *exec_tmp = exec_packet(tmp);
-                    os_free(exec_tmp);
-
-                    cJSON_Delete(tmp);
-
-                    memset(char_buf, 0, sz);
-                    os_free(char_buf); */
-
-                    break;
-                }
-                case UART_BUFFER_FULL:
-                {
-                    os_printf( "uart_task >> UART_BUFFER_FULL \n");
-                    uart_flush_input(uart_port);
-                    xQueueReset(uart_queue);
-                    break;
-                }
-                case UART_FIFO_OVF:
-                {
-                    os_printf( "uart_task >> UART_FIFO_OVF \n");
-                    uart_flush_input(uart_port);
-                    xQueueReset(uart_queue);
-                    break;
-                }
-                case UART_FRAME_ERR:
-                {
-                    os_printf( "uart_task >> UART_FRAME_ERR \n");
-                    break;
-                }
-                case UART_PARITY_ERR:
-                {
-                    os_printf( "uart_task >> UART_PARITY_ERR \n");
-                    break;
-                }
-                default:
-                {
-                    os_printf( "uart_task >> UNKNOWN EVENT \n");
-                    break;
-                }
-            }
-        }
-    
-
-    os_free(uart_buf);       ///     VERY IMPORTANT !!!
-    uart_buf = NULL;     //         memory leak;
-    vTaskDelete(NULL);
-}
-
-
-
-
-
-
-
-
-
-
-///memory free
-//esp01 33836
-//esp8266 34064
 
 
 
@@ -957,6 +867,203 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     os_free(evt); // causes crash
     return pdTRUE;
 }
+
+
+
+
+
+// [{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]
+
+
+
+#define RD_BUF_SIZE uart_buffer_size
+#define EX_UART_NUM uart_port
+
+
+static void uart_task(void *pvParameters)
+{
+    uart_event_t event;
+    uint8_t *dtmp = (uint8_t *) malloc(RD_BUF_SIZE);
+
+    for (;;) {
+        // Waiting for UART event.
+        if (xQueueReceive(uart_queue, (void *)&event, (portTickType)portMAX_DELAY)) {
+            bzero(dtmp, RD_BUF_SIZE);
+            os_printf("uart[%d] event: \n", EX_UART_NUM);
+
+            switch (event.type) {
+                // Event of UART receving data
+                // We'd better handler data event fast, there would be much more data events than
+                // other types of events. If we take too much time on data event, the queue might be full.
+                case UART_DATA:
+                {
+                    os_printf("[UART DATA]: %d \n", event.size);
+                    uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
+                    
+                    char buff[event.size];
+                    memset(buff, 0, event.size);
+                    for (size_t i = 0; i < event.size; i++) buff[i] = dtmp[i];
+                    os_printf("\n\n da fuck uart shit is coming %s \n\n", buff);
+
+                    char *asd = exec_packet(&buff);
+                    // os_free(asd);
+                    //os_free(tmp1);
+
+                    uart_flush_input(EX_UART_NUM);
+                    xQueueReset(uart_queue);
+
+                    break;
+                }
+
+                // Event of HW FIFO overflow detected
+                case UART_FIFO_OVF:
+                    os_printf("hw fifo overflow \n");
+                    // If fifo overflow happened, you should consider adding flow control for your application.
+                    // The ISR has already reset the rx FIFO,
+                    // As an example, we directly flush the rx buffer here in order to read more data.
+                    uart_flush_input(EX_UART_NUM);
+                    xQueueReset(uart_queue);
+                    break;
+
+                // Event of UART ring buffer full
+                case UART_BUFFER_FULL:
+                    os_printf("ring buffer full \n");
+                    // If buffer full happened, you should consider encreasing your buffer size
+                    // As an example, we directly flush the rx buffer here in order to read more data.
+                    uart_flush_input(EX_UART_NUM);
+                    xQueueReset(uart_queue);
+                    break;
+
+                case UART_PARITY_ERR:
+                    os_printf("uart parity error \n");
+                    break;
+
+                // Event of UART frame error
+                case UART_FRAME_ERR:
+                    os_printf("uart frame error \n");
+                    break;
+
+                // Others
+                default:
+                    os_printf("uart event type: %d \n", event.type);
+                    break;
+            }
+        }
+    }
+
+    free(dtmp);
+    dtmp = NULL;
+    vTaskDelete(NULL);
+}
+
+
+
+
+
+
+
+static void uart_task2(void *params)
+{
+    uart_event_t evt;
+
+    uint8_t *uart_buf = (uint8_t *) os_malloc( uart_buffer_size );
+    os_printf("uart_task >> os_malloc %d \n", uart_buffer_size);
+
+    for (;;)
+    {
+        if ( xQueueReceive( uart_queue, (void */* const */) &evt, (/* TickType_t */portTickType) portMAX_DELAY ) /* == pdTRUE  */)
+        {
+            //memset(uart_buf, 0, uart_buffer_size);
+            bzero(uart_buf, uart_buffer_size);
+            os_printf("uart_task >> bzero %d \n", uart_buffer_size);
+
+            size_t sz = evt.size;
+            os_printf( "uart_task >> _________type: %d____size: %d______ \n", evt.type, sz);
+
+            switch(evt.type)
+            {
+                case UART_DATA:
+                {
+
+        //          [{"to": "34:94:54:62:9f:74", "digitalWrite":{"pin": 2, "value": 0} }]
+
+
+        // [{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]
+
+                    uart_read_bytes(uart_port, uart_buf, sz, portMAX_DELAY);
+
+                    char exit_buf[sz];
+                    for (size_t i = 0; i < sz; i++) exit_buf[i] = uart_buf[i];
+                    
+                    os_printf("\n\n>>>>>>>>>>>> UART COMPLETE RECEIVED | data %s | size %d <<<<<<<<<<<<<<<\n\n", exit_buf, sz);
+
+                    if ( raise_event(MSX_UART_DATA, NULL, 0, exit_buf, sz) != pdTRUE )
+                    {
+                        os_printf("recv_cb >> raise_event error >> \n");
+                        os_free(uart_buf);
+                        os_free(exit_buf);
+                    }
+
+                    bzero(uart_buf, uart_buffer_size);
+
+
+                    bzero(exit_buf, sz);
+                    os_free(&exit_buf);
+
+                    break;
+                }
+                case UART_BUFFER_FULL:
+                {
+                    os_printf( "uart_task >> UART_BUFFER_FULL \n");
+                    uart_flush_input(uart_port);
+                    xQueueReset(uart_queue);
+                    break;
+                }
+                case UART_FIFO_OVF:
+                {
+                    os_printf( "uart_task >> UART_FIFO_OVF \n");
+                    uart_flush_input(uart_port);
+                    xQueueReset(uart_queue);
+                    break;
+                }
+                case UART_FRAME_ERR:
+                {
+                    os_printf( "uart_task >> UART_FRAME_ERR \n");
+                    break;
+                }
+                case UART_PARITY_ERR:
+                {
+                    os_printf( "uart_task >> UART_PARITY_ERR \n");
+                    break;
+                }
+                default:
+                {
+                    os_printf( "uart_task >> UNKNOWN EVENT \n");
+                    break;
+                }
+            }
+        }
+    }
+    
+
+    os_free(uart_buf);       ///     VERY IMPORTANT !!!
+    uart_buf = NULL;     //         memory leak;
+    vTaskDelete(NULL);
+}
+
+
+
+
+
+
+
+
+
+
+///memory free
+//esp01 33836
+//esp8266 34064
+
 
 
 
@@ -1265,7 +1372,7 @@ esp_err_t post_handler(httpd_req_t *req)
     return; // !!!!!!!!!!!!!!!!! */
 
 	buffer = cJSON_Parse((const char *) content);
-	const char *resp = (const char *) exec_packet(buffer);
+	const char *resp = (const char *) exec_packet_json(buffer);
 
 	httpd_resp_send(req, resp, sizeof(resp));
 
