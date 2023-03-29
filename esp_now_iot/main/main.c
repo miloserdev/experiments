@@ -417,17 +417,17 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 char *exec_packet(char *fuckdata)
 {
 
-    os_printf("exec_packet >> input data size: %d \n", strlen(fuckdata));
+    os_printf("%s >> input data size: %d \n", __FUNCTION__, strlen(fuckdata));
 
     cJSON *pack = cJSON_Parse(fuckdata);
 
     cJSON *ret_arr = cJSON_CreateArray();
 
-    cJSON *tmp_val;
+    /* cJSON *tmp_val; */
 
 	if (pack == NULL || cJSON_IsInvalid(pack))
 	{
-		os_printf("parser malfunction \n");
+		os_printf("%s >> parser malfunction \n", __FUNCTION__);
 		return "parser malfunction";
 	}
 
@@ -441,7 +441,7 @@ char *exec_packet(char *fuckdata)
 
 	for (uint32_t i = 0; i < arr_sz; i++)
 	{
-        os_printf("using pack %d \n", i);
+        os_printf("%s >> using pack %d \n", __FUNCTION__, i);
         const cJSON *data = cJSON_GetArrayItem(pack, i);
         // char *data_type = json_type( (cJSON *) data);
         // char *data_tmp = cJSON_Print(data);
@@ -455,11 +455,11 @@ char *exec_packet(char *fuckdata)
         if (cJSON_IsString(data))
         {
 
-            os_printf("    data is string \n");
+            os_printf("%s >> data is string \n", __FUNCTION__);
 
             if (strcmp("status", data->valuestring) == 0)
             {
-                os_printf("    data is status \n");
+                os_printf("%s >> data is status \n", __FUNCTION__);
                 // uint8_t temp_farenheit = temprature_sens_read();
                 // float temp_celsius = ( temp_farenheit - 32 ) / 1.8;
                 // ^ need to include to status packet;
@@ -479,7 +479,7 @@ char *exec_packet(char *fuckdata)
         else if (cJSON_IsObject(data))
         {
 
-            os_printf("exec_packet >> data is object \n");
+            os_printf("%s >> data is object \n", __FUNCTION__);
 
             if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
             {
@@ -500,28 +500,28 @@ char *exec_packet(char *fuckdata)
                 int res = sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer_addrs[0], &peer_addrs[1], &peer_addrs[2], &peer_addrs[3], &peer_addrs[4], &peer_addrs[5]);
                 //for (size_t i = 0; i < 6; i++) peer_addrs[i] = (uint8_t)addr_int[i];
 
-                os_printf("exec_packet >> peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n", peer_addrs[0], peer_addrs[1], peer_addrs[2], peer_addrs[3], peer_addrs[4], peer_addrs[5]);
-                os_printf("exec_packet >> my mac is %02x:%02x:%02x:%02x:%02x:%02x\n", my_mac[0], my_mac[1], my_mac[2], my_mac[3], my_mac[4], my_mac[5]);
+                os_printf("%s >> peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, peer_addrs[0], peer_addrs[1], peer_addrs[2], peer_addrs[3], peer_addrs[4], peer_addrs[5]);
+                os_printf("%s >> my mac is %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, my_mac[0], my_mac[1], my_mac[2], my_mac[3], my_mac[4], my_mac[5]);
 
                 to_me = ( memcmp(peer_addrs, my_mac, ESP_NOW_ETH_ALEN) == 0 );
 
                 if (!to_me)
                 {
-                    os_printf("exex_packet >> not for me... \n");
+                    os_printf("%s >> not for me... \n", __FUNCTION__);
                     
                     esp_now_del_peer(peer_addrs);
                     if (!esp_now_is_peer_exist(peer_addrs))
                     {
-                        os_printf("exec_packet >> peer not found \n");
+                        os_printf("%s >> peer not found \n", __FUNCTION__);
 
                         if ( add_peer(peer_addrs, /* & */(uint8_t *) CONFIG_ESPNOW_LMK, MESH_CHANNEL, ESPNOW_WIFI_IF, false) == 0)
                         {
-                            os_printf("exec_packet >> peer added >> sending direct message \n");
+                            os_printf("%s >> peer added >> sending direct message \n", __FUNCTION__);
                             send_packet(peer_addrs, pack);
                         }
                         else
                         {
-                            os_printf("exec_packet >> failed to add peer >> broadcast \n");
+                            os_printf("%s >> failed to add peer >> broadcast \n", __FUNCTION__);
                             send_packet(broadcast_mac, pack);
                         }
                     }
@@ -543,7 +543,7 @@ char *exec_packet(char *fuckdata)
 
             if (to_me)
             {
-                os_printf("exec_packet >> packet to me >> parsing... \n");
+                os_printf("%s >> packet to me >> parsing... \n", __FUNCTION__);
                 if (cJSON_GetObjectItemCaseSensitive(data, "pingmsg") != NULL)
                 {
                     // buf_val = cJSON_GetObjectItem(data, "pingmsg");
@@ -577,7 +577,7 @@ char *exec_packet(char *fuckdata)
                         //val = (val > 1) ? (rand() % 2) : val;
                         val = (int) ( (bool) !gpio_get_level(pin) );
 
-                        os_printf("exec_packet >> digitalWrite >> pin %d | val %d \n", pin, val);
+                        os_printf("%s >> digitalWrite >> pin %d | val %d \n", __FUNCTION__, pin, val);
 
                         gpio_set_direction(pin, GPIO_MODE_OUTPUT);
                         gpio_set_level(pin, val);
@@ -610,7 +610,7 @@ char *exec_packet(char *fuckdata)
 
                         cJSON_AddItemToArray(ret_arr, pin_obj);
 
-                        os_printf("exec_packet >> digitalRead >> pin %d | val %d \n", pin, val);
+                        os_printf("%s >> digitalRead >> pin %d | val %d \n", __FUNCTION__, pin, val);
 
                         // cJSON_Delete(tmp_val);
                         continue;
@@ -622,13 +622,15 @@ char *exec_packet(char *fuckdata)
     }
 
     cJSON_Delete(pack);
-    os_free(fuckdata);
 
     os_printf("exec_packet end \n");
 
     char *ret_ = cJSON_PrintUnformatted(ret_arr);
 
-    os_printf("exec_packet >> return is %s \n", ret_);
+    cJSON_Delete(ret_arr);
+    os_free(fuckdata);
+
+    os_printf("%s >> return is %s \n", __FUNCTION__, ret_);
 
 	return ret_;
 }
@@ -703,17 +705,17 @@ void event_loop(void *params)
         {
             case MSX_ESP_NOW_INIT:
             {
-                os_printf( "event_loop >> MSX_ESP_NOW_INIT \n" );
+                os_printf( "%s >> MSX_ESP_NOW_INIT \n", __FUNCTION__);
                 break;
             }
             case MSX_ESP_NOW_SEND_CB:
             {
-                os_printf( "event_loop >> MSX_ESP_NOW_SEND_CB \n" );
+                os_printf( "%s >> MSX_ESP_NOW_SEND_CB \n", __FUNCTION__);
                 break;
             }
             case MSX_ESP_NOW_RECV_CB:
             {
-                os_printf( "event_loop >> MSX_ESP_NOW_RECV_CB \n" );
+                os_printf( "%s >> MSX_ESP_NOW_RECV_CB \n", __FUNCTION__);
 
             //    char *datas = /*may cause crash*/ (char *) os_malloc(evt.len);
             //    memcpy(datas, evt.data, evt.len);
@@ -736,7 +738,7 @@ void event_loop(void *params)
 
             case MSX_UART_DATA:
             {
-                os_printf( "event_loop >> MSX_UART_DATA \n" );
+                os_printf( "%s >> MSX_UART_DATA \n", __FUNCTION__);
 
                     os_printf("\n\n da fuck uart shit is coming %.*s \n", evt.len, (char *) evt.data);      //  printf with size;
 
@@ -752,24 +754,24 @@ void event_loop(void *params)
 
             case WIFI_EVENT_STA_START:
             {
-                os_printf( "event_loop >> MSX_WIFI_EVENT_STA_START \n" );
+                os_printf( "%s >> MSX_WIFI_EVENT_STA_START \n", __FUNCTION__);
                 break;
             }
             case WIFI_EVENT_STA_DISCONNECTED:
             {
-                os_printf( "event_loop >> MSX_WIFI_EVENT_STA_DISCONNECTED \n" );
+                os_printf( "%s >> MSX_WIFI_EVENT_STA_DISCONNECTED \n", __FUNCTION__);
                 break;
             }
             case IP_EVENT_STA_GOT_IP:
             {
                 ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt.data;
-                os_printf( "event_loop >> MSX_IP_EVENT_STA_GOT_IP %s \n", ip4addr_ntoa(&event->ip_info.ip) );
+                os_printf( "%s >> MSX_IP_EVENT_STA_GOT_IP %s \n", __FUNCTION__, ip4addr_ntoa(&event->ip_info.ip) );
                 os_free(event);
                 break;
             }
             default:
             {
-                os_printf( "event_loop >> UNKNOWN_EVENT %d \n", evt.id );
+                os_printf( "%s >> UNKNOWN_EVENT %d \n", __FUNCTION__, evt.id);
                 break;
             }
         }
@@ -815,7 +817,7 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
 {
     if (id < 0)
     {
-        printf("ERROR >> raise_event >> no id specified \n");
+        printf("%s >> no id specified \n", __FUNCTION__);
         return pdFAIL;
     }
     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
@@ -879,7 +881,7 @@ static void uart_task(void *pvParameters)
 
                     if ( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE )
                     {
-                        os_printf("recv_cb >> raise_event error >> \n");
+                        os_printf("%s >> raise_event error >> \n", __FUNCTION__);
                     }
 
                     //os_free(&buff);
@@ -1074,7 +1076,7 @@ static void uart_task2(void *params)
 
 static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
-    os_printf("send_cb >> mac: "MACSTR" status: %d \n", MAC2STR(mac_addr), status);
+    os_printf("%s >> mac: "MACSTR" status: %d \n", __FUNCTION__, MAC2STR(mac_addr), status);
     raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0);
     os_free(mac_addr);
     //os_free(evt);
@@ -1084,7 +1086,7 @@ static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
-    os_printf("recv_cb >> mac: "MACSTR" size: %d \n", MAC2STR(mac_addr), len);
+    os_printf("%s >> mac: "MACSTR" size: %d \n", __FUNCTION__, MAC2STR(mac_addr), len);
 
     size_t msx_sz = sizeof(msx_message_t);
     msx_message_t *msg = os_malloc(msx_sz);
@@ -1096,7 +1098,7 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         stack_push(msg_stack, msg->magic);
     } else
     {
-        os_printf("SHITTY WARNING!!! recv_cb >> _magic is already exists in msg_stack \n");
+        os_printf("SHITTY WARNING!!! %s >> _magic is already exists in msg_stack \n", __FUNCTION__);
         return;
     }
 
@@ -1117,13 +1119,13 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 
     if ( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) != pdTRUE )
     {
-        os_printf("recv_cb >> raise_event error >> \n");
+        os_printf("%s >> raise_event error >> \n", __FUNCTION__);
 /*         os_free(msg->buffer);
         os_free(msg_buf); */
     }
 
 
-    os_printf("recv_cb >> free memory section \n");
+    os_printf("%s >> free memory section \n", __FUNCTION__);
     // os_free(msg->buffer);
     // os_free(msg_buf);
 
@@ -1311,7 +1313,7 @@ httpd_uri_t uri_get = { .uri = "/status",
 esp_err_t post_handler(httpd_req_t *req)
 {
     cJSON *buffer = NULL;
-	os_printf("post_handler start \n");
+	os_printf("%s >> start \n", __FUNCTION__);
 	char content[512];
 	size_t recv_size = MIN(req->content_len, sizeof(content));
 
@@ -1326,7 +1328,7 @@ esp_err_t post_handler(httpd_req_t *req)
 		return ESP_FAIL;
 	}
 
-	os_printf("buffer: %.*s \n", req->content_len, content);
+	os_printf("%s >>buffer: %.*s \n", __FUNCTION__, req->content_len, content);
 
 /*     cJSON *parsed_buffer = cJSON_Parse((const char *) content);
     os_printf("parsing buffer ... \n");
@@ -1352,12 +1354,12 @@ esp_err_t post_handler(httpd_req_t *req)
 
 	httpd_resp_send(req, resp, sizeof(resp));
 
-	os_printf("post_handler end \n");
+	os_printf("%s >> end \n", __FUNCTION__);
 
     os_free(resp);
     cJSON_Delete(buffer); // crash warning
     os_free(buffer);
-    os_free(&content);
+    os_free(&content);  // ??? crash
 
     os_free(&req);
 
@@ -1547,11 +1549,11 @@ void app_main()
 
     wifi_init();
     espnow_init();
-    // server = start_webserver();
+    server = start_webserver();
 
     xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
 
 
-    os_printf("________TASK_INIT_DONE________\n");
+    os_printf("%s >> init done \n", __FUNCTION__);
 
 }
