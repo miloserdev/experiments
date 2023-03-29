@@ -8,6 +8,10 @@
         i will make a buffer concatenator (maybe later XD);
         echo -en '\x12\x02[{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]' > /dev/ttyUSB1
 */
+/*
+    Need to fix:
+        idk why but os_free through __MSX_DEBUGV__ works fine, but without nest calling it causes crash;
+ */
 /////////////////////////////////////////////////////
 
 
@@ -67,6 +71,23 @@ static xQueueHandle event_loop_queue;
 #define ESPNOW_WIFI_MODE WIFI_MODE_AP
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
 #endif
+
+
+void debug_call_printf(const char *name, int x)
+{
+    os_printf("___ %s ___ %s \n", name, x == 0 ? "OK" : "ERROR");
+}
+#define __MSX_DEBUG__(f)   debug_call_printf(#f, f)
+
+void debug_call_printf_void(const char *name)
+{
+    os_printf("___ %s ___ %s \n", name, "OK");
+}
+#define __MSX_DEBUGV__(f)   debug_call_printf_void(#f)
+
+
+#define __MSX_PRINTF__(__format, __VA_ARGS__...) os_printf("%s >>> "__format" \n", __FUNCTION__, __VA_ARGS__)
+#define __MSX_PRINT__(__format) os_printf("%s >>> "__format" \n", __FUNCTION__)
 
 
 
@@ -306,11 +327,16 @@ bool add_peer(uint8_t *mac_addr, uint8_t *lmk, uint8_t channel, wifi_interface_t
     memcpy(peer->peer_addr, mac_addr, ESP_NOW_ETH_ALEN);
     // peer->priv
 
-    os_printf("______ esp_now_add_peer ______%d_\n", esp_now_add_peer(peer) );
+    __MSX_DEBUG__( esp_now_add_peer(peer) );
 
+
+    __MSX_PRINT__("free section");
     os_free(peer);
-    os_free(mac_addr);
+    __MSX_PRINT__("free 'peer'");
+/*     os_free(mac_addr);
+    __MSX_PRINT__("free 'mac_addr'");
     os_free(lmk);
+    __MSX_PRINT__("free 'lmk'"); */
     return ESP_OK;
 }
 
@@ -331,24 +357,32 @@ void send_packet_raw(const uint8_t *peer_addr, const uint8_t *data, size_t len)
     msx_message_t *msg = os_malloc(msx_sz);
     memset(msg, 0, sizeof(msx_message_t));
 
+    __MSX_PRINT__("msx_message_t allocated");
+
     uint32_t _magic = esp_random();
     msg->magic = _magic;
     msg->len = len;
     //msg->buffer = os_malloc(CONFIG_ESPNOW_SEND_LEN);
 
+    __MSX_PRINT__("esp_random generated");
+
     memset(msg->buffer, 0, CONFIG_ESPNOW_SEND_LEN);
     memcpy(msg->buffer, data, /* len */CONFIG_ESPNOW_SEND_LEN);
     memcpy(msg->mac_addr, peer_addr, ESP_NOW_ETH_ALEN);
+
+    __MSX_PRINT__("memset & memcpy of msg");
 
     
     uint8_t buffer[msx_sz];
     memset(buffer, 0, msx_sz);
     memcpy(buffer, msg, msx_sz);
 
+    __MSX_PRINT__("memset & memcpy of uint8_t buffer");
+
     if (esp_now_send(msg->mac_addr, buffer, msx_sz) != ESP_OK) {
     //          if (esp_now_send(msg->mac_addr, msg->buffer, msg->len) != ESP_OK) {
     //if (esp_now_send(broadcast_mac, data, sizeof(data)) != ESP_OK) {
-        os_printf("Send error \n");
+        __MSX_PRINT__("SEND ERROR");
     }
 
     if ( !stack_exists(msg_stack, _magic) )
@@ -356,15 +390,14 @@ void send_packet_raw(const uint8_t *peer_addr, const uint8_t *data, size_t len)
         stack_push(msg_stack, _magic);
     } else
     {
-        os_printf("WARNING BLYAT!!! send_packet_raw >> generates _magic number that same as previous \n");
+        __MSX_PRINT__("WARNING BLYAT!!! esp_random() generates _magic number that same as previous");
     }
 
-    os_free(msg);
 
-    os_free(&buffer);
-
-    os_free(data);
-    os_free(peer_addr);
+    __MSX_DEBUGV__( os_free(msg)        );
+    __MSX_DEBUGV__( os_free(&buffer)    );
+    __MSX_DEBUGV__( os_free(data)       );
+    __MSX_DEBUGV__( os_free(peer_addr)  );
 }
 
 void send_packet(const uint8_t *peer_addr, const cJSON *data)
@@ -392,12 +425,14 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
     send_packet_raw(peer_addr, uint8_data, len);
 
-    memset(char_data, 0, len);
-    os_free(char_data);
 
+    __MSX_PRINT__("free section");
 
-    memset(uint8_data, 0, len);
-    os_free(&uint8_data);            //      maybe crash
+    __MSX_DEBUGV__( memset(char_data, 0, len)    );
+    __MSX_DEBUGV__( os_free(char_data)           );
+
+    __MSX_DEBUGV__( memset(uint8_data, 0, len)   );
+    __MSX_DEBUGV__( os_free(&uint8_data)         );           //      maybe crash
 }
 
 
@@ -418,6 +453,7 @@ char *exec_packet(char *fuckdata)
 {
 
     os_printf("%s >> input data size: %d \n", __FUNCTION__, strlen(fuckdata));
+    __MSX_PRINTF__("input data size: %d", strlen(fuckdata));
 
     cJSON *pack = cJSON_Parse(fuckdata);
 
@@ -834,7 +870,7 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
         evt->data = dat;
     }
     evt->len = len;
-    /* os_printf("______ event_handler ______%d_\n", (  */
+    /* __MSX_DEBUG__( (  */
     bool x = (xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE);
     /*  ) ); */
     os_free(evt); // causes crash
@@ -972,7 +1008,7 @@ static void uart_task2(void *params)
 
                     if ( raise_event(MSX_UART_DATA, NULL, 0, exit_buf, sz) != pdTRUE )
                     {
-                        os_printf("recv_cb >> raise_event error >> \n");
+                        os_printf("%s >> raise_event error >> \n", __FUNCTION__);
                         os_free(uart_buf);
                         os_free(exit_buf);
                     }
@@ -1086,12 +1122,12 @@ static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
-    os_printf("%s >> mac: "MACSTR" size: %d \n", __FUNCTION__, MAC2STR(mac_addr), len);
+    __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
 
     size_t msx_sz = sizeof(msx_message_t);
     msx_message_t *msg = os_malloc(msx_sz);
     memset(msg, 0, msx_sz);
-    memcpy(msg, data, msx_sz);
+    memcpy(msg, data, msx_sz);  // compile msx_message_t from raw uint8_t data;
 
     if ( !stack_exists(msg_stack, msg->magic) )
     {
@@ -1102,7 +1138,7 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         return;
     }
 
-    os_printf("\n\n\nmsx_message_t through esp_now >> \n");
+/*     os_printf("\n\n\nmsx_message_t through esp_now >> \n");
     os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
     os_printf("magic -> 0x%08X \n", msg->magic);
     os_printf("size -> %d \n", msg->len);
@@ -1110,7 +1146,7 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     {
         os_printf("%c", msg->buffer[i]);
     }
-    os_printf("\n\n\n");
+    os_printf("\n\n\n"); */
 
     // return; // !!!!!!!!!!!!!!!!!!!!
     
@@ -1143,10 +1179,11 @@ void set_pingmsg(uint8_t *data, size_t len)
 
 static esp_err_t espnow_init(void)
 {
-    os_printf("______ esp_now_init ______%d_\n", esp_now_init() );
-    os_printf("______ esp_now_register_send_cb ______%d_\n", esp_now_register_send_cb(send_cb) );
-    os_printf("______ esp_now_register_recv_cb ______%d_\n", esp_now_register_recv_cb(recv_cb) );
-    os_printf("______ esp_now_register_recv_cb ______%d_\n", esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
+    __MSX_DEBUG__( esp_now_init() );
+    //__MSX_DEBUG__( esp_now_init() );
+    __MSX_DEBUG__( esp_now_register_send_cb(send_cb) );
+    __MSX_DEBUG__( esp_now_register_recv_cb(recv_cb) );
+    __MSX_DEBUG__( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
 
     add_peer(broadcast_mac, NULL, MESH_CHANNEL, ESPNOW_WIFI_IF, false);
     //os_free(evt);
@@ -1196,8 +1233,8 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 static void wifi_init(void)
 {
     tcpip_adapter_init();
-    os_printf("______ tcpip_adapter_init ______%d_\n", 0 );
-    os_printf("______ esp_event_loop_create_default ______%d_\n", esp_event_loop_create_default() );
+    __MSX_DEBUG__( 0 );
+    __MSX_DEBUG__( esp_event_loop_create_default() );
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     //wifi_sta_config_t sta = WIFI_INIT_CONFIG_DEFAULT();
@@ -1208,24 +1245,24 @@ static void wifi_init(void)
             .channel = MESH_CHANNEL
         },
     };
-    os_printf("______ esp_wifi_init ______%d_\n", esp_wifi_init(&cfg) );
-    os_printf("______ esp_event_handler_register WIFI_EVENT ______%d_\n", esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
-    os_printf("______ esp_event_handler_register IP_EVENT ______%d_\n", esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
-    os_printf("______ esp_wifi_set_storage ______%d_\n", esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-    os_printf("______ esp_wifi_set_mode ______%d_\n", esp_wifi_set_mode(WIFI_MODE_APSTA) );
-    os_printf("______ esp_wifi_set_config ______%d_\n", esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    os_printf("______ esp_wifi_start ______%d_\n", esp_wifi_start() );
-    os_printf("______ esp_wifi_set_channel ______%d_\n", esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
-    os_printf("______ esp_wifi_connect ______%d_\n", esp_wifi_connect() );
-    os_printf("______ esp_wifi_get_mac ______%d_\n", esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
-    os_printf("______ esp_wifi_set_ps ______%d_\n", esp_wifi_set_ps(WIFI_PS_NONE) );
+    __MSX_DEBUG__( esp_wifi_init(&cfg) );
+    __MSX_DEBUG__( esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
+    __MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
+    __MSX_DEBUG__( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+    __MSX_DEBUG__( esp_wifi_set_mode(WIFI_MODE_APSTA) );
+    __MSX_DEBUG__( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+    __MSX_DEBUG__( esp_wifi_start() );
+    __MSX_DEBUG__( esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
+    __MSX_DEBUG__( esp_wifi_connect() );
+    __MSX_DEBUG__( esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
+    __MSX_DEBUG__( esp_wifi_set_ps(WIFI_PS_NONE) );
 
     raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0);
 /*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     evt->id = MSX_WIFI_EVENT_WIFI_INIT;
     evt->base = NULL;
     evt->data = NULL;
-    os_printf("______ event_handler ______%d_\n", ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
+    __MSX_DEBUG__( ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
     os_free(&cfg);
     os_free(&wifi_config);
@@ -1516,7 +1553,7 @@ void app_main()
                                                 // ??????
 
 
-    os_printf("______ nvs_flash_init ______%d_\n", nvs_flash_init() );
+    __MSX_DEBUG__( nvs_flash_init() );
 
     uart_config_t uart_config = {
         .baud_rate = 115200,
@@ -1557,3 +1594,7 @@ void app_main()
     os_printf("%s >> init done \n", __FUNCTION__);
 
 }
+
+
+
+
