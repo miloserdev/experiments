@@ -773,8 +773,9 @@ void event_loop(void *params)
             {
                 os_printf( "event_loop >> MSX_UART_DATA \n" );
 
+                    os_printf("\n\n da fuck uart shit is coming %.*s \n", evt.len, (char *) evt.data);      //  printf with size;
 
-                    char *asd = exec_packet(evt.data);
+                    char *asd = exec_packet((char *) evt.data);
                     // os_free(asd);
                     //os_free(tmp1);
 
@@ -856,7 +857,15 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     evt->id = id;
     evt->base = (base ? base : NULL);
     evt->status = (status ? status : 0);
-    evt->data = (data ? data : NULL);
+    //evt->data = (data ? data : NULL);
+    if (data != NULL)
+    {
+        void *dat = os_malloc(len);
+        memset(dat, 0, len);
+        memcpy(dat, data, len);
+
+        evt->data = dat;
+    }
     evt->len = len;
     /* os_printf("______ event_handler ______%d_\n", (  */
     bool x = (xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE);
@@ -897,22 +906,18 @@ static void uart_task(void *pvParameters)
                     os_printf("[UART DATA]: %d \n", event.size);
                     uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
                     
-                    char buff[event.size];
+                    uint8_t buff[event.size];
                     memset(buff, 0, event.size);
-                    for (size_t i = 0; i < event.size; i++) buff[i] = dtmp[i];
+                    memcpy(buff, dtmp, event.size);
 
-                    os_printf("\n\n da fuck uart shit is coming %s \n\n", buff);
+                    os_printf("generating event MSX_UART_DATA with data >> %s \n", buff);
 
                     if ( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE )
                     {
                         os_printf("recv_cb >> raise_event error >> \n");
-                        os_free(dtmp);
-                        os_free(buff);
                     }
 
-                    uart_flush_input(EX_UART_NUM);
-                    xQueueReset(uart_queue);
-
+                    //os_free(&buff);
                     break;
                 }
 
@@ -1148,9 +1153,12 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     if ( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) != pdTRUE )
     {
         os_printf("recv_cb >> raise_event error >> \n");
-        os_free(msg->buffer);
-        os_free(msg_buf);
+/*         os_free(msg->buffer);
+        os_free(msg_buf); */
     }
+
+    os_free(msg->buffer);
+    os_free(msg_buf);
 
     os_free(msg); // need to memcpy bcuz causes ^&W%#*&$W%^&Q@$%^#
     os_free(mac_addr);
