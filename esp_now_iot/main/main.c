@@ -76,14 +76,10 @@ static xQueueHandle event_loop_queue;
 int32_t last_mem = 0;
 int32_t get_leak()
 {
-    uint32_t fh = esp_get_free_heap_size();
-    return ( fh > last_mem ) ? fh - last_mem : last_mem - fh;
+    return esp_get_free_heap_size() - last_mem;
 }
 
-void set_mem()
-{
-    last_mem = esp_get_free_heap_size();
-}
+void set_mem() { last_mem = esp_get_free_heap_size(); }
 
 #define ___MSX_FMT  "H: %d | L: %d | %s >>>"
 
@@ -94,7 +90,11 @@ void set_mem()
 #define __MSX_PRINTF__(__format, __VA_ARGS__...) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, __VA_ARGS__); set_mem(); }
 #define __MSX_PRINT__(__format) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__); set_mem();}
 
-
+int32_t __per_func_mem__ = 0;
+#define __MSX_LEAK_START__()     { os_printf("\n\n \t\t\t FUNC: %s MEM TEST START | HEAP: %d \n\n", __FUNCTION__, esp_get_free_heap_size()); __per_func_mem__ = esp_get_free_heap_size(); }
+#define __MSX_LEAK_END__()     { int32_t fh = esp_get_free_heap_size();     \
+                                os_printf("\n\n \t\t\t FUNC: %s \t\t | LEAK: %d | HEAP: %d | %s \n\n", __FUNCTION__, fh - __per_func_mem__, esp_get_free_heap_size(), fh >= __per_func_mem__ ? "PASSED" : "FAILED" ); \
+                                __per_func_mem__ = 0; }
 
 #define MIN(a, b)(((a) < (b)) ? (a) : (b))
 #define MAX(a, b)(((a) > (b)) ? (a) : (b))
@@ -403,16 +403,6 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
     
     for (size_t i = 0; i < len; i++) uint8_data[i] = char_data[i];
     __MSX_PRINTF__("buffer is %s", char_data);
-    
-/*     cJSON *new_data = cJSON_GetArrayItem(data, 0);
-
-    if ( !cJSON_GetObjectItemCaseSensitive(new_data, "magic") )
-    {
-        printf("send_packet >> no magic >> return \n");
-        return;
-    }
-
-    uint32_t _magic = cJSON_GetObjectItem(new_data, "magic"); */
 
     send_packet_raw(peer_addr, uint8_data, len);
 
@@ -439,7 +429,8 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
 char *exec_packet(char *fuckdata)
 {
-    __MSX_PRINTF__("input data size: %d", strlen(fuckdata));
+    size_t input_size = strlen(fuckdata);
+    __MSX_PRINTF__("input data %s size: %d", fuckdata, input_size);
 
     char *ret_ = "";
 
@@ -664,7 +655,7 @@ char *exec_packet(char *fuckdata)
 
         __MSX_PRINT__("end");
 
-	return ret_;
+	    return ret_;
 }
 
 
@@ -747,6 +738,7 @@ void event_loop(void *params)
             }
             case MSX_ESP_NOW_RECV_CB:
             {
+__MSX_LEAK_START__();
                 __MSX_PRINT__("MSX_ESP_NOW_RECV_CB");
 
             //    char *datas = /*may cause crash*/ (char *) os_malloc(evt.len);
@@ -757,14 +749,14 @@ void event_loop(void *params)
                 //cJSON *pack = cJSON_Parse( (char *) evt.data );
 
                 char *exec_data = exec_packet((char *) evt.data);
-                os_free(exec_data);
+                __MSX_DEBUGV__( os_free(exec_data)  );
 
                 //cJSON_free(pack);
                 //cJSON_Delete(pack);
                 //os_free(pack);
 
                 __MSX_DEBUGV__( os_free(evt.data)   );
-
+__MSX_LEAK_END__();
                 break;
             }
 
@@ -773,6 +765,8 @@ void event_loop(void *params)
                 __MSX_PRINT__("MSX_UART_DATA");
 
                 __MSX_PRINTF__("uart data is %.*s", evt.len, (char *) evt.data);
+                //uint8_t u8_data[evt.len];
+                //for (size_t i = 0; i < evt.len; i++) u8_data[i] = evt.data[i];
                 char *asd = exec_packet((char *) evt.data);
                 __MSX_DEBUGV__( os_free(asd)    );
                 // os_free(asd);
@@ -856,7 +850,6 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     evt->id = id;
     evt->base = (base ? base : NULL);
     evt->status = (status ? status : 0);
-    //evt->data = (data ? data : NULL);
     if (data != NULL)
     {
         void *dat = os_malloc(len);
@@ -869,7 +862,15 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     /* __MSX_DEBUG__( (  */
     bool x = (xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE);
     /*  ) ); */
-    os_free(evt); // causes crash
+/*     __MSX_DEBUGV__( memset(evt->data, 0, evt->len)  );
+    __MSX_DEBUGV__( os_free(evt->data)  );
+    __MSX_DEBUGV__( memset(evt, 0, sizeof(msx_event_t)) );
+    __MSX_DEBUGV__( os_free(evt)    ); */
+
+/*     __MSX_DEBUGV__( memset(data, 0, len)  );
+    __MSX_DEBUGV__( os_free(data)   );
+    __MSX_DEBUGV__( data = NULL     ); */
+
     return pdTRUE;
 }
 
@@ -885,10 +886,11 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
 #define EX_UART_NUM uart_port
 
 
-static void uart_task(void *pvParameters)
+/* static  */void uart_task(void *pvParameters)
 {
     uart_event_t event;
     uint8_t *dtmp = (uint8_t *) malloc(RD_BUF_SIZE);
+    __MSX_PRINT__("dtmp malloc(RD_BUF_SIZE)");
 
     for (;;) {
         // Waiting for UART event.
@@ -902,6 +904,7 @@ static void uart_task(void *pvParameters)
                 // other types of events. If we take too much time on data event, the queue might be full.
                 case UART_DATA:
                 {
+__MSX_LEAK_START__();
                     uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
                     
                     uint8_t buff[event.size];
@@ -916,7 +919,9 @@ static void uart_task(void *pvParameters)
                         __MSX_PRINT__("raise_event error");
                     }
 
-                    //os_free(&buff);
+                    __MSX_DEBUGV__( os_free(&buff)  );
+
+__MSX_LEAK_END__();
                     break;
                 }
 
@@ -968,7 +973,7 @@ static void uart_task(void *pvParameters)
 
 
 
-static void uart_task2(void *params)
+/* static  */void uart_task2(void *params)
 {
     uart_event_t evt;
 
@@ -1005,9 +1010,9 @@ static void uart_task2(void *params)
 
                     if ( raise_event(MSX_UART_DATA, NULL, 0, exit_buf, sz) != pdTRUE )
                     {
-                        os_printf("%s >> raise_event error >> \n", __FUNCTION__);
-                        os_free(uart_buf);
-                        os_free(exit_buf);
+                        __MSX_PRINT__("error");
+                        __MSX_DEBUGV__( os_free(uart_buf) );
+                        __MSX_DEBUGV__( os_free(exit_buf) );
                     }
 
                     bzero(uart_buf, uart_buffer_size);
@@ -1052,9 +1057,9 @@ static void uart_task2(void *params)
     }
     
 
-    os_free(uart_buf);       ///     VERY IMPORTANT !!!
-    uart_buf = NULL;     //         memory leak;
-    vTaskDelete(NULL);
+    __MSX_DEBUGV__( os_free(uart_buf)   );       ///     VERY IMPORTANT !!!
+    __MSX_DEBUGV__( uart_buf = NULL     );     //         memory leak;
+    __MSX_DEBUGV__( vTaskDelete(NULL)   );
 }
 
 
@@ -1107,7 +1112,7 @@ static void uart_task2(void *params)
 
 
 
-static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
+/* static  */void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
     raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0);
@@ -1117,7 +1122,7 @@ static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 
 
-static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
+/* static  */void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
 
@@ -1174,7 +1179,7 @@ void set_pingmsg(uint8_t *data, size_t len)
     memcpy(pingmsg, data, len);
 }
 
-static esp_err_t espnow_init(void)
+/* static  */esp_err_t espnow_init(void)
 {
     __MSX_DEBUG__( esp_now_init() );
     //__MSX_DEBUG__( esp_now_init() );
@@ -1219,7 +1224,7 @@ static esp_err_t espnow_init(void)
 
 
 
-static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+/* static  */void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     raise_event(event_id, event_base, 0, event_data, 0);
     //os_free(evt);
@@ -1227,7 +1232,7 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 }
 
 
-static void wifi_init(void)
+/* static  */void wifi_init(void)
 {
     tcpip_adapter_init();
     __MSX_DEBUG__( 0 );
@@ -1464,7 +1469,7 @@ void stop_webserver(httpd_handle_t server)
 
 
 
-static void app_loop()
+/* static  */void app_loop()
 {
 
     vTaskDelay(2000 / portTICK_RATE_MS);
