@@ -1115,7 +1115,10 @@ __MSX_LEAK_END__();
 /* static  */void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
-    raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0);
+    if ( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) != pdTRUE )
+    {
+        __MSX_PRINT__("raise_event error");
+    }
     //os_free(mac_addr);    // maybe memory leak;
     //os_free(evt);
 }
@@ -1167,8 +1170,9 @@ __MSX_LEAK_END__();
     // os_free(msg->buffer);
     // os_free(msg_buf);
 
-    os_free(msg); // need to memcpy bcuz causes ^&W%#*&$W%^&Q@$%^#
-    os_free(mac_addr);
+    __MSX_DEBUGV__( os_free(msg->mac_addr) );
+    __MSX_DEBUGV__( os_free(msg->buffer) );
+    __MSX_DEBUGV__( os_free(msg) ); // need to memcpy bcuz causes ^&W%#*&$W%^&Q@$%^#
     //os_free(evt);
 }
 
@@ -1182,7 +1186,6 @@ void set_pingmsg(uint8_t *data, size_t len)
 /* static  */esp_err_t espnow_init(void)
 {
     __MSX_DEBUG__( esp_now_init() );
-    //__MSX_DEBUG__( esp_now_init() );
     __MSX_DEBUG__( esp_now_register_send_cb(send_cb) );
     __MSX_DEBUG__( esp_now_register_recv_cb(recv_cb) );
     __MSX_DEBUG__( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
@@ -1190,7 +1193,10 @@ void set_pingmsg(uint8_t *data, size_t len)
     add_peer(broadcast_mac, NULL, MESH_CHANNEL, ESPNOW_WIFI_IF, false);
     //os_free(evt);
 
-    raise_event(MSX_ESP_NOW_INIT, NULL, ESP_OK, NULL, 0);
+    if ( raise_event(MSX_ESP_NOW_INIT, NULL, ESP_OK, NULL, 0) != pdTRUE )
+    {
+        __MSX_PRINT__("raise_event error");
+    }
 
     return ESP_OK;
 }
@@ -1226,9 +1232,12 @@ void set_pingmsg(uint8_t *data, size_t len)
 
 /* static  */void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    raise_event(event_id, event_base, 0, event_data, 0);
+    if ( raise_event(event_id, event_base, 0, event_data, 0) != pdTRUE )
+    {
+        __MSX_PRINT__("raise_event error");
+    }
     //os_free(evt);
-    os_free(event_data);
+    //__MSX_DEBUGV__( os_free(event_data) );
 }
 
 
@@ -1259,7 +1268,10 @@ void set_pingmsg(uint8_t *data, size_t len)
     __MSX_DEBUG__( esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
     __MSX_DEBUG__( esp_wifi_set_ps(WIFI_PS_NONE) );
 
-    raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0);
+    if ( raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0) != pdTRUE )
+    {
+        __MSX_PRINT__("raise_event error");
+    }
 /*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     evt->id = MSX_WIFI_EVENT_WIFI_INIT;
     evt->base = NULL;
