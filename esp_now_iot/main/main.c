@@ -864,17 +864,7 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
         evt->data = dat;
     } */
     evt->len = len;
-    /* __MSX_DEBUG__( (  */
-    bool x = (xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) != pdTRUE);
-    /*  ) ); */
-/*     __MSX_DEBUGV__( memset(evt->data, 0, evt->len)  );
-    __MSX_DEBUGV__( os_free(evt->data)  );
-    __MSX_DEBUGV__( memset(evt, 0, sizeof(msx_event_t)) );
-    __MSX_DEBUGV__( os_free(evt)    ); */
-
-/*     __MSX_DEBUGV__( memset(data, 0, len)  );
-    __MSX_DEBUGV__( os_free(data)   );
-    __MSX_DEBUGV__( data = NULL     ); */
+    __MSX_DEBUG__( xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) );
 
     return pdTRUE;
 }
@@ -911,10 +901,7 @@ void uart_task(void *params)
                     __MSX_PRINTF__("generating event MSX_UART_DATA with size %d >> data >> %s", event.size, buff);
 
 
-                    if ( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE )
-                    {
-                        __MSX_PRINT__("raise_event error");
-                    }
+                    __MSX_DEBUG__( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE );
 
                     __MSX_DEBUGV__( os_free(&buff)  );
 
@@ -1004,10 +991,7 @@ void uart_task(void *params)
 void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
-    if ( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) != pdTRUE )
-    {
-        __MSX_PRINT__("raise_event error");
-    }
+    __MSX_DEBUG__( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) != pdTRUE );
 }
 
 
@@ -1046,12 +1030,7 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     uint8_t msg_buf[msg->len];
     memcpy(msg_buf, msg->buffer, msg->len);
 
-    if ( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) != pdTRUE )
-    {
-        __MSX_PRINT__("raise_event error");
-/*         os_free(msg->buffer);
-        os_free(msg_buf); */
-    }
+    __MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) != pdTRUE );
 
 
     __MSX_PRINT__("free memory section");
@@ -1079,7 +1058,7 @@ esp_err_t espnow_init(void)
     add_peer(broadcast_mac, NULL, MESH_CHANNEL, ESPNOW_WIFI_IF, false);
     //os_free(evt);
 
-    if ( raise_event(MSX_ESP_NOW_INIT, NULL, ESP_OK, NULL, 0) != pdTRUE )
+    __MSX_DEBUG__( raise_event(MSX_ESP_NOW_INIT, NULL, ESP_OK, NULL, 0) != pdTRUE );
     {
         __MSX_PRINT__("raise_event error");
     }
@@ -1119,12 +1098,7 @@ esp_err_t espnow_init(void)
 /* static  */
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    if ( raise_event(event_id, event_base, 0, event_data, 0) != pdTRUE )
-    {
-        __MSX_PRINT__("raise_event error");
-    }
-    //os_free(evt);
-    //__MSX_DEBUGV__( os_free(event_data) );
+    __MSX_DEBUG__( raise_event(event_id, event_base, 0, event_data, 0) != pdTRUE );
 }
 
 
@@ -1156,10 +1130,8 @@ void wifi_init(void)
     __MSX_DEBUG__( esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
     __MSX_DEBUG__( esp_wifi_set_ps(WIFI_PS_NONE) );
 
-    if ( raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0) != pdTRUE )
-    {
-        __MSX_PRINT__("raise_event error");
-    }
+    __MSX_DEBUG__( raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0) != pdTRUE );
+
 /*     msx_event_t *evt = (msx_event_t *) malloc( sizeof(  msx_event_t ) );
     evt->id = MSX_WIFI_EVENT_WIFI_INIT;
     evt->base = NULL;
