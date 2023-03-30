@@ -85,21 +85,14 @@ void set_mem()
     last_mem = esp_get_free_heap_size();
 }
 
-void debug_call_printf(const char *name, int x)
-{
-    os_printf("___ %s ___ %s \n", name, x == 0 ? "OK" : "ERROR");
-}
-#define __MSX_DEBUG__(f)   debug_call_printf(#f, f)
+#define ___MSX_FMT  "H: %d | L: %d | %s >>>"
 
-void debug_call_printf_void(const char *name)
-{
-    os_printf("___ %s ___ %s \n", name, "OK");
-}
-#define __MSX_DEBUGV__(f)   { os_printf("H: %d | L: %d | %s >>> ___ %s ___ \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f); f; os_printf("OK \n"); set_mem(); }
+#define __MSX_DEBUG__(f)   { os_printf(""___MSX_FMT" ___ %s ___ %s \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f, f == 0 ? "OK" : "ERROR"); set_mem(); }
 
+#define __MSX_DEBUGV__(f)   { os_printf(""___MSX_FMT" ___ %s ___ \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f); f; os_printf("OK \n"); set_mem(); }
 
-#define __MSX_PRINTF__(__format, __VA_ARGS__...) { os_printf("H: %d | L: %d | %s >>> "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, __VA_ARGS__); set_mem(); }
-#define __MSX_PRINT__(__format) { os_printf("H: %d | L: %d | %s >>> "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__); set_mem();}
+#define __MSX_PRINTF__(__format, __VA_ARGS__...) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, __VA_ARGS__); set_mem(); }
+#define __MSX_PRINT__(__format) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__); set_mem();}
 
 
 
@@ -448,6 +441,8 @@ char *exec_packet(char *fuckdata)
 {
     __MSX_PRINTF__("input data size: %d", strlen(fuckdata));
 
+    char *ret_ = "";
+
     cJSON *pack = cJSON_Parse(fuckdata);
 
     cJSON *ret_arr = cJSON_CreateArray();
@@ -457,14 +452,16 @@ char *exec_packet(char *fuckdata)
 	if (pack == NULL || cJSON_IsInvalid(pack))
 	{
         __MSX_PRINT__("parser malfunction");
-		return "parser malfunction";
+        __MSX_DEBUGV__( goto clean_exit );
+		ret_ = "parser malfunction";
 	}
 
     int arr_sz = cJSON_GetArraySize(pack);
 	if (arr_sz < /* <= */ 0)
 	{
         __MSX_PRINT__("data malfunction");
-		return "data misfunction";
+        __MSX_DEBUGV__( goto clean_exit );
+		ret_ = "data misfunction";
 	}
 
     bool to_me = true;
@@ -656,14 +653,16 @@ char *exec_packet(char *fuckdata)
 
     __MSX_DEBUGV__( cJSON_Delete(pack)      );
 
-    char *ret_ = cJSON_PrintUnformatted(ret_arr);
+    ret_ = cJSON_PrintUnformatted(ret_arr);
 
-    __MSX_DEBUGV__( cJSON_Delete(ret_arr)   );
-    __MSX_DEBUGV__( os_free(fuckdata)       );
+    clean_exit:
 
-    __MSX_PRINTF__("return is %s ", ret_);
+        __MSX_DEBUGV__( cJSON_Delete(ret_arr)   );
+        __MSX_DEBUGV__( os_free(fuckdata)       );
 
-    __MSX_PRINT__("end");
+        __MSX_PRINTF__("return is %s ", ret_);
+
+        __MSX_PRINT__("end");
 
 	return ret_;
 }
@@ -775,6 +774,7 @@ void event_loop(void *params)
 
                 __MSX_PRINTF__("uart data is %.*s", evt.len, (char *) evt.data);
                 char *asd = exec_packet((char *) evt.data);
+                __MSX_DEBUGV__( os_free(asd)    );
                 // os_free(asd);
                 //os_free(tmp1);
 
