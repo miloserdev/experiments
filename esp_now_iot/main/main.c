@@ -427,10 +427,13 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
 
 
-char *exec_packet(char *fuckdata)
+char *exec_packet(char *datas, size_t len)
 {
-    size_t input_size = strlen(fuckdata);
-    __MSX_PRINTF__("input data %s size: %d", fuckdata, input_size);
+    char fuckdata[len];
+    memcpy(fuckdata, datas, len);
+
+    size_t input_size = len;
+    __MSX_PRINTF__("input data %.*s size: %d", input_size, fuckdata, input_size);
 
     char *ret_ = "";
 
@@ -649,7 +652,7 @@ char *exec_packet(char *fuckdata)
     clean_exit:
 
         __MSX_DEBUGV__( cJSON_Delete(ret_arr)   );
-        __MSX_DEBUGV__( os_free(fuckdata)       );
+        //__MSX_DEBUGV__( os_free(fuckdata)       );
 
         __MSX_PRINTF__("return is %s ", ret_);
 
@@ -717,14 +720,14 @@ char *exec_packet(char *fuckdata)
 void event_loop(void *params)
 {
 
-    msx_event_t evt; //malloc( sizeof( msx_event_t ) );
+    msx_event_t *evt; //malloc( sizeof( msx_event_t ) );
     //memset( evt, 0, sizeof( msx_event_t ) );
 
     vTaskDelay(5000 / portTICK_RATE_MS);
 
-    while( xQueueReceive( event_loop_queue, &evt, portMAX_DELAY ) == pdTRUE )
+    while( xQueueReceive( event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY ) == pdTRUE )
     {
-        switch( evt.id )
+        switch( evt->id )
         {
             case MSX_ESP_NOW_INIT:
             {
@@ -738,7 +741,6 @@ void event_loop(void *params)
             }
             case MSX_ESP_NOW_RECV_CB:
             {
-__MSX_LEAK_START__();
                 __MSX_PRINT__("MSX_ESP_NOW_RECV_CB");
 
             //    char *datas = /*may cause crash*/ (char *) os_malloc(evt.len);
@@ -748,15 +750,14 @@ __MSX_LEAK_START__();
                 
                 //cJSON *pack = cJSON_Parse( (char *) evt.data );
 
-                char *exec_data = exec_packet((char *) evt.data);
+                char *exec_data = exec_packet((char *) evt->data, evt->len);
                 __MSX_DEBUGV__( os_free(exec_data)  );
 
                 //cJSON_free(pack);
                 //cJSON_Delete(pack);
                 //os_free(pack);
 
-                __MSX_DEBUGV__( os_free(evt.data)   );
-__MSX_LEAK_END__();
+                __MSX_DEBUGV__( os_free(evt->data)   );
                 break;
             }
 
@@ -764,16 +765,17 @@ __MSX_LEAK_END__();
             {
                 __MSX_PRINT__("MSX_UART_DATA");
 
-                __MSX_PRINTF__("uart data is %.*s", evt.len, (char *) evt.data);
+                __MSX_PRINTF__("uart data is %.*s", evt->len, (char *) evt->data);
                 //uint8_t u8_data[evt.len];
                 //for (size_t i = 0; i < evt.len; i++) u8_data[i] = evt.data[i];
-                char *asd = exec_packet((char *) evt.data);
+                char *asd = exec_packet((char *) evt->data, evt->len);
                 __MSX_DEBUGV__( os_free(asd)    );
+
                 // os_free(asd);
                 //os_free(tmp1);
 
 
-                __MSX_DEBUGV__( os_free(evt.data)   );
+                __MSX_DEBUGV__( os_free(evt->data)   );
 
                 break;
             }
@@ -790,20 +792,20 @@ __MSX_LEAK_END__();
             }
             case IP_EVENT_STA_GOT_IP:
             {
-                ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt.data;
+                ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt->data;
                 __MSX_PRINTF__("MSX_IP_EVENT_STA_GOT_IP >> ip_info.ip : %s", ip4addr_ntoa(&event->ip_info.ip));
                 __MSX_DEBUGV__( os_free(event)  );
                 break;
             }
             default:
             {
-                __MSX_PRINTF__("UNKNOWN_EVENT %d", evt.id);
+                __MSX_PRINTF__("UNKNOWN_EVENT %d", evt->id);
                 break;
             }
         }
 
-        __MSX_DEBUGV__( os_free(evt.data)   );
-        __MSX_DEBUGV__( os_free(&evt)   );
+        __MSX_DEBUGV__( os_free(evt->data)   );
+        __MSX_DEBUGV__( os_free(evt)   );
     }
 
     __MSX_DEBUGV__( vTaskDelete(NULL)   );
@@ -850,17 +852,20 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     evt->id = id;
     evt->base = (base ? base : NULL);
     evt->status = (status ? status : 0);
-    if (data != NULL)
+    evt->data = (void *) os_malloc(sizeof(void) * len);
+    __MSX_DEBUGV__( memcpy(evt->data, data, len)    );
+    __MSX_PRINTF__("len %d", len);
+/*     if (data != NULL)
     {
         void *dat = os_malloc(len);
         memset(dat, 0, len);
         memcpy(dat, data, len);
 
         evt->data = dat;
-    }
+    } */
     evt->len = len;
     /* __MSX_DEBUG__( (  */
-    bool x = (xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE);
+    bool x = (xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) != pdTRUE);
     /*  ) ); */
 /*     __MSX_DEBUGV__( memset(evt->data, 0, evt->len)  );
     __MSX_DEBUGV__( os_free(evt->data)  );
@@ -880,38 +885,30 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
 
 // [{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]
 
-
-
-#define RD_BUF_SIZE uart_buffer_size
-#define EX_UART_NUM uart_port
-
-
-/* static  */void uart_task(void *pvParameters)
+/* static  */
+void uart_task(void *params)
 {
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *) malloc(RD_BUF_SIZE);
-    __MSX_PRINT__("dtmp malloc(RD_BUF_SIZE)");
+    uint8_t *dtmp = (uint8_t *) malloc(uart_buffer_size);
+    __MSX_PRINT__("dtmp malloc(uart_buffer_size)");
 
-    for (;;) {
-        // Waiting for UART event.
-        if (xQueueReceive(uart_queue, (void *)&event, (portTickType)portMAX_DELAY)) {
-            bzero(dtmp, RD_BUF_SIZE);
-            // maybe printf;
-
-            switch (event.type) {
-                // Event of UART receving data
-                // We'd better handler data event fast, there would be much more data events than
-                // other types of events. If we take too much time on data event, the queue might be full.
+        while ( xQueueReceive(uart_queue, (void *) &event, (TickType_t) portMAX_DELAY) == pdTRUE)
+        {
+            memset(dtmp, 0, uart_buffer_size);
+            
+            switch (event.type)
+            {
                 case UART_DATA:
                 {
-__MSX_LEAK_START__();
-                    uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
+                    __MSX_PRINT__("UART_DATA");
+
+                    uart_read_bytes(uart_port, dtmp, event.size, portMAX_DELAY);
                     
                     uint8_t buff[event.size];
                     memset(buff, 0, event.size);
                     memcpy(buff, dtmp, event.size);
 
-                    __MSX_PRINTF__("generating event MSX_UART_DATA with data >> %s", buff);
+                    __MSX_PRINTF__("generating event MSX_UART_DATA with size %d >> data >> %s", event.size, buff);
 
 
                     if ( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE )
@@ -921,144 +918,49 @@ __MSX_LEAK_START__();
 
                     __MSX_DEBUGV__( os_free(&buff)  );
 
-__MSX_LEAK_END__();
                     break;
                 }
 
                 // Event of HW FIFO overflow detected
                 case UART_FIFO_OVF:
-                    os_printf("hw fifo overflow \n");
-                    //__MSX_PRINT__("hw fifo overflow");
-                    // If fifo overflow happened, you should consider adding flow control for your application.
-                    // The ISR has already reset the rx FIFO,
-                    // As an example, we directly flush the rx buffer here in order to read more data.
-                    uart_flush_input(EX_UART_NUM);
+                {
+                    __MSX_PRINT__("UART_FIFO_OVF");
+                    uart_flush_input(uart_port);
                     xQueueReset(uart_queue);
                     break;
+                }
 
                 // Event of UART ring buffer full
                 case UART_BUFFER_FULL:
-                    os_printf("ring buffer full \n");
-                    // If buffer full happened, you should consider encreasing your buffer size
-                    // As an example, we directly flush the rx buffer here in order to read more data.
-                    uart_flush_input(EX_UART_NUM);
-                    xQueueReset(uart_queue);
-                    break;
-
-                case UART_PARITY_ERR:
-                    os_printf("uart parity error \n");
-                    break;
-
-                // Event of UART frame error
-                case UART_FRAME_ERR:
-                    os_printf("uart frame error \n");
-                    break;
-
-                // Others
-                default:
-                    os_printf("uart event type: %d \n", event.type);
-                    break;
-            }
-        }
-    }
-
-    free(dtmp);
-    dtmp = NULL;
-    vTaskDelete(NULL);
-}
-
-
-
-
-
-
-
-/* static  */void uart_task2(void *params)
-{
-    uart_event_t evt;
-
-    uint8_t *uart_buf = (uint8_t *) os_malloc( uart_buffer_size );
-    os_printf("uart_task >> os_malloc %d \n", uart_buffer_size);
-
-    for (;;)
-    {
-        if ( xQueueReceive( uart_queue, (void */* const */) &evt, (/* TickType_t */portTickType) portMAX_DELAY ) /* == pdTRUE  */)
-        {
-            //memset(uart_buf, 0, uart_buffer_size);
-            bzero(uart_buf, uart_buffer_size);
-            os_printf("uart_task >> bzero %d \n", uart_buffer_size);
-
-            size_t sz = evt.size;
-            os_printf( "uart_task >> _________type: %d____size: %d______ \n", evt.type, sz);
-
-            switch(evt.type)
-            {
-                case UART_DATA:
                 {
-
-        //          [{"to": "34:94:54:62:9f:74", "digitalWrite":{"pin": 2, "value": 0} }]
-
-
-        // [{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]
-
-                    uart_read_bytes(uart_port, uart_buf, sz, portMAX_DELAY);
-
-                    char exit_buf[sz];
-                    for (size_t i = 0; i < sz; i++) exit_buf[i] = uart_buf[i];
-                    
-                    os_printf("\n\n>>>>>>>>>>>> UART COMPLETE RECEIVED | data %s | size %d <<<<<<<<<<<<<<<\n\n", exit_buf, sz);
-
-                    if ( raise_event(MSX_UART_DATA, NULL, 0, exit_buf, sz) != pdTRUE )
-                    {
-                        __MSX_PRINT__("error");
-                        __MSX_DEBUGV__( os_free(uart_buf) );
-                        __MSX_DEBUGV__( os_free(exit_buf) );
-                    }
-
-                    bzero(uart_buf, uart_buffer_size);
-
-
-                    bzero(exit_buf, sz);
-                    os_free(&exit_buf);
-
-                    break;
-                }
-                case UART_BUFFER_FULL:
-                {
-                    os_printf( "uart_task >> UART_BUFFER_FULL \n");
+                    __MSX_PRINT__("UART_BUFFER_FULL");
                     uart_flush_input(uart_port);
                     xQueueReset(uart_queue);
                     break;
                 }
-                case UART_FIFO_OVF:
-                {
-                    os_printf( "uart_task >> UART_FIFO_OVF \n");
-                    uart_flush_input(uart_port);
-                    xQueueReset(uart_queue);
-                    break;
-                }
-                case UART_FRAME_ERR:
-                {
-                    os_printf( "uart_task >> UART_FRAME_ERR \n");
-                    break;
-                }
+
                 case UART_PARITY_ERR:
                 {
-                    os_printf( "uart_task >> UART_PARITY_ERR \n");
+                    __MSX_PRINT__("UART_PARITY_ERR");
                     break;
                 }
+
+                case UART_FRAME_ERR:
+                {
+                    __MSX_PRINT__("UART_FRAME_ERR");
+                    break;
+                }
+
                 default:
                 {
-                    os_printf( "uart_task >> UNKNOWN EVENT \n");
+                    __MSX_PRINTF__("unknown event %d", event.type);
                     break;
                 }
             }
         }
-    }
-    
 
-    __MSX_DEBUGV__( os_free(uart_buf)   );       ///     VERY IMPORTANT !!!
-    __MSX_DEBUGV__( uart_buf = NULL     );     //         memory leak;
+    __MSX_DEBUGV__( os_free(dtmp)       );
+    __MSX_DEBUGV__( dtmp = NULL         );
     __MSX_DEBUGV__( vTaskDelete(NULL)   );
 }
 
@@ -1071,9 +973,6 @@ __MSX_LEAK_END__();
 
 
 
-///memory free
-//esp01 33836
-//esp8266 34064
 
 
 
@@ -1101,31 +1000,20 @@ __MSX_LEAK_END__();
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/* static  */void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
+/* static  */
+void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
     if ( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) != pdTRUE )
     {
         __MSX_PRINT__("raise_event error");
     }
-    //os_free(mac_addr);    // maybe memory leak;
-    //os_free(evt);
 }
 
 
 
-/* static  */void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
+/* static  */
+void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
 
@@ -1167,13 +1055,10 @@ __MSX_LEAK_END__();
 
 
     __MSX_PRINT__("free memory section");
-    // os_free(msg->buffer);
-    // os_free(msg_buf);
 
     __MSX_DEBUGV__( os_free(msg->mac_addr) );
     __MSX_DEBUGV__( os_free(msg->buffer) );
-    __MSX_DEBUGV__( os_free(msg) ); // need to memcpy bcuz causes ^&W%#*&$W%^&Q@$%^#
-    //os_free(evt);
+    __MSX_DEBUGV__( os_free(msg) );
 }
 
 
@@ -1183,7 +1068,8 @@ void set_pingmsg(uint8_t *data, size_t len)
     memcpy(pingmsg, data, len);
 }
 
-/* static  */esp_err_t espnow_init(void)
+/* static  */
+esp_err_t espnow_init(void)
 {
     __MSX_DEBUG__( esp_now_init() );
     __MSX_DEBUG__( esp_now_register_send_cb(send_cb) );
@@ -1230,7 +1116,8 @@ void set_pingmsg(uint8_t *data, size_t len)
 
 
 
-/* static  */void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+/* static  */
+void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     if ( raise_event(event_id, event_base, 0, event_data, 0) != pdTRUE )
     {
@@ -1241,7 +1128,8 @@ void set_pingmsg(uint8_t *data, size_t len)
 }
 
 
-/* static  */void wifi_init(void)
+/* static  */
+void wifi_init(void)
 {
     tcpip_adapter_init();
     __MSX_DEBUG__( 0 );
@@ -1402,7 +1290,7 @@ esp_err_t post_handler(httpd_req_t *req)
     return; // !!!!!!!!!!!!!!!!! */
 
 	//buffer = cJSON_Parse((const char *) content);
-	const char *resp = (const char *) exec_packet((const char *) content);
+	const char *resp = (const char *) exec_packet((const char *) content, req->content_len);
 
 	httpd_resp_send(req, resp, sizeof(resp));
 
@@ -1481,7 +1369,8 @@ void stop_webserver(httpd_handle_t server)
 
 
 
-/* static  */void app_loop()
+/* static  */
+void app_loop()
 {
 
     vTaskDelay(2000 / portTICK_RATE_MS);
