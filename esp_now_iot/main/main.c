@@ -76,7 +76,8 @@ static xQueueHandle event_loop_queue;
 int32_t last_mem = 0;
 int32_t get_leak()
 {
-    return ( esp_get_free_heap_size() - last_mem );
+    uint32_t fh = esp_get_free_heap_size();
+    return ( fh > last_mem ) ? fh - last_mem : last_mem - fh;
 }
 
 void set_mem()
