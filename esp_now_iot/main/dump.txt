@@ -1,9 +1,17 @@
-Guru Meditation Error: Core  0 panic'ed (LoadStoreAlignment). Exception was unhandled.                                 
-Core 0 register dump:                                                                                                  
-PC      : 0x40100e61  PS      : 0x00000030  A0      : 0x40222e5e  A1      : 0x3fff08e0                                 
-A2      : 0x3fff091e  A3      : 0x3fff091a  A4      : 0x40000000  A5      : 0x00015588                                 
-A6      : 0x00000002  A7      : 0x00000018  A8      : 0x00000000  A9      : 0x00000110                                 
-A10     : 0x4027b3d8  A11     : 0x00000003  A12     : 0x00000000  A13     : 0x00000001                                 
-A14     : 0x40108a78  A15     : 0x00000000  SAR     : 0x00000018  EXCCAUSE: 0x00000009                                 
-                                                                                                                       
-Backtrace: 0x40100e61:0x3fff08e0 0x40222e5e:0x3fff08f0 0x4022308e:0x3fff0960 
+Guru Meditation Error: Core  0 panic'ed (LoadProhibited). Exception was unhandled.
+Core 0 register dump:
+PC      : 0x40100eaa  PS      : 0x00000033  A0      : 0x40100e7b  A1      : 0x3fff0780  
+A2      : 0x7fffffff  A3      : 0x00000000  A4      : 0x7fffffff  A5      : 0x00003850  
+A6      : 0x7fffffff  A7      : 0x00000018  A8      : 0x00000000  A9      : 0x00000320  
+A10     : 0x0000001b  A11     : 0x00000020  A12     : 0x3fff0938  A13     : 0x00000001  
+A14     : 0x402848ac  A15     : 0x9c65346e  SAR     : 0x00000018  EXCCAUSE: 0x0000001c  
+
+Backtrace: 0x40100eaa:0x3fff0780 0x40222ba7:0x3fff0790 Guru Meditation Error: Core  0 panic'ed (LoadStoreAlignment). Exception was unhandled.
+Core 0 register dump:
+PC      : 0x402417ed  PS      : 0x00000035  A0      : 0x40241760  A1      : 0x3ffea1c0  
+A2      : 0x00012b97  A3      : 0x00000183  A4      : 0x3fff07a1  A5      : 0x3fff079d  
+A6      : 0x000007fe  A7      : 0x000000a1  A8      : 0x000000c0  A9      : 0x00000320  
+A10     : 0x0000001b  A11     : 0x00000020  A12     : 0x40222ba7  A13     : 0x3ffea200  
+A14     : 0x40100e7b  A15     : 0x40100e7b  SAR     : 0x0000001f  EXCCAUSE: 0x00000009  
+
+Backtrace: 0x402417ed:0x3ffea1c0 0x402206ef:0x3ffea1f0 0x40100c7c:0x3ffea240 0x40241760:0x3ffea270 

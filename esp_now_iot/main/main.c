@@ -73,6 +73,17 @@ static xQueueHandle event_loop_queue;
 #endif
 
 
+int32_t last_mem = 0;
+int32_t get_leak()
+{
+    return ( esp_get_free_heap_size() - last_mem );
+}
+
+void set_mem()
+{
+    last_mem = esp_get_free_heap_size();
+}
+
 void debug_call_printf(const char *name, int x)
 {
     os_printf("___ %s ___ %s \n", name, x == 0 ? "OK" : "ERROR");
@@ -83,11 +94,11 @@ void debug_call_printf_void(const char *name)
 {
     os_printf("___ %s ___ %s \n", name, "OK");
 }
-#define __MSX_DEBUGV__(f)   debug_call_printf_void(#f)
+#define __MSX_DEBUGV__(f)   { os_printf("H: %d | L: %d | %s >>> ___ %s ___ \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f); f; os_printf("OK \n"); set_mem(); }
 
 
-#define __MSX_PRINTF__(__format, __VA_ARGS__...) os_printf("%s >>> "__format" \n", __FUNCTION__, __VA_ARGS__)
-#define __MSX_PRINT__(__format) os_printf("%s >>> "__format" \n", __FUNCTION__)
+#define __MSX_PRINTF__(__format, __VA_ARGS__...) { os_printf("H: %d | L: %d | %s >>> "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, __VA_ARGS__); set_mem(); }
+#define __MSX_PRINT__(__format) { os_printf("H: %d | L: %d | %s >>> "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__); set_mem();}
 
 
 
@@ -302,23 +313,18 @@ cJSON * read_pin(int pin)
 
 bool add_peer(uint8_t *mac_addr, uint8_t *lmk, uint8_t channel, wifi_interface_t ifidx, bool encrypt)
 {
-    os_printf("______ add_peer ______mac: "MACSTR"_\n", MAC2STR(mac_addr) );
-    
-    for (size_t i = 0; i < ESP_NOW_ETH_ALEN; i++)
-    {
-        os_printf("%02X:", mac_addr[i]);
-    }
-    os_printf("\n");
-    
+    __MSX_PRINTF__("mac: "MACSTR"", MAC2STR(mac_addr));
+
     size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = /*may cause crash*/ os_malloc(peer_sz);
     if (peer == NULL) {
-        os_printf("______ esp_now_add_peer ______%s_\n", "Malloc peer information fail" );
+        __MSX_PRINT__("malloc fault");
         return ESP_FAIL;
     } else
     {
-        os_printf("______ esp_now_add_peer ______%s_\n", "Malloc ok" );
+        __MSX_PRINT__("malloc ok");
     }
+
     memset(peer, 0, peer_sz);
     peer->channel = channel;
     peer->ifidx = ifidx;
@@ -329,19 +335,13 @@ bool add_peer(uint8_t *mac_addr, uint8_t *lmk, uint8_t channel, wifi_interface_t
 
     __MSX_DEBUG__( esp_now_add_peer(peer) );
 
-
-    __MSX_PRINT__("free section");
-    os_free(peer);
-    __MSX_PRINT__("free 'peer'");
+    __MSX_DEBUGV__( os_free(peer)   );
 /*     os_free(mac_addr);
     __MSX_PRINT__("free 'mac_addr'");
     os_free(lmk);
     __MSX_PRINT__("free 'lmk'"); */
     return ESP_OK;
 }
-
-
-
 
 
 
@@ -394,24 +394,21 @@ void send_packet_raw(const uint8_t *peer_addr, const uint8_t *data, size_t len)
     }
 
 
-    __MSX_DEBUGV__( os_free(msg)        );
     __MSX_DEBUGV__( os_free(&buffer)    );
-    __MSX_DEBUGV__( os_free(data)       );
-    __MSX_DEBUGV__( os_free(peer_addr)  );
+    __MSX_DEBUGV__( os_free(msg)        );
+
+/*     __MSX_DEBUGV__( os_free(data)       );
+    __MSX_DEBUGV__( os_free(peer_addr)  ); */
 }
 
 void send_packet(const uint8_t *peer_addr, const cJSON *data)
 {
-    char *char_data = cJSON_Print(data);
+    char *char_data = cJSON_PrintUnformatted(data); // not important to print unformatted but shorter than full;
     size_t len = strlen(char_data);
     uint8_t uint8_data[len];
     
-    for (size_t i = 0; i < len; i++)
-    {
-        uint8_data[i] = char_data[i];
-    }
-
-    os_printf("fuckin buf %s \n", char_data);
+    for (size_t i = 0; i < len; i++) uint8_data[i] = char_data[i];
+    __MSX_PRINTF__("buffer is %s", char_data);
     
 /*     cJSON *new_data = cJSON_GetArrayItem(data, 0);
 
@@ -424,9 +421,6 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
     uint32_t _magic = cJSON_GetObjectItem(new_data, "magic"); */
 
     send_packet_raw(peer_addr, uint8_data, len);
-
-
-    __MSX_PRINT__("free section");
 
     __MSX_DEBUGV__( memset(char_data, 0, len)    );
     __MSX_DEBUGV__( os_free(char_data)           );
@@ -451,8 +445,6 @@ void send_packet(const uint8_t *peer_addr, const cJSON *data)
 
 char *exec_packet(char *fuckdata)
 {
-
-    os_printf("%s >> input data size: %d \n", __FUNCTION__, strlen(fuckdata));
     __MSX_PRINTF__("input data size: %d", strlen(fuckdata));
 
     cJSON *pack = cJSON_Parse(fuckdata);
@@ -463,13 +455,14 @@ char *exec_packet(char *fuckdata)
 
 	if (pack == NULL || cJSON_IsInvalid(pack))
 	{
-		os_printf("%s >> parser malfunction \n", __FUNCTION__);
+        __MSX_PRINT__("parser malfunction");
 		return "parser malfunction";
 	}
 
     int arr_sz = cJSON_GetArraySize(pack);
 	if (arr_sz < /* <= */ 0)
 	{
+        __MSX_PRINT__("data malfunction");
 		return "data misfunction";
 	}
 
@@ -477,7 +470,7 @@ char *exec_packet(char *fuckdata)
 
 	for (uint32_t i = 0; i < arr_sz; i++)
 	{
-        os_printf("%s >> using pack %d \n", __FUNCTION__, i);
+        __MSX_PRINTF__("using packet %d", i);
         const cJSON *data = cJSON_GetArrayItem(pack, i);
         // char *data_type = json_type( (cJSON *) data);
         // char *data_tmp = cJSON_Print(data);
@@ -490,12 +483,11 @@ char *exec_packet(char *fuckdata)
 
         if (cJSON_IsString(data))
         {
-
-            os_printf("%s >> data is string \n", __FUNCTION__);
+            __MSX_PRINT__("data is string");
 
             if (strcmp("status", data->valuestring) == 0)
             {
-                os_printf("%s >> data is status \n", __FUNCTION__);
+                __MSX_PRINT__("data is status");
                 // uint8_t temp_farenheit = temprature_sens_read();
                 // float temp_celsius = ( temp_farenheit - 32 ) / 1.8;
                 // ^ need to include to status packet;
@@ -515,7 +507,7 @@ char *exec_packet(char *fuckdata)
         else if (cJSON_IsObject(data))
         {
 
-            os_printf("%s >> data is object \n", __FUNCTION__);
+            __MSX_PRINT__("data is object");
 
             if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
             {
@@ -536,28 +528,31 @@ char *exec_packet(char *fuckdata)
                 int res = sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer_addrs[0], &peer_addrs[1], &peer_addrs[2], &peer_addrs[3], &peer_addrs[4], &peer_addrs[5]);
                 //for (size_t i = 0; i < 6; i++) peer_addrs[i] = (uint8_t)addr_int[i];
 
-                os_printf("%s >> peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, peer_addrs[0], peer_addrs[1], peer_addrs[2], peer_addrs[3], peer_addrs[4], peer_addrs[5]);
+/*                 os_printf("%s >> peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, peer_addrs[0], peer_addrs[1], peer_addrs[2], peer_addrs[3], peer_addrs[4], peer_addrs[5]);
                 os_printf("%s >> my mac is %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, my_mac[0], my_mac[1], my_mac[2], my_mac[3], my_mac[4], my_mac[5]);
+ */
+                __MSX_PRINTF__("peer mac is "MACSTR"", MAC2STR(peer_addrs));
+                __MSX_PRINTF__("my mac is "MACSTR"", MAC2STR(my_mac));
 
                 to_me = ( memcmp(peer_addrs, my_mac, ESP_NOW_ETH_ALEN) == 0 );
 
                 if (!to_me)
                 {
-                    os_printf("%s >> not for me... \n", __FUNCTION__);
+                    __MSX_PRINT__("not for me");
                     
                     esp_now_del_peer(peer_addrs);
                     if (!esp_now_is_peer_exist(peer_addrs))
                     {
-                        os_printf("%s >> peer not found \n", __FUNCTION__);
+                        __MSX_PRINT__("peer not found");
 
                         if ( add_peer(peer_addrs, /* & */(uint8_t *) CONFIG_ESPNOW_LMK, MESH_CHANNEL, ESPNOW_WIFI_IF, false) == 0)
                         {
-                            os_printf("%s >> peer added >> sending direct message \n", __FUNCTION__);
+                            __MSX_PRINT__("peer added >> sending direct message");
                             send_packet(peer_addrs, pack);
                         }
                         else
                         {
-                            os_printf("%s >> failed to add peer >> broadcast \n", __FUNCTION__);
+                            __MSX_PRINT__("failed to add peer >> broadcast");
                             send_packet(broadcast_mac, pack);
                         }
                     }
@@ -568,18 +563,19 @@ char *exec_packet(char *fuckdata)
                 }
 
                 /* os_free(&addr_int); */
-                /* os_free(&peer_addrs); */
+                /*  */
+                //__MSX_DEBUGV__( os_free(&peer_addrs)   );
                 /* os_free(&my_mac); */
 /*                 os_free(&datas_u8);
                 os_free(datas_raw); */
-                os_free(to_str);
+                __MSX_DEBUGV__( os_free(to_str)     );
             }
 
             // IF SENDER IS NOT EQUALS TO RECV_CB MAC >> DO NOT SEND PACKET FOR HIM
 
             if (to_me)
             {
-                os_printf("%s >> packet to me >> parsing... \n", __FUNCTION__);
+                __MSX_PRINT__("packet to me >> parsing...");
                 if (cJSON_GetObjectItemCaseSensitive(data, "pingmsg") != NULL)
                 {
                     // buf_val = cJSON_GetObjectItem(data, "pingmsg");
@@ -594,7 +590,7 @@ char *exec_packet(char *fuckdata)
                     for (size_t i = 0; i < lens; i++) pingmsg[i] = msg[i];
 
                     // os_free(msg8t);
-                    os_free(msg);
+                    __MSX_DEBUGV__( os_free(msg)    );
                 }
 
                 if (cJSON_GetObjectItemCaseSensitive(data, "broadcast") != NULL)
@@ -613,7 +609,7 @@ char *exec_packet(char *fuckdata)
                         //val = (val > 1) ? (rand() % 2) : val;
                         val = (int) ( (bool) !gpio_get_level(pin) );
 
-                        os_printf("%s >> digitalWrite >> pin %d | val %d \n", __FUNCTION__, pin, val);
+                        __MSX_PRINTF__("digitalWrite >> pin %d | val %d ", pin, val);
 
                         gpio_set_direction(pin, GPIO_MODE_OUTPUT);
                         gpio_set_level(pin, val);
@@ -646,7 +642,7 @@ char *exec_packet(char *fuckdata)
 
                         cJSON_AddItemToArray(ret_arr, pin_obj);
 
-                        os_printf("%s >> digitalRead >> pin %d | val %d \n", __FUNCTION__, pin, val);
+                        __MSX_PRINTF__("digitalRead >> pin %d | val %d ", pin, val);
 
                         // cJSON_Delete(tmp_val);
                         continue;
@@ -657,16 +653,16 @@ char *exec_packet(char *fuckdata)
        /* cJSON_Delete(data); */
     }
 
-    cJSON_Delete(pack);
-
-    os_printf("exec_packet end \n");
+    __MSX_DEBUGV__( cJSON_Delete(pack)      );
 
     char *ret_ = cJSON_PrintUnformatted(ret_arr);
 
-    cJSON_Delete(ret_arr);
-    os_free(fuckdata);
+    __MSX_DEBUGV__( cJSON_Delete(ret_arr)   );
+    __MSX_DEBUGV__( os_free(fuckdata)       );
 
-    os_printf("%s >> return is %s \n", __FUNCTION__, ret_);
+    __MSX_PRINTF__("return is %s ", ret_);
+
+    __MSX_PRINT__("end");
 
 	return ret_;
 }
@@ -741,17 +737,17 @@ void event_loop(void *params)
         {
             case MSX_ESP_NOW_INIT:
             {
-                os_printf( "%s >> MSX_ESP_NOW_INIT \n", __FUNCTION__);
+                __MSX_PRINT__("MSX_ESP_NOW_INIT");
                 break;
             }
             case MSX_ESP_NOW_SEND_CB:
             {
-                os_printf( "%s >> MSX_ESP_NOW_SEND_CB \n", __FUNCTION__);
+                __MSX_PRINT__("MSX_ESP_NOW_SEND_CB");
                 break;
             }
             case MSX_ESP_NOW_RECV_CB:
             {
-                os_printf( "%s >> MSX_ESP_NOW_RECV_CB \n", __FUNCTION__);
+                __MSX_PRINT__("MSX_ESP_NOW_RECV_CB");
 
             //    char *datas = /*may cause crash*/ (char *) os_malloc(evt.len);
             //    memcpy(datas, evt.data, evt.len);
@@ -767,56 +763,55 @@ void event_loop(void *params)
                 //cJSON_Delete(pack);
                 //os_free(pack);
 
-                os_free(evt.data);
+                __MSX_DEBUGV__( os_free(evt.data)   );
 
                 break;
             }
 
             case MSX_UART_DATA:
             {
-                os_printf( "%s >> MSX_UART_DATA \n", __FUNCTION__);
+                __MSX_PRINT__("MSX_UART_DATA");
 
-                    os_printf("\n\n da fuck uart shit is coming %.*s \n", evt.len, (char *) evt.data);      //  printf with size;
+                __MSX_PRINTF__("uart data is %.*s", evt.len, (char *) evt.data);
+                char *asd = exec_packet((char *) evt.data);
+                // os_free(asd);
+                //os_free(tmp1);
 
-                    char *asd = exec_packet((char *) evt.data);
-                    // os_free(asd);
-                    //os_free(tmp1);
 
-
-                os_free(evt.data);
+                __MSX_DEBUGV__( os_free(evt.data)   );
 
                 break;
             }
 
             case WIFI_EVENT_STA_START:
             {
-                os_printf( "%s >> MSX_WIFI_EVENT_STA_START \n", __FUNCTION__);
+                __MSX_PRINT__("MSX_WIFI_EVENT_STA_START");
                 break;
             }
             case WIFI_EVENT_STA_DISCONNECTED:
             {
-                os_printf( "%s >> MSX_WIFI_EVENT_STA_DISCONNECTED \n", __FUNCTION__);
+                __MSX_PRINT__("MSX_WIFI_EVENT_STA_DISCONNECTED");
                 break;
             }
             case IP_EVENT_STA_GOT_IP:
             {
                 ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt.data;
-                os_printf( "%s >> MSX_IP_EVENT_STA_GOT_IP %s \n", __FUNCTION__, ip4addr_ntoa(&event->ip_info.ip) );
-                os_free(event);
+                __MSX_PRINTF__("MSX_IP_EVENT_STA_GOT_IP >> ip_info.ip : %s", ip4addr_ntoa(&event->ip_info.ip));
+                __MSX_DEBUGV__( os_free(event)  );
                 break;
             }
             default:
             {
-                os_printf( "%s >> UNKNOWN_EVENT %d \n", __FUNCTION__, evt.id);
+                __MSX_PRINTF__("UNKNOWN_EVENT %d", evt.id);
                 break;
             }
         }
 
-        os_free(evt.data);
-        os_free(&evt);
+        __MSX_DEBUGV__( os_free(evt.data)   );
+        __MSX_DEBUGV__( os_free(&evt)   );
     }
 
-    vTaskDelete(NULL);
+    __MSX_DEBUGV__( vTaskDelete(NULL)   );
 }
 
 
@@ -898,7 +893,7 @@ static void uart_task(void *pvParameters)
         // Waiting for UART event.
         if (xQueueReceive(uart_queue, (void *)&event, (portTickType)portMAX_DELAY)) {
             bzero(dtmp, RD_BUF_SIZE);
-            os_printf("uart[%d] event: \n", EX_UART_NUM);
+            // maybe printf;
 
             switch (event.type) {
                 // Event of UART receving data
@@ -906,18 +901,18 @@ static void uart_task(void *pvParameters)
                 // other types of events. If we take too much time on data event, the queue might be full.
                 case UART_DATA:
                 {
-                    os_printf("[UART DATA]: %d \n", event.size);
                     uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
                     
                     uint8_t buff[event.size];
                     memset(buff, 0, event.size);
                     memcpy(buff, dtmp, event.size);
 
-                    os_printf("generating event MSX_UART_DATA with data >> %s \n", buff);
+                    __MSX_PRINTF__("generating event MSX_UART_DATA with data >> %s", buff);
+
 
                     if ( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) != pdTRUE )
                     {
-                        os_printf("%s >> raise_event error >> \n", __FUNCTION__);
+                        __MSX_PRINT__("raise_event error");
                     }
 
                     //os_free(&buff);
@@ -927,6 +922,7 @@ static void uart_task(void *pvParameters)
                 // Event of HW FIFO overflow detected
                 case UART_FIFO_OVF:
                     os_printf("hw fifo overflow \n");
+                    //__MSX_PRINT__("hw fifo overflow");
                     // If fifo overflow happened, you should consider adding flow control for your application.
                     // The ISR has already reset the rx FIFO,
                     // As an example, we directly flush the rx buffer here in order to read more data.
@@ -1112,9 +1108,9 @@ static void uart_task2(void *params)
 
 static void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
-    os_printf("%s >> mac: "MACSTR" status: %d \n", __FUNCTION__, MAC2STR(mac_addr), status);
+    __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
     raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0);
-    os_free(mac_addr);
+    //os_free(mac_addr);    // maybe memory leak;
     //os_free(evt);
 }
 
@@ -1134,7 +1130,7 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         stack_push(msg_stack, msg->magic);
     } else
     {
-        os_printf("SHITTY WARNING!!! %s >> _magic is already exists in msg_stack \n", __FUNCTION__);
+        __MSX_PRINT__("SHITTY WARNING!!! >> _magic is already exists in msg_stack");
         return;
     }
 
@@ -1155,13 +1151,13 @@ static void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 
     if ( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) != pdTRUE )
     {
-        os_printf("%s >> raise_event error >> \n", __FUNCTION__);
+        __MSX_PRINT__("raise_event error");
 /*         os_free(msg->buffer);
         os_free(msg_buf); */
     }
 
 
-    os_printf("%s >> free memory section \n", __FUNCTION__);
+    __MSX_PRINT__("free memory section");
     // os_free(msg->buffer);
     // os_free(msg_buf);
 
@@ -1325,15 +1321,15 @@ esp_err_t get_handler(httpd_req_t *req)
 
     char *string = cJSON_Print(root); // cJSON_PrintUnformatted
 
-    os_printf("string: %s\n", string);
+    __MSX_PRINTF__("string %s", string);
 
 	httpd_resp_send(req, string, strlen(string));
 
     cJSON_Delete(root); // crash warning
-    os_free(root);
-    os_free(string);
+    __MSX_DEBUGV__( os_free(root)   );
+    __MSX_DEBUGV__( os_free(string) );
 
-	os_printf("get_handler end \n");
+    __MSX_PRINT__("get_handler end");
 
     // do it next day
     return ESP_OK;
@@ -1349,8 +1345,9 @@ httpd_uri_t uri_get = { .uri = "/status",
 
 esp_err_t post_handler(httpd_req_t *req)
 {
+    __MSX_PRINT__("start");
+
     cJSON *buffer = NULL;
-	os_printf("%s >> start \n", __FUNCTION__);
 	char content[512];
 	size_t recv_size = MIN(req->content_len, sizeof(content));
 
@@ -1365,7 +1362,7 @@ esp_err_t post_handler(httpd_req_t *req)
 		return ESP_FAIL;
 	}
 
-	os_printf("%s >>buffer: %.*s \n", __FUNCTION__, req->content_len, content);
+    __MSX_PRINTF__("buffer %.*s", req->content_len, content);
 
 /*     cJSON *parsed_buffer = cJSON_Parse((const char *) content);
     os_printf("parsing buffer ... \n");
@@ -1391,14 +1388,14 @@ esp_err_t post_handler(httpd_req_t *req)
 
 	httpd_resp_send(req, resp, sizeof(resp));
 
-	os_printf("%s >> end \n", __FUNCTION__);
 
-    os_free(resp);
-    cJSON_Delete(buffer); // crash warning
-    os_free(buffer);
-    os_free(&content);  // ??? crash
+    __MSX_DEBUGV__( os_free(resp)           );
+    __MSX_DEBUGV__( cJSON_Delete(buffer)    ); // crash warning
+    __MSX_DEBUGV__( os_free(buffer)         );
+    __MSX_DEBUGV__( os_free(&content)       ); // ??? crash    
+    __MSX_DEBUGV__( os_free(&req)           );
 
-    os_free(&req);
+    __MSX_PRINT__("end");
 
 	return ESP_OK;
 }
@@ -1411,7 +1408,7 @@ httpd_uri_t uri_post = { .uri = "/",
 
 httpd_handle_t start_webserver(void)
 {
-	os_printf("Starting web server \n");
+    __MSX_PRINT__("start");
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 	config.server_port = PORT;
 
@@ -1421,7 +1418,7 @@ httpd_handle_t start_webserver(void)
 	{
 		httpd_register_uri_handler(server, &uri_get);
 		httpd_register_uri_handler(server, &uri_post);
-		os_printf("All handlers in register \n");
+        __MSX_PRINT__("All handlers in register");
 	}
 
 	return server;
@@ -1429,13 +1426,12 @@ httpd_handle_t start_webserver(void)
 
 void stop_webserver(httpd_handle_t server)
 {
-	os_printf("stop_webserver start \n");
+    __MSX_PRINT__("start");
 	if (server)
 	{
 		httpd_stop(server);
 	}
-
-	os_printf("stop_webserver end \n");
+    __MSX_PRINT__("end");
 }
 
 
@@ -1471,6 +1467,8 @@ static void app_loop()
 {
 
     vTaskDelay(2000 / portTICK_RATE_MS);
+
+    return;
 
     char *char_data = "[{\"digitalWrite\":{\"pin\":2,\"value\":2}}]";
     size_t len = strlen(char_data);
@@ -1590,8 +1588,7 @@ void app_main()
 
     xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
 
-
-    os_printf("%s >> init done \n", __FUNCTION__);
+    __MSX_PRINT__("init done");
 
 }
 
