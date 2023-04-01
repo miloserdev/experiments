@@ -22,6 +22,11 @@
         "cstring": "c",
         "esp_heap_trace.h": "c",
         "atomic": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "*.tcc": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp"
     }
 }

@@ -83,12 +83,17 @@ void set_mem() { last_mem = esp_get_free_heap_size(); }
 
 #define ___MSX_FMT  "H: %d | L: %d | %s >>>"
 
+#ifdef __DEBUG__
 #define __MSX_DEBUG__(f)   { os_printf(""___MSX_FMT" ___ %s ___ %s \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f, f == 0 ? "OK" : "ERROR"); set_mem(); }
-
 #define __MSX_DEBUGV__(f)   { os_printf(""___MSX_FMT" ___ %s ___ \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f); f; os_printf("OK \n"); set_mem(); }
-
 #define __MSX_PRINTF__(__format, __VA_ARGS__...) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, __VA_ARGS__); set_mem(); }
 #define __MSX_PRINT__(__format) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__); set_mem();}
+#else
+#define __MSX_DEBUG__(f)    { f; }
+#define __MSX_DEBUGV__(f)   { f; }
+#define __MSX_PRINTF__(...)
+#define __MSX_PRINT__(...) 
+#endif
 
 int32_t __per_func_mem__ = 0;
 #define __MSX_LEAK_START__()     { os_printf("\n\n \t\t\t FUNC: %s MEM TEST START | HEAP: %d \n\n", __FUNCTION__, esp_get_free_heap_size()); __per_func_mem__ = esp_get_free_heap_size(); }
@@ -109,14 +114,9 @@ uint32_t get_hash(char *data, size_t sz)
     return ret;
 }
 
-
-
 uint8_t pingmsg[128];
 uint8_t my_mac[ESP_NOW_ETH_ALEN];
 static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
-
-
 
 #pragma pack(1)
 typedef struct {
@@ -504,7 +504,7 @@ char *exec_packet(char *datas, size_t len)
             if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
             {
                 char *to_str = cJSON_GetObjectItem(data, "to")->valuestring;
-                size_t to_size = strlen(to_str);
+                /* size_t to_size = strlen(to_str); */
 
 /*                 char *datas_raw = cJSON_Print(pack); // cJSON_PrintUnformatted
                 int datas_size = strlen((const char *)datas_raw);
@@ -517,7 +517,7 @@ char *exec_packet(char *datas, size_t len)
 
                 uint8_t peer_addrs[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
                 /* int addr_int[6] = {0, 0, 0, 0, 0, 0}; */
-                int res = sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer_addrs[0], &peer_addrs[1], &peer_addrs[2], &peer_addrs[3], &peer_addrs[4], &peer_addrs[5]);
+                sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer_addrs[0], &peer_addrs[1], &peer_addrs[2], &peer_addrs[3], &peer_addrs[4], &peer_addrs[5]);
                 //for (size_t i = 0; i < 6; i++) peer_addrs[i] = (uint8_t)addr_int[i];
 
 /*                 os_printf("%s >> peer mac is %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, peer_addrs[0], peer_addrs[1], peer_addrs[2], peer_addrs[3], peer_addrs[4], peer_addrs[5]);
@@ -765,7 +765,6 @@ void event_loop(void *params)
                 __MSX_PRINT__("MSX_UART_DATA");
 
                 __MSX_PRINTF__("uart data is %.*s", evt->len, (char *) evt->data);
-                __MSX_PRINTF__("uart data is %s", (char *) evt->data);
                 //uint8_t u8_data[evt.len];
                 //for (size_t i = 0; i < evt.len; i++) u8_data[i] = evt.data[i];
                 char *asd = exec_packet((char *) evt->data, evt->len);
@@ -804,8 +803,8 @@ void event_loop(void *params)
             }
         }
 
-        /* __MSX_DEBUGV__( os_free(evt->data)   );
-        __MSX_DEBUGV__( os_free(evt)   ); */
+        __MSX_DEBUGV__( os_free(evt->data)   );
+        __MSX_DEBUGV__( os_free(evt)   );
     }
 
     __MSX_DEBUGV__( vTaskDelete(NULL)   );
@@ -853,7 +852,7 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     evt->base = (base ? base : NULL);
     evt->status = (status ? status : 0);
     evt->data = NULL;   //          IMPORTANT;
-    evt->data = os_malloc(len);
+    evt->data = (void *) os_malloc(len);
     __MSX_DEBUGV__( memcpy(evt->data, data, len)    );
     __MSX_PRINTF__("len %d", len);
     evt->len = len;
@@ -865,7 +864,8 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
 
         evt->data = dat;
     } */
-    __MSX_DEBUG__( (xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) != pdTRUE) );
+    int xq = (xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) != pdTRUE);
+    //__MSX_DEBUG__( xq );
 
     //__MSX_DEBUGV__( os_free(evt)   );
 
@@ -1059,7 +1059,8 @@ esp_err_t espnow_init(void)
     __MSX_DEBUG__( esp_now_register_recv_cb(recv_cb) );
     __MSX_DEBUG__( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
 
-    add_peer(broadcast_mac, NULL, MESH_CHANNEL, ESPNOW_WIFI_IF, false);
+    add_peer( (uint8_t *) broadcast_mac, NULL, MESH_CHANNEL, ESPNOW_WIFI_IF, false);
+
     //os_free(evt);
 
     __MSX_DEBUG__( raise_event(MSX_ESP_NOW_INIT, NULL, ESP_OK, NULL, 0) );
@@ -1107,10 +1108,9 @@ void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, voi
 
 
 /* static  */
-void wifi_init(void)
+esp_err_t wifi_init(void)
 {
     tcpip_adapter_init();
-    __MSX_DEBUG__( 0 );
     __MSX_DEBUG__( esp_event_loop_create_default() );
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -1144,6 +1144,8 @@ void wifi_init(void)
 
     os_free(&cfg);
     os_free(&wifi_config);
+
+    return ESP_OK;
 }
 
 
@@ -1193,6 +1195,18 @@ esp_err_t get_handler(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateArray();
 
+    cJSON *sysinf = cJSON_CreateObject();
+
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+
+    cJSON_AddStringToObject(sysinf, "version", __VERSION__);
+    cJSON_AddNumberToObject(sysinf, "model", chip_info.model);
+    cJSON_AddNumberToObject(sysinf, "features", chip_info.features);
+    cJSON_AddNumberToObject(sysinf, "cores", chip_info.cores);
+    cJSON_AddNumberToObject(sysinf, "revision", chip_info.revision);
+    cJSON_AddItemToArray(root, sysinf);
+
     cJSON_AddItemToArray(root, read_pin(0));
     cJSON_AddItemToArray(root, read_pin(1));
     cJSON_AddItemToArray(root, read_pin(2));
@@ -1201,6 +1215,7 @@ esp_err_t get_handler(httpd_req_t *req)
 
     __MSX_PRINTF__("string %s", string);
 
+    httpd_resp_set_type(req, "application/json");
 	httpd_resp_send(req, string, strlen(string));
 
     __MSX_DEBUGV__( cJSON_Delete(root)  );
@@ -1241,7 +1256,7 @@ esp_err_t post_handler(httpd_req_t *req)
 		return ESP_FAIL;
 	}
 
-    __MSX_PRINTF__("buffer %.*s", req->content_len, content);
+    __MSX_PRINTF__("buffer %.*s size: %d", req->content_len, content, req->content_len);
 
 /*     cJSON *parsed_buffer = cJSON_Parse((const char *) content);
     os_printf("parsing buffer ... \n");
@@ -1263,12 +1278,12 @@ esp_err_t post_handler(httpd_req_t *req)
     return; // !!!!!!!!!!!!!!!!! */
 
 	//buffer = cJSON_Parse((const char *) content);
-	const char *resp = (const char *) exec_packet((const char *) content, req->content_len);
+	const char *resp = (const char *) exec_packet(content, req->content_len);
 
 	httpd_resp_send(req, resp, sizeof(resp));
 
 
-    __MSX_DEBUGV__( os_free(resp)           );
+    __MSX_DEBUGV__( os_free( (void *) resp)           );
     /* __MSX_DEBUGV__( cJSON_Delete(buffer)    ); */ // crash warning
     /* __MSX_DEBUGV__( os_free(buffer)         ); */
     __MSX_DEBUGV__( os_free(&content)       ); // ??? crash    
@@ -1281,7 +1296,7 @@ esp_err_t post_handler(httpd_req_t *req)
 httpd_uri_t uri_post = {
     .uri = "/",
 	.method = HTTP_POST,
-	.handler =&post_handler,
+	.handler = post_handler,
 	.user_ctx = NULL
 };
 
@@ -1370,7 +1385,7 @@ void app_loop()
     
 
     uint32_t _magic = esp_random();
-    char *char_magic[sizeof(_magic)];
+    char *char_magic = "00000000";
     sprintf(char_magic, "%08x", _magic);
 
                                              // \"magic\": \"0\",
@@ -1380,8 +1395,8 @@ void app_loop()
     cJSON *data = cJSON_CreateArray();
 
     cJSON *crs = cJSON_CreateObject();
-    cJSON_AddStringToObject(crs, "magic", char_magic);
-    cJSON_AddStringToObject(crs, "broadcast", "hello fuck");
+    cJSON_AddStringToObject(crs, (const char * const) "magic", (const char * const) char_magic);
+    cJSON_AddStringToObject(crs, (const char * const) "broadcast", (const char * const) "hello fuck");
 
     cJSON_AddItemToArray(data, crs);
 
@@ -1428,7 +1443,7 @@ void vTaskFunction( void * pvParameters )
 void app_main()
 {
     event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
-    xTaskCreate(event_loop, "vTask_event_loop", /* 16 * 1024 */ 8192, NULL, 0, NULL);
+    __MSX_DEBUG__( xTaskCreate(event_loop, "vTask_event_loop", /* 16 * 1024 */ 8192, NULL, 0, NULL) );
                                                 // ??????
 
     __MSX_DEBUG__( nvs_flash_init() );
@@ -1440,13 +1455,13 @@ void app_main()
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
     };
-    uart_param_config(uart_port, &uart_config);
+    __MSX_DEBUG__( uart_param_config(uart_port, &uart_config)   );
 
-    uart_driver_install(uart_port, uart_buffer_size * 2, uart_buffer_size * 2, 10, &uart_queue, 0);
+    __MSX_DEBUG__( uart_driver_install(uart_port, uart_buffer_size * 2, uart_buffer_size * 2, 10, &uart_queue, 0)   );
     
     //uart_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, uart_buffer_size );
     //uart_set_baudrate(uart_port, 115200);
-    xTaskCreate(uart_task, "vTask_uart_task", uart_buffer_size * 2, NULL, 0, NULL);
+    __MSX_DEBUG__( xTaskCreate(uart_task, "vTask_uart_task", uart_buffer_size * 2, NULL, 0, NULL)   );
 
 
     // esp_get_free_heap_size >> 41616 <-- exec_packet
@@ -1462,11 +1477,11 @@ void app_main()
 
 
 
-    wifi_init();
-    espnow_init();
-    start_webserver(&server);
+    __MSX_DEBUG__( wifi_init()              );
+    __MSX_DEBUG__( espnow_init()            );
+    __MSX_DEBUG__( start_webserver(&server) );
 
-    xTaskCreate(vTaskFunction, "vTaskFunction_loop", 4096, NULL, 0, NULL);
+    __MSX_DEBUG__( xTaskCreate(vTaskFunction, "vTaskFunction_loop", 4096, NULL, 0, NULL)    );
 
     __MSX_PRINT__("init done");
 
