@@ -73,6 +73,8 @@ static xQueueHandle event_loop_queue;
 #define MESH_CHANNEL                0 // CONFIG_ESPNOW_CHANNEL
 #define PORT                        8066
 
+#define __DEBUG__
+
 #if CONFIG_STATION_MODE
 #define ESPNOW_WIFI_MODE WIFI_MODE_STA
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_STA
