@@ -1,5 +1,16 @@
-/////////////////////////////////////////////////////
 /*
+    //////////////////////////////////////////////////////////////////
+    ESP8266 >>> WiFi WebServer | ESP-NOW Transciever | UART-TTL Dongle
+    //////////////////////////////////////////////////////////////////
+    
+    Features:
+        Send raw and JSON data through ESP-NOW;
+        Send raw and JSON data between UART/HTTPD and ESP-NOW;
+        Broadcast and multicast through ESP-NOW;
+        Support of simple web pages and/or API implementation;
+
+    //////////////////////////////////////////////////////////////////
+    
     1. Print cJSON number variables causes Guru Meditation :D;
         FIX: Need to disable "nano" formatting in menuconfig;
         make menuconfig -> Component config -> Newlib -> "nano" formatting
@@ -7,12 +18,10 @@
     2. UART data sending only in non separated format;
         i will make a buffer concatenator (maybe later XD);
         echo -en '\x12\x02[{"to":"34:94:54:62:9f:74","digitalWrite":{"pin":2,"value":2}}]' > /dev/ttyUSB1
+
+    //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
 */
-/*
-    Need to fix:
-        idk why but os_free through __MSX_DEBUGV__ works fine, but without nest calling it causes crash;
- */
-/////////////////////////////////////////////////////
 
 
 
