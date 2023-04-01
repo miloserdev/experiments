@@ -756,7 +756,7 @@ void event_loop(void *params)
                 //cJSON_Delete(pack);
                 //os_free(pack);
 
-                __MSX_DEBUGV__( os_free(evt->data)   );
+                /* __MSX_DEBUGV__( os_free(evt->data)   ); */
                 break;
             }
 
@@ -765,6 +765,7 @@ void event_loop(void *params)
                 __MSX_PRINT__("MSX_UART_DATA");
 
                 __MSX_PRINTF__("uart data is %.*s", evt->len, (char *) evt->data);
+                __MSX_PRINTF__("uart data is %s", (char *) evt->data);
                 //uint8_t u8_data[evt.len];
                 //for (size_t i = 0; i < evt.len; i++) u8_data[i] = evt.data[i];
                 char *asd = exec_packet((char *) evt->data, evt->len);
@@ -774,7 +775,7 @@ void event_loop(void *params)
                 //os_free(tmp1);
 
 
-                __MSX_DEBUGV__( os_free(evt->data)   );
+                /* __MSX_DEBUGV__( os_free(evt->data)   ); */
 
                 break;
             }
@@ -803,8 +804,8 @@ void event_loop(void *params)
             }
         }
 
-        __MSX_DEBUGV__( os_free(evt->data)   );
-        __MSX_DEBUGV__( os_free(evt)   );
+        /* __MSX_DEBUGV__( os_free(evt->data)   );
+        __MSX_DEBUGV__( os_free(evt)   ); */
     }
 
     __MSX_DEBUGV__( vTaskDelete(NULL)   );
@@ -851,7 +852,8 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
     evt->id = id;
     evt->base = (base ? base : NULL);
     evt->status = (status ? status : 0);
-    evt->data = (void *) os_malloc(sizeof(void) * len);
+    evt->data = NULL;   //          IMPORTANT;
+    evt->data = os_malloc(len);
     __MSX_DEBUGV__( memcpy(evt->data, data, len)    );
     __MSX_PRINTF__("len %d", len);
     evt->len = len;
@@ -864,6 +866,8 @@ bool raise_event(int id, esp_event_base_t base, esp_now_send_status_t status, vo
         evt->data = dat;
     } */
     __MSX_DEBUG__( (xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) != pdTRUE) );
+
+    //__MSX_DEBUGV__( os_free(evt)   );
 
     return ESP_OK;
 }
@@ -899,10 +903,11 @@ void uart_task(void *params)
 
                     __MSX_PRINTF__("generating event MSX_UART_DATA with size %d >> data >> %s", event.size, buff);
 
+                    // esp_err_t esp_now_send(const uint8_t *peer_addr, const uint8_t *data, size_t len);
 
-                    __MSX_DEBUG__( raise_event(MSX_UART_DATA, NULL, 0, buff, event.size) );
+                    __MSX_DEBUG__( raise_event(MSX_UART_DATA, NULL, 0, (uint8_t *) &buff, event.size) );
 
-                    __MSX_DEBUGV__( os_free(&buff)  );
+                    /* __MSX_DEBUGV__( os_free(&buff)  ); */
 
                     break;
                 }
@@ -1184,10 +1189,6 @@ typedef struct {
 
 
 
-
-#define HTTP_BUF_SIZE   256
-char http_buf[HTTP_BUF_SIZE];
-
 esp_err_t get_handler(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateArray();
@@ -1202,7 +1203,7 @@ esp_err_t get_handler(httpd_req_t *req)
 
 	httpd_resp_send(req, string, strlen(string));
 
-    cJSON_Delete(root); // crash warning
+    __MSX_DEBUGV__( cJSON_Delete(root)  );
     __MSX_DEBUGV__( os_free(root)   );
     __MSX_DEBUGV__( os_free(string) );
 
@@ -1212,9 +1213,10 @@ esp_err_t get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-httpd_uri_t uri_get = { .uri = "/status",
+httpd_uri_t uri_get = {
+    .uri = "/status",
 	.method = HTTP_GET,
-	.handler = &get_handler,
+	.handler = get_handler,
 	.user_ctx = NULL
 };
 
@@ -1224,7 +1226,7 @@ esp_err_t post_handler(httpd_req_t *req)
 {
     __MSX_PRINT__("start");
 
-    cJSON *buffer = NULL;
+    /* cJSON *buffer = NULL; */
 	char content[512];
 	size_t recv_size = MIN(req->content_len, sizeof(content));
 
@@ -1267,8 +1269,8 @@ esp_err_t post_handler(httpd_req_t *req)
 
 
     __MSX_DEBUGV__( os_free(resp)           );
-    __MSX_DEBUGV__( cJSON_Delete(buffer)    ); // crash warning
-    __MSX_DEBUGV__( os_free(buffer)         );
+    /* __MSX_DEBUGV__( cJSON_Delete(buffer)    ); */ // crash warning
+    /* __MSX_DEBUGV__( os_free(buffer)         ); */
     __MSX_DEBUGV__( os_free(&content)       ); // ??? crash    
     __MSX_DEBUGV__( os_free(&req)           );
 
@@ -1276,29 +1278,30 @@ esp_err_t post_handler(httpd_req_t *req)
 
 	return ESP_OK;
 }
-httpd_uri_t uri_post = { .uri = "/",
+httpd_uri_t uri_post = {
+    .uri = "/",
 	.method = HTTP_POST,
-	.handler = &post_handler,
+	.handler =&post_handler,
 	.user_ctx = NULL
 };
 
 
-httpd_handle_t start_webserver(void)
+esp_err_t start_webserver(httpd_handle_t *server)
 {
     __MSX_PRINT__("start");
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 	config.server_port = PORT;
 
-	server = NULL;
+	/* server = NULL; */
 
 	if (httpd_start(&server, &config) == ESP_OK)
 	{
 		httpd_register_uri_handler(server, &uri_get);
 		httpd_register_uri_handler(server, &uri_post);
-        __MSX_PRINT__("All handlers in register");
+        __MSX_PRINT__("All handlers is registered");
 	}
 
-	return server;
+	return /* server; */ ESP_OK;
 }
 
 void stop_webserver(httpd_handle_t server)
@@ -1425,9 +1428,8 @@ void vTaskFunction( void * pvParameters )
 void app_main()
 {
     event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
-    xTaskCreate(event_loop, "vTask_event_loop", 16 * 1024, NULL, 0, NULL);
+    xTaskCreate(event_loop, "vTask_event_loop", /* 16 * 1024 */ 8192, NULL, 0, NULL);
                                                 // ??????
-
 
     __MSX_DEBUG__( nvs_flash_init() );
 
@@ -1440,11 +1442,11 @@ void app_main()
     };
     uart_param_config(uart_port, &uart_config);
 
-    uart_driver_install(uart_port, uart_buffer_size_x2, uart_buffer_size_x2, 10, &uart_queue, 0);
+    uart_driver_install(uart_port, uart_buffer_size * 2, uart_buffer_size * 2, 10, &uart_queue, 0);
     
     //uart_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, uart_buffer_size );
     //uart_set_baudrate(uart_port, 115200);
-    xTaskCreate(uart_task, "vTask_uart_task", uart_buffer_size_x2, NULL, 0, NULL);
+    xTaskCreate(uart_task, "vTask_uart_task", uart_buffer_size * 2, NULL, 0, NULL);
 
 
     // esp_get_free_heap_size >> 41616 <-- exec_packet
@@ -1462,9 +1464,9 @@ void app_main()
 
     wifi_init();
     espnow_init();
-    server = start_webserver();
+    start_webserver(&server);
 
-    xTaskCreate(vTaskFunction, "vTaskFunction_loop", 16 * 1024, NULL, 0, NULL);
+    xTaskCreate(vTaskFunction, "vTaskFunction_loop", 4096, NULL, 0, NULL);
 
     __MSX_PRINT__("init done");
 

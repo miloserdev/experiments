@@ -20,6 +20,8 @@
         "system_error": "c",
         "*.c2": "c",
         "cstring": "c",
-        "esp_heap_trace.h": "c"
+        "esp_heap_trace.h": "c",
+        "atomic": "c",
+        "cstdint": "c"
     }
 }
