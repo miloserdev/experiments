@@ -12131,6 +12131,10 @@ END GROUP
                 0x0000000040105ce8                g_misc_nvs
                 0x0000000040105cec                g_log_mod
                 0x0000000040105cf0                g_log_level
+ *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
+ *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
+ *libfreertos.a:impure.*(.bss .bss.* COMMON)
+ *libfreertos.a:queue.*(.bss .bss.* COMMON)
  *libfreertos.a:tasks.*(.bss .bss.* COMMON)
  .bss.uxSchedulerSuspended
                 0x0000000040105cf4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
@@ -12175,11 +12179,7 @@ END GROUP
  .bss.pxCurrentTCB
                 0x0000000040105ebc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
                 0x0000000040105ebc                pxCurrentTCB
- *libfreertos.a:impure.*(.bss .bss.* COMMON)
- *libfreertos.a:queue.*(.bss .bss.* COMMON)
- *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
- *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
- *libfreertos.a:list.*(.bss .bss.* COMMON)
+ *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
  *libfreertos.a:timers.*(.bss .bss.* COMMON)
  .bss.xLastTime$4351
                 0x0000000040105ec0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
@@ -12195,7 +12195,7 @@ END GROUP
                 0x0000000040105ed4       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
  .bss.xActiveTimerList1
                 0x0000000040105ee8       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
+ *libfreertos.a:list.*(.bss .bss.* COMMON)
  *liblwip.a:(.bss .bss.* COMMON)
  .bss.dhcps_cb  0x0000000040105efc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/lwip/liblwip.a(dhcpserver.o)
  .bss.dhcps_dns
@@ -12541,7 +12541,7 @@ END GROUP
 .dram0.bss      0x000000003ffe8640     0x2340
                 0x000000003ffe8640                . = ALIGN (0x8)
                 0x000000003ffe8640                _bss_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:tasks.* *libfreertos.a:impure.* *libfreertos.a:queue.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:list.* *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:tasks.* *libfreertos.a:impure.* *libfreertos.a:queue.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:list.* *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:tasks.* *libfreertos.a:impure.* *libfreertos.a:queue.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:list.* *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libcore.a) COMMON)
+ *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:impure.* *libfreertos.a:queue.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libfreertos.a:list.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:impure.* *libfreertos.a:queue.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libfreertos.a:list.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:impure.* *libfreertos.a:queue.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libfreertos.a:list.* *libcore.a) COMMON)
  .bss.base_mac_addr
                 0x000000003ffe8640        0x6 /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(system_api.o)
  *fill*         0x000000003ffe8646        0x2 
@@ -30511,21 +30511,21 @@ END GROUP
  .rodata.app_main.str1.4
                 0x0000000040287318      0x11d /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
  *fill*         0x0000000040287435        0x3 
- .rodata.__FUNCTION__$9022
+ .rodata.__FUNCTION__$8860
                 0x0000000040287438        0x9 /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
  *fill*         0x0000000040287441        0x3 
- .rodata.__FUNCTION__$8974
+ .rodata.__FUNCTION__$8812
                 0x0000000040287444       0x10 /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
- .rodata.__FUNCTION__$8965
+ .rodata.__FUNCTION__$8803
                 0x0000000040287454        0x9 /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
  *fill*         0x000000004028745d        0x3 
- .rodata.__FUNCTION__$8949
+ .rodata.__FUNCTION__$8787
                 0x0000000040287460        0x8 /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
- .rodata.__FUNCTION__$8943
+ .rodata.__FUNCTION__$8781
                 0x0000000040287468        0x8 /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
- .rodata.__FUNCTION__$8938
+ .rodata.__FUNCTION__$8776
                 0x0000000040287470        0xc /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
- .rodata.__FUNCTION__$8888
+ .rodata.__FUNCTION__$8726
                 0x000000004028747c       0x10 /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)
  .rodata.__FUNCTION__$8707
                 0x000000004028748c        0xc /home/max/workspace/to_git/experiments/msx_now/build/main/libmain.a(main.o)

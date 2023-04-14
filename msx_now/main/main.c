@@ -91,9 +91,11 @@ void app_main()
     __MSX_DEBUG__( nvs_flash_init() );
 
 
+    // FIX >> bad receive with espnow >> APSTA STA
+
     __MSX_DEBUG__( init_event_loop() );
     __MSX_DEBUG__( init_uart() );
-    __MSX_DEBUG__( init_wifi(WIFI_MODE_STA) );
+    __MSX_DEBUG__( init_wifi(WIFI_MODE_APSTA) );
     //__MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_AP, (uint8_t*) "ESP", (uint8_t*) "nullnullnull119911", WIFI_PS_NONE) );
     __MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_STA, (uint8_t*) MESH_SSID_PREFIX, (uint8_t*) MESH_PASSWD, WIFI_PS_NONE) );
     __MSX_DEBUG__( init_httpd() );

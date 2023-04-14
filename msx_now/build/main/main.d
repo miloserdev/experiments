@@ -116,9 +116,6 @@ main.o: /home/max/workspace/to_git/experiments/msx_now/main/main.c \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/spi_flash/include/spi_flash.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
@@ -354,12 +351,6 @@ main.o: /home/max/workspace/to_git/experiments/msx_now/main/main.c \
 /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h:
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/spi_flash/include/spi_flash.h:
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c:
 /home/max/workspace/to_git/experiments/msx_now/main/./main.c:

@@ -169,8 +169,7 @@ void user_loop( void (*func)(void) )
     for( ;; )
     {
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
-
-
+        
         (*func)(); // extern in main();
 
         os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());

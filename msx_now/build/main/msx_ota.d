@@ -80,10 +80,7 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/spi_flash/include/spi_flash.h
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h
 
 /home/max/esp/ESP8266_RTOS_SDK/components/heap/include/esp_heap_caps.h:
 
@@ -248,10 +245,4 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/spi_flash/include/spi_flash.h:
 /home/max/workspace/to_git/experiments/msx_now/main/./msx_ota.c:

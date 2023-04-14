@@ -28,10 +28,6 @@ esp_err_t init_ota()
     return httpd_register_uri_handler(msx_server, &uri_ota_post);
 }
 
-#include <esp_https_ota.h>
-
-#include <spi_flash.h>
-
 // curl 192.168.1.89:8066/update --no-buffer --data-binary @./build/msx.bin --output -
 static esp_err_t http_handle_ota(httpd_req_t *req)
 {

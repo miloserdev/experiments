@@ -26,8 +26,8 @@ void set_mem() { last_mem = esp_get_free_heap_size(); }
 
 
 #ifdef __DEBUG__
-#define __MSX_DEBUG__(f)   { os_printf(""___MSX_FMT" ___ %s ___ %s \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f, f == 0 ? "OK" : "ERROR"); set_mem(); }
-#define __MSX_DEBUGV__(f)   { os_printf(""___MSX_FMT" ___ %s ___ \t\t\t", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f); f; os_printf("OK \n"); set_mem(); }
+#define __MSX_DEBUG__(f)   { os_printf(""___MSX_FMT" ___ %s ___ %s \t\t\t \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f, f == 0 ? "OK" : "ERROR"); set_mem(); }
+#define __MSX_DEBUGV__(f)   { os_printf(""___MSX_FMT" ___ %s ___ \t\t\t \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, #f); f; os_printf("OK \n"); set_mem(); }
 #define __MSX_PRINTF__(__format, __VA_ARGS__...) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__, __VA_ARGS__); set_mem(); }
 #define __MSX_PRINT__(__format) { os_printf(""___MSX_FMT" "__format" \n", esp_get_free_heap_size(), get_leak(), __FUNCTION__); set_mem();}
 #else
