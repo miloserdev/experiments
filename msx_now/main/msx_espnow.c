@@ -8,20 +8,20 @@
 
 #include <cJSON.h>
 
-#include "msx_debug.c"
 #include "msx_event_loop.c"
+#include "msx_debug.c"
 #include "msx_wifi.c"
+#include "msx_utils.c"
 
 
 
 #define CONFIG_ESPNOW_PMK   "pmk1234567890123"
 #define CONFIG_ESPNOW_LMK   "lmk1234567890123"
 
-#define BROADCAST_MAC       broadcast_mac
-
 
 #define MSG_STACK_SIZE  6
 uint32_t msg_stack[MSG_STACK_SIZE];
+
 
 #define PACKET_BUFFER_SIZE  200
 typedef struct
@@ -33,6 +33,7 @@ typedef struct
 } __attribute__((packed)) packet_t;
 //  4 + 8 + 200 + 4
 //  we have 34 bytes free
+
 
 packet_t *init_packet();
 esp_err_t init_espnow();
@@ -71,20 +72,22 @@ esp_err_t init_espnow()
 
 void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
+    //blink();
     __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
-    __MSX_DEBUG__( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) );
+   // __MSX_DEBUG__( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) );
 }
 
 
 
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
+    blink();
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
 
-    packet_t *msgf = data;
+    packet_t *msg = data;
     uint8_t buffer[PACKET_BUFFER_SIZE];
     memset(buffer, 0, PACKET_BUFFER_SIZE);
-    memcpy(buffer, msgf->buffer, len);
+    memcpy(buffer, msg->buffer, len);
 
 
     __MSX_PRINTF__("data %.*s", len, buffer);
@@ -94,8 +97,9 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     __MSX_PRINTF__("mac compare %d", mac_cmp_json(root, my_mac));
     cJSON_Delete(root);
 
-    return;
+    goto recv_exit;
 
+/*
     size_t sz = sizeof(packet_t);
     packet_t *msg = os_malloc(sz);
     memset(msg, 0, sz);
@@ -107,9 +111,9 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     } else
     {
         __MSX_PRINT__("SHITTY WARNING!!! >> _magic is already exists in msg_stack");
-        return;
+        goto recv_exit;
     }
-
+*/
 /*     os_printf("\n\n\nmsx_message_t through esp_now >> \n");
     os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
     os_printf("magic -> 0x%08X \n", msg->magic);
@@ -122,25 +126,32 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 
     // return; // !!!!!!!!!!!!!!!!!!!!
     
-    uint8_t msg_buf[msg->len];
-    memcpy(msg_buf, msg->buffer, msg->len);
+//    uint8_t msg_buf[msg->len];
+//    memcpy(msg_buf, msg->buffer, msg->len);
 
-    __MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) );
+    //__MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) );
 
 
+recv_exit:
     __MSX_PRINT__("free memory section");
-
-    __MSX_DEBUGV__( os_free(msg->mac_addr) );
-    __MSX_DEBUGV__( os_free(msg->buffer) );
+/*     __MSX_DEBUGV__( os_free(msg->mac_addr) );
+    __MSX_DEBUGV__( os_free(msg->buffer) ); */
     __MSX_DEBUGV__( os_free(msg) );
+    return;
 }
 
                                                             // HARDCODED !!!
 esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t channel, wifi_interface_t ifidx, bool encrypted)
 {
+    esp_err_t err = ESP_OK;
+
     size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
-    if (peer == NULL) return ESP_ERR_ESPNOW_NO_MEM;
+    if (peer == NULL)
+    {
+        err = ESP_ERR_ESPNOW_NO_MEM;
+        goto add_exit;
+    }
 
     memset(peer, 0, peer_sz);
     peer->channel = channel;
@@ -150,14 +161,17 @@ esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t chann
     memcpy(peer->peer_addr, mac, ESP_NOW_ETH_ALEN);
 
     __MSX_DEBUG__( esp_now_add_peer(peer) );
-    __MSX_DEBUGV__( os_free(peer) );
 
-    return ESP_OK;
+add_exit:
+    __MSX_DEBUGV__( os_free(peer) );
+    return err;
 }
 
 
 esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len)
 {
+    esp_err_t err = ESP_OK;
+
     size_t pack_sz = sizeof(packet_t);
     packet_t *msg = (packet_t*) os_malloc(pack_sz);
     memcpy(msg->mac_addr, mac, ESP_NOW_ETH_ALEN);
@@ -166,14 +180,19 @@ esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUF
 
     if ( !esp_now_is_peer_exist(mac) )
     {
-        if ( !add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, ESPNOW_WIFI_IF, false) ) return ESP_ERR_ESPNOW_NOT_FOUND;
-
-        __MSX_DEBUG__( esp_now_send(mac, data, pack_sz) );
+        if ( !add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, ESPNOW_WIFI_IF, false) )
+        {
+            __MSX_PRINTF__("cannot add peer"MACSTR"", MAC2STR(mac));
+            err = ESP_ERR_ESPNOW_NOT_FOUND;
+            goto send_exit;
+        }
     }
 
-    os_free(msg);
+    err = esp_now_send(mac, data, pack_sz);
 
-    return ESP_OK;
+send_exit:
+    os_free(msg);
+    return err;
 }
 
 

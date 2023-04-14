@@ -13,8 +13,7 @@ msx_espnow.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_interface.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_base.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos/FreeRTOSConfig.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/rom/ets_sys.h \
@@ -38,16 +37,16 @@ msx_espnow.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos/xtensa_timer.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos/FreeRTOSConfig.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private/mpu_wrappers.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private/list.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/semphr.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_base.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_legacy.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi_types.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/timers.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private/list.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/tcpip_adapter/include/tcpip_adapter.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi_types.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/ip_addr.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/opt.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/lwipopts.h \
@@ -63,19 +62,25 @@ msx_espnow.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/arch.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/arch/cc.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/arch/sys_arch.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/arch/vfs_lwip.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/def.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/ip4_addr.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/ip6_addr.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/def.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/dhcpserver/dhcpserver.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/timers.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_base.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_legacy.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_libc.h:
 
@@ -103,9 +108,7 @@ msx_espnow.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi.h:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
 
@@ -153,25 +156,25 @@ msx_espnow.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private/mpu_wrappers.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private/list.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/semphr.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_base.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/timers.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_legacy.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi_types.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private/list.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/tcpip_adapter/include/tcpip_adapter.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi_types.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/ip_addr.h:
 
@@ -203,6 +206,10 @@ msx_espnow.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/arch/sys_arch.h:
 
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h:
+
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/port/esp8266/include/arch/vfs_lwip.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/def.h:
@@ -215,17 +222,25 @@ msx_espnow.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/dhcpserver/dhcpserver.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/timers.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_base.h:
 
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h:
-
-/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_legacy.h:
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h:
 /home/max/workspace/to_git/experiments/msx_now/main/./msx_espnow.c:

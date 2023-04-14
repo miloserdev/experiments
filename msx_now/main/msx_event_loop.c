@@ -17,8 +17,6 @@
 #include <string.h>
 
 #include "msx_debug.c"
-#include "msx_espnow.c"
-
 
 //#define CONFIG_STATION_MODE         1 //deprecated 4 me
 #define ESPNOW_QUEUE_SIZE           6
@@ -55,25 +53,9 @@ static xQueueHandle event_loop_queue;
 
 void event_loop(void *params);
 esp_err_t init_event_loop();
-void loop();
 void user_loop();
 esp_err_t init_user_loop();
 bool raise_event(int id, esp_event_base_t base, uint32_t status, void *data, size_t len);
-
-
-void loop()
-{
-
-    vTaskDelay(2000 / portTICK_RATE_MS);
-
-    char *msg = "broadcasting message to all \n";
-    uint8_t buffer[PACKET_BUFFER_SIZE];
-    memcpy(buffer, msg, PACKET_BUFFER_SIZE);
-
-    send_packet_raw(BROADCAST_MAC, buffer, PACKET_BUFFER_SIZE);
-
-    return;
-}
 
 
 void event_loop(void *params)
@@ -104,9 +86,9 @@ void event_loop(void *params)
 
             //    char *datas = /*may cause crash*/ (char *) os_malloc(evt.len);
             //    memcpy(datas, evt.data, evt.len);
-                
+
             //    os_printf("MSX_ESP_NOW_RECV_CB >> wtf buf | size %d | buf %s \n", evt.len, datas);   // fucking memory leak
-                
+
                 //cJSON *pack = cJSON_Parse( (char *) evt.data );
 
                 char *exec_data = ""; //exec_packet((char *) evt->data, evt->len);
@@ -179,7 +161,7 @@ esp_err_t init_event_loop()
 }
 
 
-void user_loop( void * pvParameters )
+void user_loop( void (*func)(void) )
 {
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 10;
@@ -188,15 +170,16 @@ void user_loop( void * pvParameters )
     {
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
-        loop();
+
+        (*func)(); // extern in main();
 
         os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
     }
 }
 
-esp_err_t init_user_loop()
+esp_err_t init_user_loop(void (*task)(void))
 {
-    __MSX_DEBUG__( xTaskCreate(user_loop, "vTask_user_loop", 4096, NULL, 0, NULL)    );
+    __MSX_DEBUG__( xTaskCreate(user_loop, "vTask_user_loop", 4096, task, 0, NULL)    );
     return ESP_OK;
 }
 
@@ -221,7 +204,6 @@ bool raise_event(int id, esp_event_base_t base, uint32_t status, void *data, siz
         void *dat = os_malloc(len);
         memset(dat, 0, len);
         memcpy(dat, data, len);
-
         evt->data = dat;
     } */
     int xq = (xQueueSend(event_loop_queue, (msx_event_t *) &evt, portMAX_DELAY) != pdTRUE);

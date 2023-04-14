@@ -56,7 +56,7 @@ void uart_task(void *params)
         while ( xQueueReceive(uart_queue, (void *) &event, (TickType_t) portMAX_DELAY) == pdTRUE)
         {
             memset(dtmp, 0, uart_buffer_size);
-            
+
             switch (event.type)
             {
                 case UART_DATA:
@@ -64,7 +64,7 @@ void uart_task(void *params)
                     __MSX_PRINT__("UART_DATA");
 
                     uart_read_bytes(uart_port, dtmp, event.size, portMAX_DELAY);
-                    
+
                     uint8_t buff[event.size];
                     memset(buff, 0, event.size);
                     memcpy(buff, dtmp, event.size);

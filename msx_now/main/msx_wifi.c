@@ -12,7 +12,10 @@
 #include "msx_event_loop.c"
 
 
-#if CONFIG_STATION_MODE
+#define MESH_WIFI_STA 0
+//MESX
+
+#if MESH_WIFI_STA
 #define ESPNOW_WIFI_MODE WIFI_MODE_STA
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_STA
 #else
@@ -20,48 +23,42 @@
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
 #endif
 
+#define MESH_MY_PREFIX  "ESP"
+#define MESH_MY_PREFIX_LEN  strlen(MESH_MY_PREFIX)
+#define MESH_MY_PASSWD  "9857wuj9d9jsie"
+
 #define MESH_SSID_PREFIX            "Keenetic-6193"
-#define MESH_SSID_PREFIX_LEN        ets_strlen(MESH_SSID_PREFIX)
+#define MESH_SSID_PREFIX_LEN        strlen(MESH_SSID_PREFIX)
 #define MESH_PASSWD                 "DNj6KdZT"
 #define MESH_PASSWD_LEN             ets_strlen(MESH_PASSWD)
 #define MESH_CHANNEL                0 // CONFIG_ESPNOW_CHANNEL
 #define MESH_MAX_HOP                (4)
 
 uint8_t my_mac[ESP_NOW_ETH_ALEN];
-static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+//static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 
-esp_err_t init_wifi(void);
+esp_err_t init_wifi(wifi_mode_t mode);
+esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power);
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
 
-esp_err_t init_wifi(void)
+esp_err_t init_wifi(wifi_mode_t mode)
 {
     tcpip_adapter_init();
     __MSX_DEBUG__( esp_event_loop_create_default() );
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     //wifi_sta_config_t sta = WIFI_INIT_CONFIG_DEFAULT();
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = MESH_SSID_PREFIX,
-            .password = MESH_PASSWD,
-            .channel = MESH_CHANNEL
-        },
-    };
     __MSX_DEBUG__( esp_wifi_init(&cfg) );
+    __MSX_DEBUG__( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+    __MSX_DEBUG__( esp_wifi_set_mode(mode) );
+    __MSX_DEBUG__( esp_wifi_start() );
+
     __MSX_DEBUG__( esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
     __MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
-    __MSX_DEBUG__( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-    __MSX_DEBUG__( esp_wifi_set_mode(WIFI_MODE_APSTA) );
-    __MSX_DEBUG__( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    __MSX_DEBUG__( esp_wifi_start() );
-    __MSX_DEBUG__( esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
-    __MSX_DEBUG__( esp_wifi_connect() );
-    __MSX_DEBUG__( esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
-    __MSX_DEBUG__( esp_wifi_set_ps(WIFI_PS_NONE) );
 
-    __MSX_DEBUG__( esp_wifi_get_mac(ESP_IF_WIFI_STA, my_mac) );
+    __MSX_DEBUG__( esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
 
     __MSX_DEBUG__( raise_event(MSX_WIFI_EVENT_WIFI_INIT, NULL, 0, NULL, 0) );
 
@@ -72,11 +69,39 @@ esp_err_t init_wifi(void)
     __MSX_DEBUG__( ( xQueueSend(event_loop_queue, evt, portMAX_DELAY) != pdTRUE ) ); */
 
     __MSX_DEBUGV__( os_free(&cfg) );
-    __MSX_DEBUGV__( os_free(&wifi_config) );
 
     return ESP_OK;
 }
 
+esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power)
+{
+    wifi_config_t wifi_config =
+    (ifidx == ESP_IF_WIFI_AP)
+    ? (wifi_config_t) {
+        .ap = {
+            .ssid = MESH_MY_PREFIX,
+            .ssid_len = MESH_MY_PREFIX_LEN,
+            .password = MESH_MY_PASSWD,
+            .authmode = WIFI_AUTH_WPA2_PSK,
+            .channel = MESH_CHANNEL,
+        }
+    }
+    : (wifi_config_t) {
+        .sta = {
+            .ssid = MESH_SSID_PREFIX,
+            .password = MESH_PASSWD,
+            .channel = MESH_CHANNEL,
+        },
+    };
+
+    __MSX_DEBUG__( esp_wifi_set_config(ifidx, &wifi_config) );
+    __MSX_DEBUG__( esp_wifi_connect() );
+    __MSX_DEBUG__( esp_wifi_get_mac(ifidx, my_mac) );
+    __MSX_DEBUG__( esp_wifi_set_ps(power) );
+    __MSX_DEBUG__( esp_wifi_get_mac(ifidx, my_mac) );
+
+    return ESP_OK;
+}
 
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {

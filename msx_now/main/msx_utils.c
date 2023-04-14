@@ -2,11 +2,15 @@
 #define __MSX_UTILS_INIT__
 
 
-#include <stdbool.h>
-#include <cJSON.h>
-#include <driver/gpio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
+#include <stdbool.h>
+
+#include <driver/gpio.h>
 #include <sys/param.h>
+
+#include <cJSON.h>
 /* #define MIN(x, y) (x < y ? x : y)
 #define MAX(x, y) (x > y ? x : y) */
 
@@ -14,6 +18,7 @@
 char *parse_value(int value, bool invert);
 cJSON * read_pin(int pin);
 esp_err_t setup_gpio(gpio_num_t _pin, gpio_mode_t mode);
+void blink();
 
 
 #define ON_VAL "on"
@@ -21,6 +26,14 @@ esp_err_t setup_gpio(gpio_num_t _pin, gpio_mode_t mode);
 char *parse_value(int value, bool invert)
 {
     return ( char* ) ( ( value ^ invert ) ? ON_VAL : OFF_VAL );
+}
+
+
+void blink()
+{
+    gpio_set_level(GPIO_NUM_2, 0x1);
+    vTaskDelay(50 / portTICK_RATE_MS);
+    gpio_set_level(GPIO_NUM_2, 0x0);
 }
 
 
