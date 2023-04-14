@@ -28,7 +28,7 @@
 #define MESH_MAX_HOP                (4)
 
 uint8_t my_mac[ESP_NOW_ETH_ALEN];
-//static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 
 esp_err_t init_wifi(void);

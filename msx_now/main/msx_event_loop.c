@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "msx_debug.c"
+#include "msx_espnow.c"
 
 
 //#define CONFIG_STATION_MODE         1 //deprecated 4 me
@@ -58,6 +59,21 @@ void loop();
 void user_loop();
 esp_err_t init_user_loop();
 bool raise_event(int id, esp_event_base_t base, uint32_t status, void *data, size_t len);
+
+
+void loop()
+{
+
+    vTaskDelay(2000 / portTICK_RATE_MS);
+
+    char *msg = "broadcasting message to all \n";
+    uint8_t buffer[PACKET_BUFFER_SIZE];
+    memcpy(buffer, msg, PACKET_BUFFER_SIZE);
+
+    send_packet_raw(BROADCAST_MAC, buffer, PACKET_BUFFER_SIZE);
+
+    return;
+}
 
 
 void event_loop(void *params)
@@ -160,17 +176,6 @@ esp_err_t init_event_loop()
     event_loop_queue = xQueueCreate( ESPNOW_QUEUE_SIZE, sizeof( msx_event_t ) );
     __MSX_DEBUG__( xTaskCreate(event_loop, "vTask_event_loop", /* 16 * 1024 */ 8192, NULL, 0, NULL) );
     return ESP_OK;
-}
-
-
-void loop()
-{
-
-    vTaskDelay(2000 / portTICK_RATE_MS);
-
-
-
-    return;
 }
 
 

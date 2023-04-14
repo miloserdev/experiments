@@ -105,10 +105,10 @@ main.o: /home/max/workspace/to_git/experiments/msx_now/main/main.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
@@ -323,13 +323,12 @@ main.o: /home/max/workspace/to_git/experiments/msx_now/main/main.c \
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c:
-
 /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h:
 
+/home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.c:
+
 /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
-/home/max/workspace/to_git/experiments/msx_now/main/./main.c:

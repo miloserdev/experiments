@@ -17,6 +17,8 @@
 #define CONFIG_ESPNOW_PMK   "pmk1234567890123"
 #define CONFIG_ESPNOW_LMK   "lmk1234567890123"
 
+#define BROADCAST_MAC       broadcast_mac
+
 
 #define MSG_STACK_SIZE  6
 uint32_t msg_stack[MSG_STACK_SIZE];
@@ -37,6 +39,7 @@ esp_err_t init_espnow();
 void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status);
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len);
 
+esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t channel, wifi_interface_t ifidx, bool encrypted);
 esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len);
 
 bool mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN]);
