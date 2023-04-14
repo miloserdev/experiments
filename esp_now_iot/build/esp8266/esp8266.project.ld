@@ -95,14 +95,14 @@ SECTIONS
     _iram_bss_start = ABSOLUTE(.);
 
     *libcore.a:( .bss  .bss.*  COMMON)
-    *libfreertos.a:timers.*( .bss  .bss.*  COMMON)
-    *libfreertos.a:freertos_hooks.*( .bss  .bss.*  COMMON)
-    *libfreertos.a:event_groups.*( .bss  .bss.*  COMMON)
-    *libfreertos.a:queue.*( .bss  .bss.*  COMMON)
-    *libfreertos.a:tasks.*( .bss  .bss.*  COMMON)
-    *libfreertos.a:stream_buffer.*( .bss  .bss.*  COMMON)
     *libfreertos.a:list.*( .bss  .bss.*  COMMON)
     *libfreertos.a:impure.*( .bss  .bss.*  COMMON)
+    *libfreertos.a:tasks.*( .bss  .bss.*  COMMON)
+    *libfreertos.a:freertos_hooks.*( .bss  .bss.*  COMMON)
+    *libfreertos.a:stream_buffer.*( .bss  .bss.*  COMMON)
+    *libfreertos.a:queue.*( .bss  .bss.*  COMMON)
+    *libfreertos.a:event_groups.*( .bss  .bss.*  COMMON)
+    *libfreertos.a:timers.*( .bss  .bss.*  COMMON)
     *liblwip.a:( .bss  .bss.*  COMMON)
 
     . = ALIGN (4);
@@ -155,7 +155,7 @@ SECTIONS
     . = ALIGN (8);
     _bss_start = ABSOLUTE(.);
 
-    *(EXCLUDE_FILE(*libcore.a *libfreertos.a:impure.* *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:tasks.* *libfreertos.a:queue.* *libfreertos.a:event_groups.* *libfreertos.a:freertos_hooks.* *libfreertos.a:timers.* *liblwip.a) .bss EXCLUDE_FILE(*libcore.a *libfreertos.a:impure.* *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:tasks.* *libfreertos.a:queue.* *libfreertos.a:event_groups.* *libfreertos.a:freertos_hooks.* *libfreertos.a:timers.* *liblwip.a) .bss.* EXCLUDE_FILE(*libcore.a *libfreertos.a:impure.* *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:tasks.* *libfreertos.a:queue.* *libfreertos.a:event_groups.* *libfreertos.a:freertos_hooks.* *libfreertos.a:timers.* *liblwip.a) COMMON)
+    *(EXCLUDE_FILE(*libcore.a *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libfreertos.a:queue.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:tasks.* *libfreertos.a:impure.* *libfreertos.a:list.* *liblwip.a) .bss EXCLUDE_FILE(*libcore.a *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libfreertos.a:queue.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:tasks.* *libfreertos.a:impure.* *libfreertos.a:list.* *liblwip.a) .bss.* EXCLUDE_FILE(*libcore.a *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libfreertos.a:queue.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:tasks.* *libfreertos.a:impure.* *libfreertos.a:list.* *liblwip.a) COMMON)
 
     *(.dynsbss)
     *(.sbss)

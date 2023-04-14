@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/main",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/build/include",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/**",
+
+                "/home/max/esp/ESP8266_RTOS_SDK/components/netinet/in.h",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/**",
+
+                "/home/max/esp/ESP8266_RTOS_SDK/components/esp_common/include",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/freertos",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/lwip",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/openssl",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/rom"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

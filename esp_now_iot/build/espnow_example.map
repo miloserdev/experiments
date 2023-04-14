@@ -12116,71 +12116,71 @@ END GROUP
                 0x0000000040105cf0                g_misc_nvs
                 0x0000000040105cf4                g_log_mod
                 0x0000000040105cf8                g_log_level
- *libfreertos.a:timers.*(.bss .bss.* COMMON)
- .bss.xLastTime$4356
-                0x0000000040105cfc        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- .bss.xTimerTaskHandle
-                0x0000000040105d00        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- .bss.xTimerQueue
-                0x0000000040105d04        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- .bss.pxOverflowTimerList
-                0x0000000040105d08        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- .bss.pxCurrentTimerList
-                0x0000000040105d0c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- .bss.xActiveTimerList2
-                0x0000000040105d10       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- .bss.xActiveTimerList1
-                0x0000000040105d24       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
- *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
- *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
- *libfreertos.a:queue.*(.bss .bss.* COMMON)
- *libfreertos.a:tasks.*(.bss .bss.* COMMON)
- .bss.uxSchedulerSuspended
-                0x0000000040105d38        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xIdleTaskHandle
-                0x0000000040105d3c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xNextTaskUnblockTime
-                0x0000000040105d40        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.uxTaskNumber
-                0x0000000040105d44        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xNumOfOverflows
-                0x0000000040105d48        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xYieldPending
-                0x0000000040105d4c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.uxPendedTicks
-                0x0000000040105d50        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xSchedulerRunning
-                0x0000000040105d54        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.uxTopReadyPriority
-                0x0000000040105d58        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xTickCount
-                0x0000000040105d5c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.uxCurrentNumberOfTasks
-                0x0000000040105d60        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xSuspendedTaskList
-                0x0000000040105d64       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.uxDeletedTasksWaitingCleanUp
-                0x0000000040105d78        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xTasksWaitingTermination
-                0x0000000040105d7c       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xPendingReadyList
-                0x0000000040105d90       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.pxOverflowDelayedTaskList
-                0x0000000040105da4        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.pxDelayedTaskList
-                0x0000000040105da8        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xDelayedTaskList2
-                0x0000000040105dac       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.xDelayedTaskList1
-                0x0000000040105dc0       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.pxReadyTasksLists
-                0x0000000040105dd4      0x12c /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
- .bss.pxCurrentTCB
-                0x0000000040105f00        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
-                0x0000000040105f00                pxCurrentTCB
- *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
  *libfreertos.a:list.*(.bss .bss.* COMMON)
  *libfreertos.a:impure.*(.bss .bss.* COMMON)
+ *libfreertos.a:tasks.*(.bss .bss.* COMMON)
+ .bss.uxSchedulerSuspended
+                0x0000000040105cfc        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xIdleTaskHandle
+                0x0000000040105d00        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xNextTaskUnblockTime
+                0x0000000040105d04        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.uxTaskNumber
+                0x0000000040105d08        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xNumOfOverflows
+                0x0000000040105d0c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xYieldPending
+                0x0000000040105d10        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.uxPendedTicks
+                0x0000000040105d14        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xSchedulerRunning
+                0x0000000040105d18        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.uxTopReadyPriority
+                0x0000000040105d1c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xTickCount
+                0x0000000040105d20        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.uxCurrentNumberOfTasks
+                0x0000000040105d24        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xSuspendedTaskList
+                0x0000000040105d28       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.uxDeletedTasksWaitingCleanUp
+                0x0000000040105d3c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xTasksWaitingTermination
+                0x0000000040105d40       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xPendingReadyList
+                0x0000000040105d54       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.pxOverflowDelayedTaskList
+                0x0000000040105d68        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.pxDelayedTaskList
+                0x0000000040105d6c        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xDelayedTaskList2
+                0x0000000040105d70       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.xDelayedTaskList1
+                0x0000000040105d84       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.pxReadyTasksLists
+                0x0000000040105d98      0x12c /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+ .bss.pxCurrentTCB
+                0x0000000040105ec4        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105ec4                pxCurrentTCB
+ *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
+ *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
+ *libfreertos.a:queue.*(.bss .bss.* COMMON)
+ *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
+ *libfreertos.a:timers.*(.bss .bss.* COMMON)
+ .bss.xLastTime$4356
+                0x0000000040105ec8        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
+ .bss.xTimerTaskHandle
+                0x0000000040105ecc        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
+ .bss.xTimerQueue
+                0x0000000040105ed0        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
+ .bss.pxOverflowTimerList
+                0x0000000040105ed4        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
+ .bss.pxCurrentTimerList
+                0x0000000040105ed8        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
+ .bss.xActiveTimerList2
+                0x0000000040105edc       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
+ .bss.xActiveTimerList1
+                0x0000000040105ef0       0x14 /home/max/workspace/to_git/experiments/esp_now_iot/build/freertos/libfreertos.a(timers.o)
  *liblwip.a:(.bss .bss.* COMMON)
  .bss.dhcps_cb  0x0000000040105f04        0x4 /home/max/workspace/to_git/experiments/esp_now_iot/build/lwip/liblwip.a(dhcpserver.o)
  .bss.dhcps_dns
@@ -12523,7 +12523,7 @@ END GROUP
 .dram0.bss      0x000000003ffe8630     0x2378
                 0x000000003ffe8630                . = ALIGN (0x8)
                 0x000000003ffe8630                _bss_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:timers.* *libfreertos.a:freertos_hooks.* *libfreertos.a:event_groups.* *libfreertos.a:queue.* *libfreertos.a:tasks.* *libfreertos.a:stream_buffer.* *libfreertos.a:list.* *libfreertos.a:impure.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:timers.* *libfreertos.a:freertos_hooks.* *libfreertos.a:event_groups.* *libfreertos.a:queue.* *libfreertos.a:tasks.* *libfreertos.a:stream_buffer.* *libfreertos.a:list.* *libfreertos.a:impure.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:timers.* *libfreertos.a:freertos_hooks.* *libfreertos.a:event_groups.* *libfreertos.a:queue.* *libfreertos.a:tasks.* *libfreertos.a:stream_buffer.* *libfreertos.a:list.* *libfreertos.a:impure.* *libcore.a) COMMON)
+ *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:list.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:freertos_hooks.* *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:list.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:freertos_hooks.* *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:list.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:freertos_hooks.* *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libcore.a) COMMON)
  .bss.base_mac_addr
                 0x000000003ffe8630        0x6 /home/max/workspace/to_git/experiments/esp_now_iot/build/esp8266/libesp8266.a(system_api.o)
  *fill*         0x000000003ffe8636        0x2 
