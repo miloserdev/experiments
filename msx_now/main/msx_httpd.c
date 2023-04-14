@@ -12,7 +12,7 @@
 #include "msx_debug.c"
 #include "msx_utils.c"
 
-httpd_handle_t server = NULL;
+httpd_handle_t msx_server = NULL;
 #define PORT            8066
 
 
@@ -32,10 +32,10 @@ esp_err_t init_httpd()
 
 	/* server = NULL; */
 
-	if (httpd_start(&server, &config) == ESP_OK)
+	if (httpd_start(&msx_server, &config) == ESP_OK)
 	{
-		httpd_register_uri_handler(server, &uri_get);
-		httpd_register_uri_handler(server, &uri_post);
+		httpd_register_uri_handler(msx_server, &uri_get);
+		httpd_register_uri_handler(msx_server, &uri_post);
         __MSX_PRINT__("All handlers is registered");
 	}
 

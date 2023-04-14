@@ -51,6 +51,11 @@
         "new": "c",
         "stdexcept": "c",
         "typeinfo": "c",
-        "valarray": "c"
+        "valarray": "c",
+        "httpd.h": "c",
+        "esp_httpd_priv.h": "c",
+        "esp_partition.h": "c",
+        "esp_https_ota.h": "c",
+        "esp_ota_ops.h": "c"
     }
 }

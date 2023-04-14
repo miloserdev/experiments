@@ -49,14 +49,16 @@ Discarded input sections
  .xt.lit        0x0000000000000000       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
  .xt.prop       0x0000000000000000      0x228 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
  .literal.bootloader_utility_fast_boot_image
-                0x0000000000000000        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x0000000000000000       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
  .text          0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
  .data          0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
  .bss           0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .rodata.bootloader_utility_fast_boot_image.str1.4
+                0x0000000000000000       0x15 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
  .text.bootloader_utility_fast_boot_image
-                0x0000000000000000       0x27 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x0000000000000000       0x35 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
  .xt.lit        0x0000000000000000       0x40 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- .xt.prop       0x0000000000000000      0x510 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .xt.prop       0x0000000000000000      0x4ec /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
  .literal.esp_image_verify_bootloader
                 0x0000000000000000        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
  .text          0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
@@ -72,14 +74,16 @@ Discarded input sections
  .xt.lit        0x0000000000000000        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
  .xt.prop       0x0000000000000000       0xcc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
  .literal.bootloader_common_check_long_hold_gpio
-                0x0000000000000000       0x58 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+                0x0000000000000000       0x78 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
  .text          0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
  .data          0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
  .bss           0x0000000000000000        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .rodata.bootloader_common_check_long_hold_gpio.str1.4
+                0x0000000000000000       0x26 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
  .text.bootloader_common_check_long_hold_gpio
-                0x0000000000000000      0x230 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+                0x0000000000000000      0x290 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
  .xt.lit        0x0000000000000000       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
- .xt.prop       0x0000000000000000      0x420 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .xt.prop       0x0000000000000000      0x414 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
  .literal.bootloader_flash_write
                 0x0000000000000000       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
  .literal.bootloader_flash_erase_sector
@@ -253,7 +257,7 @@ LOAD /home/max/esp/xtensa-lx106-elf/bin/../lib/gcc/xtensa-lx106-elf/8.4.0/../../
 LOAD /home/max/esp/xtensa-lx106-elf/bin/../lib/gcc/xtensa-lx106-elf/8.4.0/libgcov.a
 END GROUP
 
-.text           0x0000000040100000     0x1d75
+.text           0x0000000040100000     0x1f6d
                 0x0000000040100000                _stext = .
                 0x0000000040100000                _text_start = ABSOLUTE (.)
                 0x0000000040100000                . = ALIGN (0x10)
@@ -268,482 +272,481 @@ END GROUP
                 0x0000000040100000        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
                                          0x1c (size before relaxing)
  .literal.call_start_cpu
-                0x000000004010000c        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
-                                          0xc (size before relaxing)
+                0x000000004010000c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+                                         0x18 (size before relaxing)
  .literal.print_flash_info
-                0x000000004010000c       0x48 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
-                                         0x54 (size before relaxing)
+                0x0000000040100010       0x5c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                                         0x7c (size before relaxing)
  .literal.update_flash_config
-                0x0000000040100054        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
-                                          0x8 (size before relaxing)
+                0x000000004010006c        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                                         0x14 (size before relaxing)
  .literal.bootloader_main
-                0x0000000040100058       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                0x0000000040100074       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
                                          0x3c (size before relaxing)
  .literal.bootloader_init
-                0x000000004010006c        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                0x0000000040100088        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
                                          0x10 (size before relaxing)
  .literal.bootloader_utility_start_image
-                0x0000000040100074        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x0000000040100090        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
                                           0x4 (size before relaxing)
  .literal.log_invalid_app_partition
-                0x0000000040100074       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x0000000040100090       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
                                          0x20 (size before relaxing)
  .literal.try_load_partition
-                0x0000000040100088        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                         0x10 (size before relaxing)
+                0x00000000401000a4        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                         0x18 (size before relaxing)
  .literal.bootloader_utility_load_partition_table
-                0x000000004010008c       0x4c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                         0x74 (size before relaxing)
+                0x00000000401000ac       0x58 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                         0x8c (size before relaxing)
  .literal.bootloader_utility_get_selected_boot_partition
-                0x00000000401000d8       0x1c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                         0x5c (size before relaxing)
+                0x0000000040100104       0x38 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                         0x88 (size before relaxing)
  .literal.bootloader_utility_load_boot_image
-                0x00000000401000f4        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                         0x40 (size before relaxing)
+                0x000000004010013c       0x10 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                         0x4c (size before relaxing)
  .literal.bootloader_utility_load_image
-                0x0000000040100100        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x000000004010014c        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
                                           0x4 (size before relaxing)
  .literal.should_map
-                0x0000000040100100        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x000000004010014c        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
  .literal.should_load
-                0x0000000040100108        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100154        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                           0x4 (size before relaxing)
  .literal.verify_image_header
-                0x0000000040100108       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100154       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0x20 (size before relaxing)
  .literal.process_segment_data
-                0x000000004010011c        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100168        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0x14 (size before relaxing)
  .literal.verify_checksum
-                0x0000000040100124        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100170        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0x1c (size before relaxing)
  .literal.process_segment
-                0x000000004010012c       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
-                                         0x40 (size before relaxing)
+                0x0000000040100178       0x1c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                                         0x48 (size before relaxing)
  .literal.esp_image_load
-                0x0000000040100144       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
-                                         0x44 (size before relaxing)
+                0x0000000040100194       0x24 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                                         0x64 (size before relaxing)
  .literal.esp_partition_table_basic_verify
-                0x0000000040100158       0x1c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
-                                         0x2c (size before relaxing)
+                0x00000000401001b8       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+                                         0x34 (size before relaxing)
  .literal.bootloader_common_ota_select_crc
-                0x0000000040100174        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
                                           0x4 (size before relaxing)
  .literal.bootloader_common_ota_select_valid
-                0x0000000040100174        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
                                           0x4 (size before relaxing)
  .literal.bootloader_flash_read_no_decrypt
-                0x0000000040100174        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x00000000401001d8        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
  .literal.bootloader_mmap
-                0x0000000040100178       0x30 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x00000000401001dc       0x30 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x3c (size before relaxing)
  .literal.bootloader_munmap
-                0x00000000401001a8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x000000004010020c        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                           0x8 (size before relaxing)
  .literal.bootloader_flash_read
-                0x00000000401001a8        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x000000004010020c        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x20 (size before relaxing)
  .literal.bootloader_read_flash_id
-                0x00000000401001b4        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040100218        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x10 (size before relaxing)
  .literal.bootloader_execute_flash_command
-                0x00000000401001bc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040100220        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x14 (size before relaxing)
  .literal.bootloader_flash_read_sfdp
-                0x00000000401001c0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040100224        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x14 (size before relaxing)
  .literal.bootloader_flash_xmc_startup
-                0x00000000401001c4        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
-                                         0x40 (size before relaxing)
+                0x0000000040100228       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                                         0x50 (size before relaxing)
  .literal.spi_user_cmd
-                0x00000000401001d0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x000000004010023c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0xc (size before relaxing)
  .literal.special_flash_read_status
-                0x00000000401001d4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x4 (size before relaxing)
  .literal.flash_gd25q32c_read_status
-                0x00000000401001d4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x4 (size before relaxing)
  .literal.special_flash_write_status
-                0x00000000401001d4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x8 (size before relaxing)
  .literal.spi_flash_enable_qio_bit6
-                0x00000000401001d4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x4 (size before relaxing)
  .literal.flash_gd25q32c_write_status
-                0x00000000401001d4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x4 (size before relaxing)
  .literal.flash_gd25q32c_enable_QIO_mode
-                0x00000000401001d4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0xc (size before relaxing)
  .literal.en25q16x_read_sfdp
-                0x00000000401001d4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100240        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x8 (size before relaxing)
  .literal.spi_flash_get_id
-                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100244        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0xc (size before relaxing)
  .literal.spi_flash_read_status
-                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100244        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0xc (size before relaxing)
  .literal.spi_flash_issi_enable_QIO_mode
-                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100244        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0xc (size before relaxing)
  .literal.special_flash_set_mode
-                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100244        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                           0x8 (size before relaxing)
  .literal.en25q16x_write_volatile_status
-                0x00000000401001d8        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100244        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x14 (size before relaxing)
  .literal.user_spi_flash_dio_to_qio_pre_init
-                0x00000000401001d8       0x10 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100244       0x10 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x38 (size before relaxing)
  .literal.esp_spi_flash_init
-                0x00000000401001e8       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040100254       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x28 (size before relaxing)
  .literal.Cache_Read_Disable_2
-                0x0000000040100208        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040100274        0xc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                          0x10 (size before relaxing)
  .literal.Cache_Read_Enable_2
-                0x0000000040100214        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040100280        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                           0xc (size before relaxing)
  .literal.spi_flash_get_id_raw
-                0x0000000040100218       0x10 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040100284       0x10 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                          0x14 (size before relaxing)
  .literal.spi_flash_read_status_raw
-                0x0000000040100228        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040100294        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                           0xc (size before relaxing)
  .literal.spi_flash_enable_qmode_raw
-                0x000000004010022c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040100298        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                          0x10 (size before relaxing)
  .literal.spi_user_cmd_raw
-                0x0000000040100230       0x64 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x000000004010029c       0x64 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                          0x84 (size before relaxing)
  .literal.spi_flash_switch_to_qio_raw
-                0x0000000040100294        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040100300        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                           0xc (size before relaxing)
  .literal.uart_putc
-                0x000000004010029c        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x0000000040100308        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
  .literal.ets_putc
-                0x00000000401002a4        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x0000000040100310        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
                                           0x8 (size before relaxing)
  .literal.ets_vprintf
-                0x00000000401002a4        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x0000000040100310        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
  .literal.crc32_le
-                0x00000000401002ac        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+                0x0000000040100318        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
  .iram1.0.literal
-                0x00000000401002b0        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+                0x000000004010031c        0x8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
  .iram1.1.literal
-                0x00000000401002b8       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+                0x0000000040100324       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
                                          0x30 (size before relaxing)
  .iram1.0.literal
-                0x00000000401002d0        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x000000004010033c        0x0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
                                           0x8 (size before relaxing)
  .text.selected_boot_partition
-                0x00000000401002d0        0xf /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+                0x000000004010033c        0xf /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
                                          0x13 (size before relaxing)
- *fill*         0x00000000401002df        0x1 
+ *fill*         0x000000004010034b        0x1 
  .text.select_image
-                0x00000000401002e0       0x68 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+                0x000000004010034c       0x68 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
                                          0x70 (size before relaxing)
  .text.call_start_cpu
-                0x0000000040100348       0x2a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
-                                         0x32 (size before relaxing)
-                0x0000000040100348                call_start_cpu
- *fill*         0x0000000040100372        0x2 
+                0x00000000401003b4       0x32 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+                                         0x3e (size before relaxing)
+                0x00000000401003b4                call_start_cpu
+ *fill*         0x00000000401003e6        0x2 
  .text.print_flash_info
-                0x0000000040100374       0xc7 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
-                                         0xcb (size before relaxing)
- *fill*         0x000000004010043b        0x1 
+                0x00000000401003e8      0x115 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                                        0x129 (size before relaxing)
+ *fill*         0x00000000401004fd        0x3 
  .text.update_flash_config
-                0x000000004010043c       0x21 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- *fill*         0x000000004010045d        0x3 
+                0x0000000040100500       0x2b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                                         0x2f (size before relaxing)
+ *fill*         0x000000004010052b        0x1 
  .text.bootloader_main
-                0x0000000040100460       0x81 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                0x000000004010052c       0x81 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
                                          0x95 (size before relaxing)
- *fill*         0x00000000401004e1        0x3 
+ *fill*         0x00000000401005ad        0x3 
  .text.bootloader_init
-                0x00000000401004e4       0x25 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                0x00000000401005b0       0x25 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
                                          0x29 (size before relaxing)
-                0x00000000401004e4                bootloader_init
- *fill*         0x0000000040100509        0x3 
+                0x00000000401005b0                bootloader_init
+ *fill*         0x00000000401005d5        0x3 
  .text.bootloader_utility_start_image
-                0x000000004010050c       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x00000000401005d8       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
                                          0x24 (size before relaxing)
  .text.log_invalid_app_partition
-                0x000000004010052c       0x4b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x00000000401005f8       0x4b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
                                          0x53 (size before relaxing)
- *fill*         0x0000000040100577        0x1 
+ *fill*         0x0000000040100643        0x1 
  .text.try_load_partition
-                0x0000000040100578       0x3d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                         0x41 (size before relaxing)
- *fill*         0x00000000401005b5        0x3 
+                0x0000000040100644       0x48 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                         0x50 (size before relaxing)
  .text.bootloader_utility_load_partition_table
-                0x00000000401005b8      0x170 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                        0x184 (size before relaxing)
-                0x00000000401005b8                bootloader_utility_load_partition_table
+                0x000000004010068c      0x1a4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                        0x1c4 (size before relaxing)
+                0x000000004010068c                bootloader_utility_load_partition_table
  .text.bootloader_utility_get_selected_boot_partition
-                0x0000000040100728      0x13c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                        0x14c (size before relaxing)
-                0x0000000040100728                bootloader_utility_get_selected_boot_partition
+                0x0000000040100830      0x18f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                        0x1af (size before relaxing)
+                0x0000000040100830                bootloader_utility_get_selected_boot_partition
+ *fill*         0x00000000401009bf        0x1 
  .text.bootloader_utility_load_boot_image
-                0x0000000040100864       0xd6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                                         0xfa (size before relaxing)
-                0x0000000040100864                bootloader_utility_load_boot_image
- *fill*         0x000000004010093a        0x2 
+                0x00000000401009c0       0xf6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                                        0x11e (size before relaxing)
+                0x00000000401009c0                bootloader_utility_load_boot_image
+ *fill*         0x0000000040100ab6        0x2 
  .text.bootloader_utility_load_image
-                0x000000004010093c       0x19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
-                0x000000004010093c                bootloader_utility_load_image
- *fill*         0x0000000040100955        0x3 
+                0x0000000040100ab8       0x19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x0000000040100ab8                bootloader_utility_load_image
+ *fill*         0x0000000040100ad1        0x3 
  .text.should_map
-                0x0000000040100958       0x15 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- *fill*         0x000000004010096d        0x3 
+                0x0000000040100ad4       0x15 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ *fill*         0x0000000040100ae9        0x3 
  .text.should_load
-                0x0000000040100970       0x19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100aec       0x19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0x1d (size before relaxing)
- *fill*         0x0000000040100989        0x3 
+ *fill*         0x0000000040100b05        0x3 
  .text.verify_image_header
-                0x000000004010098c       0x7d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100b08       0x7d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0x85 (size before relaxing)
- *fill*         0x0000000040100a09        0x3 
+ *fill*         0x0000000040100b85        0x3 
  .text.process_segment_data
-                0x0000000040100a0c       0x89 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100b88       0x89 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0x91 (size before relaxing)
- *fill*         0x0000000040100a95        0x3 
+ *fill*         0x0000000040100c11        0x3 
  .text.verify_checksum
-                0x0000000040100a98       0x9c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x0000000040100c14       0x9c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                          0xa0 (size before relaxing)
  .text.process_segment
-                0x0000000040100b34      0x10b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
-                                        0x117 (size before relaxing)
- *fill*         0x0000000040100c3f        0x1 
+                0x0000000040100cb0      0x111 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                                        0x125 (size before relaxing)
+ *fill*         0x0000000040100dc1        0x3 
  .text.esp_image_load
-                0x0000000040100c40      0x18d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
-                                        0x1a5 (size before relaxing)
-                0x0000000040100c40                esp_image_load
- *fill*         0x0000000040100dcd        0x3 
+                0x0000000040100dc4      0x1d1 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                                        0x1f5 (size before relaxing)
+                0x0000000040100dc4                esp_image_load
+ *fill*         0x0000000040100f95        0x3 
  .text.esp_partition_table_basic_verify
-                0x0000000040100dd0       0xd7 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
-                0x0000000040100dd0                esp_partition_table_basic_verify
- *fill*         0x0000000040100ea7        0x1 
+                0x0000000040100f98       0xeb /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+                0x0000000040100f98                esp_partition_table_basic_verify
+ *fill*         0x0000000040101083        0x1 
  .text.bootloader_common_ota_select_crc
-                0x0000000040100ea8       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
-                0x0000000040100ea8                bootloader_common_ota_select_crc
+                0x0000000040101084       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+                0x0000000040101084                bootloader_common_ota_select_crc
  .text.bootloader_common_ota_select_valid
-                0x0000000040100ec0       0x2c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
-                0x0000000040100ec0                bootloader_common_ota_select_valid
+                0x000000004010109c       0x2c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+                0x000000004010109c                bootloader_common_ota_select_valid
  .text.bootloader_flash_read_no_decrypt
-                0x0000000040100eec       0x15 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x0000000040100f01        0x3 
+                0x00000000401010c8       0x15 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x00000000401010dd        0x3 
  .text.bootloader_mmap
-                0x0000000040100f04       0xa6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
-                0x0000000040100f04                bootloader_mmap
- *fill*         0x0000000040100faa        0x2 
+                0x00000000401010e0       0xa6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x00000000401010e0                bootloader_mmap
+ *fill*         0x0000000040101186        0x2 
  .text.bootloader_munmap
-                0x0000000040100fac       0x23 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
-                0x0000000040100fac                bootloader_munmap
- *fill*         0x0000000040100fcf        0x1 
+                0x0000000040101188       0x23 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040101188                bootloader_munmap
+ *fill*         0x00000000401011ab        0x1 
  .text.bootloader_flash_read
-                0x0000000040100fd0       0x62 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x00000000401011ac       0x62 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x65 (size before relaxing)
-                0x0000000040100fd0                bootloader_flash_read
- *fill*         0x0000000040101032        0x2 
+                0x00000000401011ac                bootloader_flash_read
+ *fill*         0x000000004010120e        0x2 
  .text.bootloader_read_flash_id
-                0x0000000040101034       0x2d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
-                0x0000000040101034                bootloader_read_flash_id
- *fill*         0x0000000040101061        0x3 
+                0x0000000040101210       0x2d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040101210                bootloader_read_flash_id
+ *fill*         0x000000004010123d        0x3 
  .text.bootloader_execute_flash_command
-                0x0000000040101064       0x4d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040101240       0x4d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x51 (size before relaxing)
-                0x0000000040101064                bootloader_execute_flash_command
- *fill*         0x00000000401010b1        0x3 
+                0x0000000040101240                bootloader_execute_flash_command
+ *fill*         0x000000004010128d        0x3 
  .text.bootloader_flash_read_sfdp
-                0x00000000401010b4       0x51 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x0000000040101290       0x51 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                          0x55 (size before relaxing)
-                0x00000000401010b4                bootloader_flash_read_sfdp
- *fill*         0x0000000040101105        0x3 
+                0x0000000040101290                bootloader_flash_read_sfdp
+ *fill*         0x00000000401012e1        0x3 
  .text.bootloader_flash_xmc_startup
-                0x0000000040101108       0x99 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
-                                         0xbd (size before relaxing)
-                0x0000000040101108                bootloader_flash_xmc_startup
- *fill*         0x00000000401011a1        0x3 
+                0x00000000401012e4       0xb8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                                         0xdc (size before relaxing)
+                0x00000000401012e4                bootloader_flash_xmc_startup
  .text.spi_user_cmd
-                0x00000000401011a4       0x4d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
-                0x00000000401011a4                spi_user_cmd
- *fill*         0x00000000401011f1        0x3 
+                0x000000004010139c       0x4d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x000000004010139c                spi_user_cmd
+ *fill*         0x00000000401013e9        0x3 
  .text.special_flash_read_status
-                0x00000000401011f4       0x39 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x00000000401013ec       0x39 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x3d (size before relaxing)
-                0x00000000401011f4                special_flash_read_status
- *fill*         0x000000004010122d        0x3 
+                0x00000000401013ec                special_flash_read_status
+ *fill*         0x0000000040101425        0x3 
  .text.flash_gd25q32c_read_status
-                0x0000000040101230       0x33 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- *fill*         0x0000000040101263        0x1 
+                0x0000000040101428       0x33 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ *fill*         0x000000004010145b        0x1 
  .text.special_flash_write_status
-                0x0000000040101264       0x5c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x000000004010145c       0x5c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x60 (size before relaxing)
-                0x0000000040101264                special_flash_write_status
+                0x000000004010145c                special_flash_write_status
  .text.spi_flash_enable_qio_bit6
-                0x00000000401012c0       0x17 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x00000000401014b8       0x17 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x1b (size before relaxing)
- *fill*         0x00000000401012d7        0x1 
+ *fill*         0x00000000401014cf        0x1 
  .text.flash_gd25q32c_write_status
-                0x00000000401012d8       0x30 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x00000000401014d0       0x30 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
  .text.flash_gd25q32c_enable_QIO_mode
-                0x0000000040101308       0x3e /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040101500       0x3e /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x46 (size before relaxing)
- *fill*         0x0000000040101346        0x2 
+ *fill*         0x000000004010153e        0x2 
  .text.en25q16x_read_sfdp
-                0x0000000040101348       0x43 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
-                0x0000000040101348                en25q16x_read_sfdp
- *fill*         0x000000004010138b        0x1 
+                0x0000000040101540       0x43 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040101540                en25q16x_read_sfdp
+ *fill*         0x0000000040101583        0x1 
  .text.spi_flash_get_id
-                0x000000004010138c       0x26 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
-                0x000000004010138c                spi_flash_get_id
- *fill*         0x00000000401013b2        0x2 
+                0x0000000040101584       0x26 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040101584                spi_flash_get_id
+ *fill*         0x00000000401015aa        0x2 
  .text.spi_flash_read_status
-                0x00000000401013b4       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
-                0x00000000401013b4                spi_flash_read_status
+                0x00000000401015ac       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x00000000401015ac                spi_flash_read_status
  .text.spi_flash_issi_enable_QIO_mode
-                0x00000000401013dc       0x43 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x00000000401015d4       0x43 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x4b (size before relaxing)
- *fill*         0x000000004010141f        0x1 
+ *fill*         0x0000000040101617        0x1 
  .text.special_flash_set_mode
-                0x0000000040101420       0x41 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040101618       0x41 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x45 (size before relaxing)
-                0x0000000040101420                special_flash_set_mode
- *fill*         0x0000000040101461        0x3 
+                0x0000000040101618                special_flash_set_mode
+ *fill*         0x0000000040101659        0x3 
  .text.en25q16x_write_volatile_status
-                0x0000000040101464       0x4f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x000000004010165c       0x4f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0x5b (size before relaxing)
-                0x0000000040101464                en25q16x_write_volatile_status
- *fill*         0x00000000401014b3        0x1 
+                0x000000004010165c                en25q16x_write_volatile_status
+ *fill*         0x00000000401016ab        0x1 
  .text.user_spi_flash_dio_to_qio_pre_init
-                0x00000000401014b4       0xa3 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x00000000401016ac       0xa3 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0xb2 (size before relaxing)
-                0x00000000401014b4                user_spi_flash_dio_to_qio_pre_init
- *fill*         0x0000000040101557        0x1 
+                0x00000000401016ac                user_spi_flash_dio_to_qio_pre_init
+ *fill*         0x000000004010174f        0x1 
  .text.esp_spi_flash_init
-                0x0000000040101558       0xb9 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+                0x0000000040101750       0xb9 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
                                          0xc1 (size before relaxing)
-                0x0000000040101558                esp_spi_flash_init
- *fill*         0x0000000040101611        0x3 
+                0x0000000040101750                esp_spi_flash_init
+ *fill*         0x0000000040101809        0x3 
  .text.Cache_Read_Disable_2
-                0x0000000040101614       0x34 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
-                0x0000000040101614                Cache_Read_Disable_2
+                0x000000004010180c       0x34 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x000000004010180c                Cache_Read_Disable_2
  .text.Cache_Read_Enable_2
-                0x0000000040101648       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
-                0x0000000040101648                Cache_Read_Enable_New
-                0x0000000040101648                Cache_Read_Enable_2
+                0x0000000040101840       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040101840                Cache_Read_Enable_New
+                0x0000000040101840                Cache_Read_Enable_2
  .text.spi_flash_get_id_raw
-                0x0000000040101670       0x41 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
-                0x0000000040101670                spi_flash_get_id_raw
- *fill*         0x00000000401016b1        0x3 
+                0x0000000040101868       0x41 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040101868                spi_flash_get_id_raw
+ *fill*         0x00000000401018a9        0x3 
  .text.spi_flash_read_status_raw
-                0x00000000401016b4       0x2f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x00000000401018ac       0x2f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                          0x33 (size before relaxing)
-                0x00000000401016b4                spi_flash_read_status_raw
- *fill*         0x00000000401016e3        0x1 
+                0x00000000401018ac                spi_flash_read_status_raw
+ *fill*         0x00000000401018db        0x1 
  .text.spi_flash_enable_qmode_raw
-                0x00000000401016e4       0x33 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x00000000401018dc       0x33 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
                                          0x37 (size before relaxing)
-                0x00000000401016e4                spi_flash_enable_qmode_raw
- *fill*         0x0000000040101717        0x1 
+                0x00000000401018dc                spi_flash_enable_qmode_raw
+ *fill*         0x000000004010190f        0x1 
  .text.spi_user_cmd_raw
-                0x0000000040101718      0x3d1 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
-                0x0000000040101718                spi_user_cmd_raw
- *fill*         0x0000000040101ae9        0x3 
+                0x0000000040101910      0x3d1 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040101910                spi_user_cmd_raw
+ *fill*         0x0000000040101ce1        0x3 
  .text.spi_flash_switch_to_qio_raw
-                0x0000000040101aec       0x25 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
-                0x0000000040101aec                spi_flash_switch_to_qio_raw
- *fill*         0x0000000040101b11        0x3 
+                0x0000000040101ce4       0x25 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+                0x0000000040101ce4                spi_flash_switch_to_qio_raw
+ *fill*         0x0000000040101d09        0x3 
  .text.uart_putc
-                0x0000000040101b14       0x1b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
- *fill*         0x0000000040101b2f        0x1 
+                0x0000000040101d0c       0x1b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+ *fill*         0x0000000040101d27        0x1 
  .text.ets_putc
-                0x0000000040101b30       0x27 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
-                0x0000000040101b30                ets_putc
- *fill*         0x0000000040101b57        0x1 
+                0x0000000040101d28       0x27 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x0000000040101d28                ets_putc
+ *fill*         0x0000000040101d4f        0x1 
  .text.ets_vprintf
-                0x0000000040101b58       0x1f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
-                0x0000000040101b58                ets_vprintf
- *fill*         0x0000000040101b77        0x1 
+                0x0000000040101d50       0x1f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x0000000040101d50                ets_vprintf
+ *fill*         0x0000000040101d6f        0x1 
  .text.crc32_le
-                0x0000000040101b78       0x31 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
-                0x0000000040101b78                crc32_le
- *fill*         0x0000000040101ba9        0x3 
+                0x0000000040101d70       0x31 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+                0x0000000040101d70                crc32_le
+ *fill*         0x0000000040101da1        0x3 
  .text.phy_reg_default
-                0x0000000040101bac       0x36 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libcore.a(phy.o)
-                0x0000000040101bbc                phy_reg_default
- *fill*         0x0000000040101be2        0x0 
- *fill*         0x0000000040101be2        0x0 
- *fill*         0x0000000040101be2        0x0 
- *fill*         0x0000000040101be2        0x0 
- *fill*         0x0000000040101be2        0x0 
- *fill*         0x0000000040101be2        0x2 
+                0x0000000040101da4       0x36 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libcore.a(phy.o)
+                0x0000000040101db4                phy_reg_default
+ *fill*         0x0000000040101dda        0x0 
+ *fill*         0x0000000040101dda        0x0 
+ *fill*         0x0000000040101dda        0x0 
+ *fill*         0x0000000040101dda        0x0 
+ *fill*         0x0000000040101dda        0x0 
+ *fill*         0x0000000040101dda        0x2 
  .text.index_to_partition
-                0x0000000040101be4       0x4d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- *fill*         0x0000000040101c31        0x0 
- *fill*         0x0000000040101c31        0x0 
- *fill*         0x0000000040101c31        0x0 
- *fill*         0x0000000040101c31        0x0 
- *fill*         0x0000000040101c31        0x3 
+                0x0000000040101ddc       0x4d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ *fill*         0x0000000040101e29        0x0 
+ *fill*         0x0000000040101e29        0x0 
+ *fill*         0x0000000040101e29        0x0 
+ *fill*         0x0000000040101e29        0x0 
+ *fill*         0x0000000040101e29        0x3 
  .text.verify_segment_header
-                0x0000000040101c34        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- *fill*         0x0000000040101c38        0x0 
- *fill*         0x0000000040101c38        0x0 
- *fill*         0x0000000040101c38        0x0 
- *fill*         0x0000000040101c38        0x0 
- *fill*         0x0000000040101c38        0x0 
- *fill*         0x0000000040101c38        0x0 
- *fill*         0x0000000040101c38        0x0 
+                0x0000000040101e2c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ *fill*         0x0000000040101e30        0x0 
+ *fill*         0x0000000040101e30        0x0 
+ *fill*         0x0000000040101e30        0x0 
+ *fill*         0x0000000040101e30        0x0 
+ *fill*         0x0000000040101e30        0x0 
+ *fill*         0x0000000040101e30        0x0 
+ *fill*         0x0000000040101e30        0x0 
  .text.is_xmc_chip_strict
-                0x0000000040101c38       0x58 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
- *fill*         0x0000000040101c90        0x0 
+                0x0000000040101e30       0x58 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
+ *fill*         0x0000000040101e88        0x0 
  *(.iram1 .iram1.*)
- .iram1.0       0x0000000040101c90       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
-                0x0000000040101c90                esp_log_early_timestamp
- .iram1.1       0x0000000040101ca8       0x96 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ .iram1.0       0x0000000040101e88       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+                0x0000000040101e88                esp_log_early_timestamp
+ .iram1.1       0x0000000040101ea0       0x96 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
                                          0xa1 (size before relaxing)
-                0x0000000040101ca8                esp_early_log_write
- *fill*         0x0000000040101d3e        0x2 
- .iram1.0       0x0000000040101d40       0x35 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+                0x0000000040101ea0                esp_early_log_write
+ *fill*         0x0000000040101f36        0x2 
+ .iram1.0       0x0000000040101f38       0x35 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
                                          0x39 (size before relaxing)
-                0x0000000040101d40                ets_printf
- *fill*         0x0000000040101d75        0x0 
- *fill*         0x0000000040101d75        0x0 
+                0x0000000040101f38                ets_printf
+ *fill*         0x0000000040101f6d        0x0 
+ *fill*         0x0000000040101f6d        0x0 
  *(.fini.literal)
  *(.fini)
  *(.gnu.version)
-                0x0000000040101d75                _text_end = ABSOLUTE (.)
-                0x0000000040101d75                _etext = .
+                0x0000000040101f6d                _text_end = ABSOLUTE (.)
+                0x0000000040101f6d                _etext = .
 
 .bss            0x000000003ffe8000      0x408
                 0x000000003ffe8000                . = ALIGN (0x8)
@@ -789,115 +792,120 @@ END GROUP
  *(.jcr)
                 0x000000003ffe8420                _data_end = ABSOLUTE (.)
 
-.rodata         0x000000003ffe8420      0xd90
+.rodata         0x000000003ffe8420     0x10fc
                 0x000000003ffe8420                _rodata_start = ABSOLUTE (.)
  *(.rodata)
  *(.rodata.*)
  .rodata.select_image.str1.4
                 0x000000003ffe8420       0x21 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
  *fill*         0x000000003ffe8441        0x3 
+ .rodata.call_start_cpu.str1.4
+                0x000000003ffe8444       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
  .rodata.print_flash_info.str1.4
-                0x000000003ffe8444       0x88 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
-                                         0x94 (size before relaxing)
+                0x000000003ffe8458       0xd4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                                         0xe0 (size before relaxing)
  .rodata.print_flash_info
-                0x000000003ffe84cc       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+                0x000000003ffe852c       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ .rodata.update_flash_config.str1.4
+                0x000000003ffe8554       0x2e /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ *fill*         0x000000003ffe8582        0x2 
  .rodata.bootloader_main.str1.4
-                0x000000003ffe84f4       0xa2 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- *fill*         0x000000003ffe8596        0x2 
+                0x000000003ffe8584       0xa2 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ *fill*         0x000000003ffe8626        0x2 
  .rodata.log_invalid_app_partition.str1.4
-                0x000000003ffe8598       0x68 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+                0x000000003ffe8628       0x68 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
                                          0x70 (size before relaxing)
  .rodata.try_load_partition.str1.4
-                0x000000003ffe8600       0x29 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- *fill*         0x000000003ffe8629        0x3 
+                0x000000003ffe8690       0x51 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ *fill*         0x000000003ffe86e1        0x3 
  .rodata.bootloader_utility_load_partition_table.str1.4
-                0x000000003ffe862c      0x137 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- *fill*         0x000000003ffe8763        0x1 
+                0x000000003ffe86e4      0x18f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ *fill*         0x000000003ffe8873        0x1 
  .rodata.bootloader_utility_get_selected_boot_partition.str1.4
-                0x000000003ffe8764       0xef /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- *fill*         0x000000003ffe8853        0x1 
+                0x000000003ffe8874      0x1c3 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ *fill*         0x000000003ffe8a37        0x1 
  .rodata.bootloader_utility_load_boot_image.str1.4
-                0x000000003ffe8854       0x9a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- *fill*         0x000000003ffe88ee        0x2 
+                0x000000003ffe8a38       0xca /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ *fill*         0x000000003ffe8b02        0x2 
  .rodata.verify_image_header.str1.4
-                0x000000003ffe88f0       0x82 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- *fill*         0x000000003ffe8972        0x2 
+                0x000000003ffe8b04       0x82 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ *fill*         0x000000003ffe8b86        0x2 
  .rodata.process_segment_data.str1.4
-                0x000000003ffe8974       0x27 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- *fill*         0x000000003ffe899b        0x1 
+                0x000000003ffe8b88       0x27 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ *fill*         0x000000003ffe8baf        0x1 
  .rodata.verify_checksum.str1.4
-                0x000000003ffe899c       0x57 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- *fill*         0x000000003ffe89f3        0x1 
+                0x000000003ffe8bb0       0x57 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ *fill*         0x000000003ffe8c07        0x1 
  .rodata.process_segment.str1.4
-                0x000000003ffe89f4       0x8f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
-                                         0x93 (size before relaxing)
- *fill*         0x000000003ffe8a83        0x1 
+                0x000000003ffe8c08       0xbb /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                                         0xbf (size before relaxing)
+ *fill*         0x000000003ffe8cc3        0x1 
  .rodata.esp_image_load.str1.4
-                0x000000003ffe8a84       0xaf /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- *fill*         0x000000003ffe8b33        0x1 
+                0x000000003ffe8cc4      0x157 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ *fill*         0x000000003ffe8e1b        0x1 
  .rodata.esp_partition_table_basic_verify.str1.4
-                0x000000003ffe8b34       0xb4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+                0x000000003ffe8e1c       0xdc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
  .rodata.bootloader_mmap.str1.4
-                0x000000003ffe8be8       0x57 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x000000003ffe8c3f        0x1 
+                0x000000003ffe8ef8       0x57 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x000000003ffe8f4f        0x1 
  .rodata.bootloader_flash_read.str1.4
-                0x000000003ffe8c40       0x9f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x000000003ffe8cdf        0x1 
+                0x000000003ffe8f50       0x9f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x000000003ffe8fef        0x1 
  .rodata.bootloader_execute_flash_command.str1.4
-                0x000000003ffe8ce0       0x19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x000000003ffe8cf9        0x3 
+                0x000000003ffe8ff0       0x19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x000000003ffe9009        0x3 
  .rodata.bootloader_flash_read_sfdp.str1.4
-                0x000000003ffe8cfc       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                0x000000003ffe900c       0x14 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
  .rodata.bootloader_flash_xmc_startup.str1.4
-                0x000000003ffe8d10       0x2f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x000000003ffe8d3f        0x1 
+                0x000000003ffe9020       0x8b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x000000003ffe90ab        0x1 
  .rodata.esp_spi_flash_init.str1.4
-                0x000000003ffe8d40       0x29 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- *fill*         0x000000003ffe8d69        0x3 
+                0x000000003ffe90ac       0x29 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ *fill*         0x000000003ffe90d5        0x3 
  .rodata.str1.4
-                0x000000003ffe8d6c       0x24 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+                0x000000003ffe90d8       0x24 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
                                          0x22 (size before relaxing)
  .rodata.s_log_prefix
-                0x000000003ffe8d90        0x6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
- *fill*         0x000000003ffe8d96        0x2 
+                0x000000003ffe90fc        0x6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ *fill*         0x000000003ffe9102        0x2 
  .rodata.s_log_color
-                0x000000003ffe8d98       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+                0x000000003ffe9104       0x18 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
  .rodata.crc32_le_table
-                0x000000003ffe8db0      0x400 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+                0x000000003ffe911c      0x400 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
  *(.gnu.linkonce.r.*)
  *(.rodata1)
-                0x000000003ffe91b0                __XT_EXCEPTION_TABLE_ = ABSOLUTE (.)
+                0x000000003ffe951c                __XT_EXCEPTION_TABLE_ = ABSOLUTE (.)
  *(.xt_except_table)
  *(.gcc_except_table)
  *(.gnu.linkonce.e.*)
  *(.gnu.version_r)
  *(.eh_frame)
-                0x000000003ffe91b0                . = ((. + 0x3) & 0xfffffffffffffffc)
-                0x000000003ffe91b0                __init_array_start = ABSOLUTE (.)
+                0x000000003ffe951c                . = ((. + 0x3) & 0xfffffffffffffffc)
+                0x000000003ffe951c                __init_array_start = ABSOLUTE (.)
  *crtbegin.o(.ctors)
  *(EXCLUDE_FILE(*crtend.o) .ctors)
  *(SORT_BY_NAME(.ctors.*))
  *(.ctors)
-                0x000000003ffe91b0                __init_array_end = ABSOLUTE (.)
+                0x000000003ffe951c                __init_array_end = ABSOLUTE (.)
  *crtbegin.o(.dtors)
  *(EXCLUDE_FILE(*crtend.o) .dtors)
  *(SORT_BY_NAME(.dtors.*))
  *(.dtors)
-                0x000000003ffe91b0                __XT_EXCEPTION_DESCS_ = ABSOLUTE (.)
+                0x000000003ffe951c                __XT_EXCEPTION_DESCS_ = ABSOLUTE (.)
  *(.xt_except_desc)
  *(.gnu.linkonce.h.*)
-                0x000000003ffe91b0                __XT_EXCEPTION_DESCS_END__ = ABSOLUTE (.)
+                0x000000003ffe951c                __XT_EXCEPTION_DESCS_END__ = ABSOLUTE (.)
  *(.xt_except_desc_end)
  *(.dynamic)
  *(.gnu.version_d)
-                0x000000003ffe91b0                _rodata_end = ABSOLUTE (.)
-                0x000000003ffe91b0                _lit4_start = ABSOLUTE (.)
+                0x000000003ffe951c                _rodata_end = ABSOLUTE (.)
+                0x000000003ffe951c                _lit4_start = ABSOLUTE (.)
  *(*.lit4)
  *(.lit4.*)
  *(.gnu.linkonce.lit4.*)
-                0x000000003ffe91b0                _lit4_end = ABSOLUTE (.)
-                0x000000003ffe91b0                . = ALIGN (0x4)
-                0x000000003ffe91b0                _heap_start = ABSOLUTE (.)
+                0x000000003ffe951c                _lit4_end = ABSOLUTE (.)
+                0x000000003ffe951c                . = ALIGN (0x4)
+                0x000000003ffe951c                _heap_start = ABSOLUTE (.)
                 0x0000000060001100                PROVIDE (rtc_sys_info = 0x60001100)
                 0x00000000400040c0                PROVIDE (SPI_sector_erase = 0x400040c0)
                 0x0000000040004174                PROVIDE (SPI_page_program = 0x40004174)
@@ -969,61 +977,61 @@ END GROUP
                 0x0000000040002ecc                PROVIDE (ets_rom_delay_us = 0x40002ecc)
 OUTPUT(/home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader.elf elf32-xtensa-le)
 
-.debug_frame    0x0000000000000000      0xb74
+.debug_frame    0x0000000000000000      0xb7c
  .debug_frame   0x0000000000000000       0x74 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
- .debug_frame   0x0000000000000074       0x94 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- .debug_frame   0x0000000000000108      0x140 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- .debug_frame   0x0000000000000248      0x13c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- .debug_frame   0x0000000000000384       0x38 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
- .debug_frame   0x00000000000003bc       0x74 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
- .debug_frame   0x0000000000000430      0x170 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- .debug_frame   0x00000000000005a0      0x350 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- .debug_frame   0x00000000000008f0      0x16c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
- .debug_frame   0x0000000000000a5c       0x58 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
- .debug_frame   0x0000000000000ab4       0x80 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
- .debug_frame   0x0000000000000b34       0x40 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+ .debug_frame   0x0000000000000074       0x98 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ .debug_frame   0x000000000000010c      0x144 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .debug_frame   0x0000000000000250      0x13c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ .debug_frame   0x000000000000038c       0x38 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+ .debug_frame   0x00000000000003c4       0x74 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .debug_frame   0x0000000000000438      0x170 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ .debug_frame   0x00000000000005a8      0x350 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ .debug_frame   0x00000000000008f8      0x16c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+ .debug_frame   0x0000000000000a64       0x58 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ .debug_frame   0x0000000000000abc       0x80 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+ .debug_frame   0x0000000000000b3c       0x40 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
 
-.debug_info     0x0000000000000000     0xccc0
- .debug_info    0x0000000000000000      0xdde /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
- .debug_info    0x0000000000000dde      0xe51 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- .debug_info    0x0000000000001c2f     0x178d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- .debug_info    0x00000000000033bc     0x16ca /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- .debug_info    0x0000000000004a86      0xca5 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
- .debug_info    0x000000000000572b     0x12b3 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
- .debug_info    0x00000000000069de     0x13ab /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- .debug_info    0x0000000000007d89     0x1e3a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- .debug_info    0x0000000000009bc3     0x1096 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
- .debug_info    0x000000000000ac59     0x12ba /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
- .debug_info    0x000000000000bf13      0xb66 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
- .debug_info    0x000000000000ca79      0x247 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+.debug_info     0x0000000000000000     0xd12f
+ .debug_info    0x0000000000000000      0xe13 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+ .debug_info    0x0000000000000e13      0xf17 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ .debug_info    0x0000000000001d2a     0x1908 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .debug_info    0x0000000000003632     0x1799 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ .debug_info    0x0000000000004dcb      0xcd0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+ .debug_info    0x0000000000005a9b     0x1357 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .debug_info    0x0000000000006df2     0x1406 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ .debug_info    0x00000000000081f8     0x1e3a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ .debug_info    0x000000000000a032     0x1096 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+ .debug_info    0x000000000000b0c8     0x12ba /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ .debug_info    0x000000000000c382      0xb66 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+ .debug_info    0x000000000000cee8      0x247 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
 
-.debug_abbrev   0x0000000000000000     0x221b
- .debug_abbrev  0x0000000000000000      0x2ee /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
- .debug_abbrev  0x00000000000002ee      0x2f2 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- .debug_abbrev  0x00000000000005e0      0x355 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- .debug_abbrev  0x0000000000000935      0x316 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- .debug_abbrev  0x0000000000000c4b      0x271 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
- .debug_abbrev  0x0000000000000ebc      0x2c7 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
- .debug_abbrev  0x0000000000001183      0x308 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- .debug_abbrev  0x000000000000148b      0x45b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- .debug_abbrev  0x00000000000018e6      0x29f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
- .debug_abbrev  0x0000000000001b85      0x315 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
- .debug_abbrev  0x0000000000001e9a      0x2a2 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
- .debug_abbrev  0x000000000000213c       0xdf /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+.debug_abbrev   0x0000000000000000     0x223a
+ .debug_abbrev  0x0000000000000000      0x307 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+ .debug_abbrev  0x0000000000000307      0x2f2 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ .debug_abbrev  0x00000000000005f9      0x34e /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .debug_abbrev  0x0000000000000947      0x316 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ .debug_abbrev  0x0000000000000c5d      0x271 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+ .debug_abbrev  0x0000000000000ece      0x2d4 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .debug_abbrev  0x00000000000011a2      0x308 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ .debug_abbrev  0x00000000000014aa      0x45b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ .debug_abbrev  0x0000000000001905      0x29f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+ .debug_abbrev  0x0000000000001ba4      0x315 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ .debug_abbrev  0x0000000000001eb9      0x2a2 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+ .debug_abbrev  0x000000000000215b       0xdf /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
 
-.debug_loc      0x0000000000000000     0x3adc
- .debug_loc     0x0000000000000000       0x9b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
- .debug_loc     0x000000000000009b       0xde /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- .debug_loc     0x0000000000000179      0x717 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- .debug_loc     0x0000000000000890      0xb53 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- .debug_loc     0x00000000000013e3      0x11a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
- .debug_loc     0x00000000000014fd      0x18f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
- .debug_loc     0x000000000000168c      0x836 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- .debug_loc     0x0000000000001ec2     0x11ff /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- .debug_loc     0x00000000000030c1      0x663 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
- .debug_loc     0x0000000000003724      0x119 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
- .debug_loc     0x000000000000383d       0xe9 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
- .debug_loc     0x0000000000003926      0x1b6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+.debug_loc      0x0000000000000000     0x3bbf
+ .debug_loc     0x0000000000000000       0xc5 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+ .debug_loc     0x00000000000000c5       0xde /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ .debug_loc     0x00000000000001a3      0x80a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .debug_loc     0x00000000000009ad      0xb0d /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ .debug_loc     0x00000000000014ba      0x11a /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+ .debug_loc     0x00000000000015d4      0x18f /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .debug_loc     0x0000000000001763      0x842 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ .debug_loc     0x0000000000001fa5     0x11ff /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ .debug_loc     0x00000000000031a4      0x663 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+ .debug_loc     0x0000000000003807      0x119 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ .debug_loc     0x0000000000003920       0xe9 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+ .debug_loc     0x0000000000003a09      0x1b6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
 
 .debug_aranges  0x0000000000000000      0x3d0
  .debug_aranges
@@ -1065,19 +1073,19 @@ OUTPUT(/home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloade
  .debug_ranges  0x00000000000002f8       0x28 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
  .debug_ranges  0x0000000000000320       0x20 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
 
-.debug_line     0x0000000000000000     0x8146
- .debug_line    0x0000000000000000      0x550 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
- .debug_line    0x0000000000000550      0x7a6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
- .debug_line    0x0000000000000cf6     0x12e3 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
- .debug_line    0x0000000000001fd9     0x11b0 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
- .debug_line    0x0000000000003189      0x59b /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
- .debug_line    0x0000000000003724      0x579 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
- .debug_line    0x0000000000003c9d      0xe7e /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- .debug_line    0x0000000000004b1b     0x1f19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
- .debug_line    0x0000000000006a34      0xb57 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
- .debug_line    0x000000000000758b      0x4c5 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
- .debug_line    0x0000000000007a50      0x3aa /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
- .debug_line    0x0000000000007dfa      0x34c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
+.debug_line     0x0000000000000000     0x83c2
+ .debug_line    0x0000000000000000      0x556 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
+ .debug_line    0x0000000000000556      0x7cc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_init.o)
+ .debug_line    0x0000000000000d22     0x13f7 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_utility.o)
+ .debug_line    0x0000000000002119     0x11b8 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+ .debug_line    0x00000000000032d1      0x5a5 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+ .debug_line    0x0000000000003876      0x625 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
+ .debug_line    0x0000000000003e9b      0xefc /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ .debug_line    0x0000000000004d97     0x1f19 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
+ .debug_line    0x0000000000006cb0      0xb57 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash_raw.o)
+ .debug_line    0x0000000000007807      0x4c5 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/log/liblog.a(log.o)
+ .debug_line    0x0000000000007ccc      0x3aa /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(ets_printf.o)
+ .debug_line    0x0000000000008076      0x34c /home/max/workspace/to_git/experiments/msx_now/build/bootloader/esp8266/libesp8266.a(crc.o)
 
 .debug_str      0x0000000000000000     0x268e
  .debug_str     0x0000000000000000      0x858 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/main/libmain.a(bootloader_start.o)
@@ -1091,7 +1099,7 @@ OUTPUT(/home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloade
  .debug_str     0x000000000000108c       0x7e /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
                                         0x7d8 (size before relaxing)
  .debug_str     0x000000000000110a      0xab6 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_common.o)
-                                       0x10ea (size before relaxing)
+                                       0x10fe (size before relaxing)
  .debug_str     0x0000000000001bc0      0x289 /home/max/workspace/to_git/experiments/msx_now/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
                                         0x9e0 (size before relaxing)
  .debug_str     0x0000000000001e49      0x4bb /home/max/workspace/to_git/experiments/msx_now/build/bootloader/spi_flash/libspi_flash.a(spi_flash.o)
