@@ -15,7 +15,12 @@
 #include "msx_debug.c"
 #include "msx_httpd.c"
 
+
+#define RESTART_AFTER_FAILED_UPDATE 1
+
+
 esp_err_t init_ota();
+esp_err_t stop_others();
 static esp_err_t http_handle_ota(httpd_req_t *req);
 #define OTA_BUFFER_SIZE     1024
 
@@ -26,6 +31,14 @@ httpd_uri_t uri_ota_post = { .uri = "/update", .method = HTTP_POST, .handler = &
 esp_err_t init_ota()
 {
     return httpd_register_uri_handler(msx_server, &uri_ota_post);
+}
+
+esp_err_t stop_others()
+{
+	__MSX_DEBUG__( httpd_unregister_uri_handler(msx_server, uri_get.uri, uri_get.method) );
+	__MSX_DEBUG__( httpd_unregister_uri_handler(msx_server, uri_post.uri, uri_post.method) );
+    __MSX_PRINT__("All handlers is registered");
+	return ESP_OK;
 }
 
 // curl 192.168.1.89:8066/update --no-buffer --data-binary @./build/msx.bin --output -
@@ -46,6 +59,11 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 	__MSX_DEBUG__( httpd_resp_send_chunk(req, "Start to update firmware.\n", 100) );
 
     //      WARNING!!!          make sure that your partition table contains OTA    ;
+	/* 
+			# Name,   Type, SubType, Offset,   Size, Flags
+			...
+			ota_0,    0,    ota_0,   0x10000, 0xF0000
+	*/
     //      make menuconfig > Partition Tables
 	//		and do not forget to ./fla.sh boards with new partitions
     part = esp_ota_get_next_update_partition(NULL);
@@ -58,6 +76,7 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 	ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "|---------+---------+---------+---------+---------+\n"));
 	ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "*")); */
 
+	//__MSX_DEBUG__( stop_others() );
 	__MSX_DEBUG__( esp_ota_begin(part, total_size, &handle) );
     //                  fuck it     ;
 
@@ -86,6 +105,9 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 			httpd_resp_send_500(req); */
             __MSX_PRINT__("update failed!");
             vTaskDelay(5000 / portTICK_RATE_MS);
+			#ifdef RESTART_AFTER_FAILED_UPDATE
+				goto _reload;
+			#endif
 			return ESP_FAIL;
 		}
 
@@ -106,13 +128,13 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 
 	__MSX_DEBUG__( esp_ota_end(handle) );
 	__MSX_DEBUG__( esp_ota_set_boot_partition(part) );
-	__MSX_PRINT__("update successful");
 
 	httpd_resp_send_chunk(req, "*\nOK\n", 2);
 	httpd_resp_send_chunk(req, NULL, 1);
+	__MSX_PRINT__("update successful");
 
-    vTaskDelay(5000 / portTICK_RATE_MS);
-
+_reload:
+	vTaskDelay(1000 / portTICK_RATE_MS);
 	esp_restart();
 
 	return ESP_OK;

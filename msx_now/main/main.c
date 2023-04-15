@@ -1,9 +1,3 @@
-/* BSD Socket API Example
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include <string.h>
 #include <sys/param.h>
 
@@ -43,36 +37,6 @@
 #include "msx_utils.c"
 
 
-xQueueHandle interputQueue;
-
-
-
-/* static const char *TAG = "example"; */
-
-/* void loop_xtask(void* params)
-{
-    int pinNumber, count = 0;
-    while (true)
-    {
-        if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
-        {
-            printf("GPIO %d was pressed %d times. The state is %d\n", pinNumber, count++, gpio_get_level(GPIO_NUM_12));
-            gpio_set_level(GPIO_NUM_2, !(bool)gpio_get_level(GPIO_NUM_2));
-        }
-    }
-} */
-
-
-/*
-//gpio_isr_t
-static void IRAM_ATTR gpio_interrupt_handler(void *args)
-{
-    int pinNumber = (int)args;
-    xQueueSendFromISR(interputQueue, &pinNumber, NULL);
-}
-*/
-
-
 void app_loop()
 {
 
@@ -82,6 +46,8 @@ void app_loop()
 
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
+
+    __MSX_PRINTF__("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
     return;
 }
@@ -103,18 +69,9 @@ void app_main()
     __MSX_DEBUG__( init_espnow() );
     __MSX_DEBUG__( init_user_loop(app_loop) );
 
-/*     interputQueue = xQueueCreate(10, sizeof(int));
-    xTaskCreate(loop_xtask, "loop_xtask", 4096, NULL, 1, NULL);
-    os_printf("TASKS INIT DONE \n\n"); */
-
     init_gpio(GPIO_NUM_12, GPIO_MODE_INPUT);
     init_gpio(GPIO_NUM_2, GPIO_MODE_OUTPUT); // LED
-    os_printf("GPIOS INIT DONE \n\n");
 
-/* 
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(GPIO_NUM_12, gpio_interrupt_handler, (void*) GPIO_NUM_12);
- */
     os_printf("MAIN INIT DONE \n\n");
 
 }

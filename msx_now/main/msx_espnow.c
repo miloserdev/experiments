@@ -180,7 +180,7 @@ esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUF
 
     if ( !esp_now_is_peer_exist(mac) )
     {
-        if ( !add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, ESPNOW_WIFI_IF, false) )
+        if ( !add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) )
         {
             __MSX_PRINTF__("cannot add peer"MACSTR"", MAC2STR(mac));
             err = ESP_ERR_ESPNOW_NOT_FOUND;

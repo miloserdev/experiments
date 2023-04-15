@@ -34,6 +34,7 @@
 #define MESH_CHANNEL                0 // CONFIG_ESPNOW_CHANNEL
 #define MESH_MAX_HOP                (4)
 
+esp_interface_t WIFI_IF = ESP_IF_MAX;
 uint8_t my_mac[ESP_NOW_ETH_ALEN];
 //static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
@@ -75,6 +76,7 @@ esp_err_t init_wifi(wifi_mode_t mode)
 
 esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power)
 {
+    WIFI_IF = ifidx;
     wifi_config_t wifi_config =
     (ifidx == ESP_IF_WIFI_AP)
     ? (wifi_config_t) {

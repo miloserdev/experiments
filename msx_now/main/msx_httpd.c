@@ -43,6 +43,12 @@ esp_err_t init_httpd()
 }
 
 
+esp_err_t stop_httpd()
+{
+    return httpd_stop(msx_server);
+}
+
+
 esp_err_t post_handler(httpd_req_t *req)
 {
     __MSX_PRINT__("start");
