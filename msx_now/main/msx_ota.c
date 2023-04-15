@@ -10,27 +10,33 @@
 #include <esp_wifi.h>
 #include <esp_ota_ops.h>
 #include <esp_http_server.h>
+#include <esp_http_client.h>
 #include <esp_partition.h>
+#include <esp_https_ota.h>
 
 #include "msx_debug.c"
 #include "msx_httpd.c"
 
 
-#define RESTART_AFTER_FAILED_UPDATE 1
-
+#define OTA_RESTART_AFTER_FAILED_UPDATE 1
+#define OTA_FIRMWARE_URL "https://github.com/miloserdev/experiments/blob/master/msx_now/build/msx.bin"
 
 esp_err_t init_ota();
 esp_err_t stop_others();
 static esp_err_t http_handle_ota(httpd_req_t *req);
+static esp_err_t http_handle_ota_from_git();
 #define OTA_BUFFER_SIZE     1024
 
 
 httpd_uri_t uri_ota_post = { .uri = "/update", .method = HTTP_POST, .handler = &http_handle_ota, .user_ctx = NULL };
+httpd_uri_t uri_ota_from_git_get = { .uri = "/update_git", .method = HTTP_GET, .handler = &http_handle_ota_from_git, .user_ctx = NULL };
 
 
 esp_err_t init_ota()
 {
-    return httpd_register_uri_handler(msx_server, &uri_ota_post);
+    __MSX_DEBUG__( httpd_register_uri_handler(msx_server, &uri_ota_post) );
+	__MSX_DEBUG__( httpd_register_uri_handler(msx_server, &uri_ota_from_git_get) );
+	return ESP_OK;
 }
 
 esp_err_t stop_others()
@@ -41,9 +47,39 @@ esp_err_t stop_others()
 	return ESP_OK;
 }
 
-// curl 192.168.1.89:8066/update --no-buffer --data-binary @./build/msx.bin --output -
+
+esp_err_t http_handle_ota_from_git()
+{
+	esp_err_t err = ESP_OK;
+
+    esp_http_client_config_t config = {
+        .url = OTA_FIRMWARE_URL,
+        //.cert_pem = (char *)server_cert_pem_start,
+    };
+
+    err = esp_https_ota(&config);
+
+	if (err != ESP_OK)
+	{
+		__MSX_PRINT__("update failed!");
+		vTaskDelay(5000 / portTICK_RATE_MS);
+		#ifdef OTA_RESTART_AFTER_FAILED_UPDATE
+			goto _reload;
+		#endif
+	}
+
+_reload:
+	vTaskDelay(1000 / portTICK_RATE_MS);
+	esp_restart();
+
+	return err;
+}
+
+
+// curl 192.168.1.101:8066/update --no-buffer --data-binary @./build/msx.bin --output -
 static esp_err_t http_handle_ota(httpd_req_t *req)
 {
+    esp_err_t err;
 
     const esp_partition_t *part;
 	esp_ota_handle_t handle;
@@ -53,7 +89,6 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
     size_t offset = 0;
 	int remain;
 	uint8_t percent;
-    esp_err_t err;
 
 	__MSX_DEBUG__( httpd_resp_set_type(req, "text/plain") );
 	__MSX_DEBUG__( httpd_resp_send_chunk(req, "Start to update firmware.\n", 100) );
@@ -77,8 +112,8 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 	ESP_ERROR_CHECK(httpd_resp_sendstr_chunk(req, "*")); */
 
 	//__MSX_DEBUG__( stop_others() );
-	__MSX_DEBUG__( esp_ota_begin(part, total_size, &handle) );
-    //                  fuck it     ;
+	__MSX_DEBUG__( esp_ota_begin(part, OTA_SIZE_UNKNOWN, &handle) );
+	//__MSX_DEBUG__( esp_ota_begin(part, total_size, &handle) );
 
     remain = total_size;
     percent = 2;
@@ -95,6 +130,7 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 		}
 
 		recv_size = httpd_req_recv(req, buf, recv_size);
+		__MSX_PRINTF__("%d bytes received <<< %.*s >>>", recv_size, recv_size, buf);
 		if (recv_size <= 0)
 		{
 			if (recv_size == HTTPD_SOCK_ERR_TIMEOUT)
@@ -104,17 +140,19 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 /*             httpd_resp_send_chunk(req, "Failed to receive firmware.", 100);
 			httpd_resp_send_500(req); */
             __MSX_PRINT__("update failed!");
+			err = ESP_FAIL;
             vTaskDelay(5000 / portTICK_RATE_MS);
-			#ifdef RESTART_AFTER_FAILED_UPDATE
+			#ifdef OTA_RESTART_AFTER_FAILED_UPDATE
 				goto _reload;
 			#endif
-			return ESP_FAIL;
+			//return ESP_FAIL;
 		}
 
 		err = esp_ota_write(handle, (const void*) buf, recv_size);
         //err = esp_partition_write(part, offset, (const void *) buf, recv_size);
         if (err != ESP_OK)
         {
+			__MSX_PRINTF__("ota error %d", err);
             return ESP_ERR_OTA_BASE;
         }
 
@@ -137,7 +175,7 @@ _reload:
 	vTaskDelay(1000 / portTICK_RATE_MS);
 	esp_restart();
 
-	return ESP_OK;
+	return err;
 }
 
 

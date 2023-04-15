@@ -47,7 +47,7 @@ void app_loop()
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
 
-    __MSX_PRINTF__("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
+    __MSX_PRINTF__("updated esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
     return;
 }

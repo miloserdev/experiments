@@ -7,15 +7,14 @@
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/build/include",
                 "/home/max/esp/ESP8266_RTOS_SDK/components/**",
-
                 "/home/max/esp/ESP8266_RTOS_SDK/components/netinet/in.h",
                 "/home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/**",
-
                 "/home/max/esp/ESP8266_RTOS_SDK/components/esp_common/include",
                 "/home/max/esp/ESP8266_RTOS_SDK/components/freertos",
                 "/home/max/esp/ESP8266_RTOS_SDK/components/lwip",
                 "/home/max/esp/ESP8266_RTOS_SDK/components/openssl",
-                "/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/rom"
+                "/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/rom",
+                "/home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

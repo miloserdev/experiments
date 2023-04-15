@@ -73,6 +73,8 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/bootloader_support/include/esp_app_format.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
@@ -229,6 +231,10 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
 /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h:
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c:
 
