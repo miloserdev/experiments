@@ -19,12 +19,12 @@
 
 
 #define OTA_RESTART_AFTER_FAILED_UPDATE 1
-#define OTA_FIRMWARE_URL "https://github.com/miloserdev/experiments/raw/master/msx_now/build/msx.bin"
+#define OTA_FIRMWARE_URL "http://192.168.1.123:8091/firmware/msx.bin"
 
 esp_err_t init_ota();
 esp_err_t stop_others();
 static esp_err_t http_handle_ota(httpd_req_t *req);
-static esp_err_t http_handle_ota_from_git();
+static esp_err_t http_handle_ota_from_git(httpd_req_t *req);
 #define OTA_BUFFER_SIZE     1024
 
 
@@ -48,8 +48,10 @@ esp_err_t stop_others()
 }
 
 
-esp_err_t http_handle_ota_from_git()
+esp_err_t http_handle_ota_from_git(httpd_req_t *req)
 {
+	char *resp = "ok";
+	httpd_resp_send(req, resp, strlen(resp));
 	esp_err_t err = ESP_OK;
 
     esp_http_client_config_t config = {

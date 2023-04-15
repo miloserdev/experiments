@@ -53,18 +53,6 @@ void app_loop()
 }
 
 
-/* 
-E (13260) esp-tls-mbedtls: No server verification option set in esp_tls_cfg_t strue
-E (13263) esp-tls-mbedtls: Failed to set client configurations
-E (13269) esp-tls: create_ssl_handle failed
-E (13274) esp-tls: Failed to open new connection
-E (13279) TRANS_SSL: Failed to open a new connection
-E (13287) HTTP_CLIENT: Connection failed, sock < 0
-E (13291) esp_https_ota: Failed to open HTTP connection: 28674
-H: 44536 | L: -392 | http_handle_ota_from_git >>> update failed! 
-H: 44276 | L: -260 | app_loop >>> esp_get_free_heap_size >> 44276 
-*/
-
 void app_main()
 {
     __MSX_DEBUG__( nvs_flash_init() );
