@@ -10538,7 +10538,7 @@ END GROUP
 
 .iram0.text     0x0000000040100080     0x5773
                 0x0000000040100080                _iram_text_start = ABSOLUTE (.)
- *(.iram1 .iram1.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .text)
+ *(.iram1 .iram1.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .text)
  .iram1.0.literal
                 0x0000000040100080       0x1c /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(task_wdt.o)
  .iram1.1.literal
@@ -11251,7 +11251,8 @@ END GROUP
                 0x0000000040105ce8                g_misc_nvs
                 0x0000000040105cec                g_log_mod
                 0x0000000040105cf0                g_log_level
- *libfreertos.a:impure.*(.bss .bss.* COMMON)
+ *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
+ *libfreertos.a:queue.*(.bss .bss.* COMMON)
  *libfreertos.a:timers.*(.bss .bss.* COMMON)
  .bss.xLastTime$4351
                 0x0000000040105cf4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
@@ -11267,10 +11268,9 @@ END GROUP
                 0x0000000040105d08       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
  .bss.xActiveTimerList1
                 0x0000000040105d1c       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
+ *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
  *libfreertos.a:list.*(.bss .bss.* COMMON)
- *libfreertos.a:queue.*(.bss .bss.* COMMON)
- *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
+ *libfreertos.a:impure.*(.bss .bss.* COMMON)
  *libfreertos.a:tasks.*(.bss .bss.* COMMON)
  .bss.uxSchedulerSuspended
                 0x0000000040105d30        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
@@ -11315,7 +11315,7 @@ END GROUP
  .bss.pxCurrentTCB
                 0x0000000040105ef8        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
                 0x0000000040105ef8                pxCurrentTCB
- *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
+ *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
  *liblwip.a:(.bss .bss.* COMMON)
  .bss.dhcps_cb  0x0000000040105efc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/lwip/liblwip.a(dhcpserver.o)
  .bss.dhcps_dns
@@ -11692,7 +11692,7 @@ END GROUP
 .dram0.bss      0x000000003ffe8690     0x2440
                 0x000000003ffe8690                . = ALIGN (0x8)
                 0x000000003ffe8690                _bss_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:timers.* *libfreertos.a:stream_buffer.* *libfreertos.a:list.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:timers.* *libfreertos.a:stream_buffer.* *libfreertos.a:list.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:timers.* *libfreertos.a:stream_buffer.* *libfreertos.a:list.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libcore.a) COMMON)
+ *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libfreertos.a:list.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:freertos_hooks.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libfreertos.a:list.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:freertos_hooks.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:timers.* *libfreertos.a:event_groups.* *libfreertos.a:list.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:freertos_hooks.* *libcore.a) COMMON)
  .bss.base_mac_addr
                 0x000000003ffe8690        0x6 /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(system_api.o)
  *fill*         0x000000003ffe8696        0x2 
@@ -12258,7 +12258,7 @@ END GROUP
 .flash.text     0x0000000040210010    0x8d0d8
                 0x0000000040210010                _stext = .
                 0x0000000040210010                _text_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .literal.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .text EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .text.* .wifi0iram .wifi0iram.*)
+ *(EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .literal.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .text EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .text.* .wifi0iram .wifi0iram.*)
  .literal.user_init_entry
                 0x0000000040210010       0x1c /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(startup.o)
                                          0x50 (size before relaxing)
@@ -33483,51 +33483,51 @@ END GROUP
  *fill*         0x000000004028bee0        0x0 
  *fill*         0x000000004028bee0        0x0 
  *fill*         0x000000004028bee0        0x0 
- *libgcc.a:unwind-dw2.*(.literal .literal.* .text .text.*)
- .literal       0x000000004028bee0       0x2c /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
-                                         0x7c (size before relaxing)
- .literal       0x000000004028bf0c       0x7c /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
-                                        0x104 (size before relaxing)
- .text          0x000000004028bf88     0x1e6b /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
-                                       0x1e87 (size before relaxing)
-                0x000000004028d934                _Unwind_GetGR
-                0x000000004028d974                _Unwind_GetCFA
-                0x000000004028d97c                _Unwind_SetGR
-                0x000000004028d9cc                _Unwind_GetIP
-                0x000000004028d9d4                _Unwind_GetIPInfo
-                0x000000004028d9e4                _Unwind_SetIP
-                0x000000004028d9ec                _Unwind_GetLanguageSpecificData
-                0x000000004028d9f4                _Unwind_GetRegionStart
-                0x000000004028d9fc                _Unwind_FindEnclosingFunction
-                0x000000004028da18                _Unwind_GetDataRelBase
-                0x000000004028da20                _Unwind_GetTextRelBase
-                0x000000004028da28                __frame_state_for
-                0x000000004028dadc                _Unwind_RaiseException
-                0x000000004028dbc8                _Unwind_ForcedUnwind
-                0x000000004028dc50                _Unwind_Resume
-                0x000000004028dcdc                _Unwind_Resume_or_Rethrow
-                0x000000004028dd68                _Unwind_DeleteException
-                0x000000004028dd80                _Unwind_Backtrace
- *fill*         0x000000004028ddf3        0x0 
  *libgcc.a:unwind-dw2-fde.*(.literal .literal.* .text .text.*)
- *fill*         0x000000004028ddf3        0x1 
- .text          0x000000004028ddf4      0xe71 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
+ .literal       0x000000004028bee0       0x80 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
+                                        0x104 (size before relaxing)
+ .literal       0x000000004028bf60       0x28 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
+                                         0x7c (size before relaxing)
+ .text          0x000000004028bf88      0xe71 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
                                         0xe79 (size before relaxing)
-                0x000000004028e9e4                __register_frame_info_bases
-                0x000000004028ea04                __register_frame_info
-                0x000000004028ea28                __register_frame
-                0x000000004028ea64                __register_frame_info_table_bases
-                0x000000004028ea80                __register_frame_info_table
-                0x000000004028ea9c                __register_frame_table
-                0x000000004028ead0                __deregister_frame_info_bases
-                0x000000004028eb60                __deregister_frame_info
-                0x000000004028eb70                __deregister_frame
-                0x000000004028eb8c                _Unwind_Find_FDE
- *fill*         0x000000004028ec65        0x0 
+                0x000000004028cb78                __register_frame_info_bases
+                0x000000004028cb98                __register_frame_info
+                0x000000004028cbbc                __register_frame
+                0x000000004028cbf8                __register_frame_info_table_bases
+                0x000000004028cc14                __register_frame_info_table
+                0x000000004028cc30                __register_frame_table
+                0x000000004028cc64                __deregister_frame_info_bases
+                0x000000004028ccf4                __deregister_frame_info
+                0x000000004028cd04                __deregister_frame
+                0x000000004028cd20                _Unwind_Find_FDE
+ *fill*         0x000000004028cdf9        0x0 
+ *libgcc.a:unwind-dw2.*(.literal .literal.* .text .text.*)
+ *fill*         0x000000004028cdf9        0x3 
+ .text          0x000000004028cdfc     0x1e6b /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
+                                       0x1e87 (size before relaxing)
+                0x000000004028e7a8                _Unwind_GetGR
+                0x000000004028e7e8                _Unwind_GetCFA
+                0x000000004028e7f0                _Unwind_SetGR
+                0x000000004028e840                _Unwind_GetIP
+                0x000000004028e848                _Unwind_GetIPInfo
+                0x000000004028e858                _Unwind_SetIP
+                0x000000004028e860                _Unwind_GetLanguageSpecificData
+                0x000000004028e868                _Unwind_GetRegionStart
+                0x000000004028e870                _Unwind_FindEnclosingFunction
+                0x000000004028e88c                _Unwind_GetDataRelBase
+                0x000000004028e894                _Unwind_GetTextRelBase
+                0x000000004028e89c                __frame_state_for
+                0x000000004028e950                _Unwind_RaiseException
+                0x000000004028ea3c                _Unwind_ForcedUnwind
+                0x000000004028eac4                _Unwind_Resume
+                0x000000004028eb50                _Unwind_Resume_or_Rethrow
+                0x000000004028ebdc                _Unwind_DeleteException
+                0x000000004028ebf4                _Unwind_Backtrace
+ *fill*         0x000000004028ec67        0x0 
  *(.irom0.literal .irom0.text)
  *(.irom.literal .irom.text .irom.text.literal)
  *(.text2 .text2.* .literal2 .literal2.*)
- *fill*         0x000000004028ec65        0x3 
+ *fill*         0x000000004028ec67        0x1 
  .text2.0       0x000000004028ec68       0x1b /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libphy.a(phy.o)
                 0x000000004028ec6c                phy_enable_agc
  *fill*         0x000000004028ec83        0x1 
