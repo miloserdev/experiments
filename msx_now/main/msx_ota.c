@@ -19,7 +19,7 @@
 
 
 #define OTA_RESTART_AFTER_FAILED_UPDATE 1
-#define OTA_FIRMWARE_URL "https://github.com/miloserdev/experiments/blob/master/msx_now/build/msx.bin"
+#define OTA_FIRMWARE_URL "https://github.com/miloserdev/experiments/raw/master/msx_now/build/msx.bin"
 
 esp_err_t init_ota();
 esp_err_t stop_others();
