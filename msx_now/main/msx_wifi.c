@@ -42,6 +42,8 @@ uint8_t my_mac[ESP_NOW_ETH_ALEN];
 esp_err_t init_wifi(wifi_mode_t mode);
 esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power);
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
 
 esp_err_t init_wifi(wifi_mode_t mode)
@@ -57,7 +59,9 @@ esp_err_t init_wifi(wifi_mode_t mode)
     __MSX_DEBUG__( esp_wifi_start() );
 
     __MSX_DEBUG__( esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
+    __MSX_DEBUG__( esp_event_handler_register(WIFI_EVENT, SYSTEM_EVENT_SCAN_DONE, &scan_done_handler, NULL) );
     __MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
+    __MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &scan_start_handler, NULL) );
 
     __MSX_DEBUG__( esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
 
@@ -108,6 +112,47 @@ esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[6
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     __MSX_DEBUG__( raise_event(event_id, event_base, 0, event_data, 0) );
+}
+
+
+static wifi_scan_config_t config  = {
+	.ssid = NULL,
+	.bssid = NULL,
+	.channel = 0,
+	.show_hidden = true
+};
+
+
+void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    __MSX_DEBUG__( esp_wifi_scan_start(&config, true) );
+}
+
+
+void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    esp_err_t err = ESP_OK;
+
+    uint16_t size = 0;
+    wifi_ap_record_t *record;
+    
+    esp_wifi_scan_get_ap_num(&size);
+
+    record = (wifi_ap_record_t *) os_malloc(sizeof(wifi_ap_record_t) * size);
+
+    err = esp_wifi_scan_get_ap_records(&size, record);
+    if (err != ESP_OK) return err;
+
+    /*  = (wifi_ap_record_t *) os_malloc(sizeof(wifi_ap_record_t)); */
+
+    for (size_t i = 0; i < size; i++)
+    {
+        wifi_ap_record_t *ap = &record[i];
+        if (ap == NULL) return;
+        __MSX_PRINTF__("ssid %.*s | bssid "MACSTR"", 33, ap->ssid, MAC2STR(ap->bssid));
+    }
+
+    os_free(record);
 }
 
 
