@@ -47,17 +47,9 @@ void app_loop()
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
 
-    size_t peer_sz = sizeof(esp_now_peer_info_t);
-    esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
-    memset(peer, 0, peer_sz);
-    bool from_head = true;
+    print_peers();
 
-    for (size_t i = 0; i < 10; i++)
-    {
-        esp_now_fetch_peer(from_head, peer);
-        from_head = false;
-        __MSX_PRINTF__("peer "MACSTR"", MAC2STR(peer->peer_addr));
-    }
+    __MSX_DEBUG__( radare_signal_peers() );
 
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
