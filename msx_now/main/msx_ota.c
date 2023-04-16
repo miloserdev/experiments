@@ -78,6 +78,12 @@ _reload:
 }
 
 
+/* 
+	i tested it on my LoLin NodeMCU V3 and it works great,
+	and i dont know why, but it`s not working on ESP-01 board.
+
+	p.s. just in case, try to edit partitions table
+ */
 // curl 192.168.1.101:8066/update --no-buffer --data-binary @./build/msx.bin --output -
 static esp_err_t http_handle_ota(httpd_req_t *req)
 {
