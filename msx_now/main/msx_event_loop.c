@@ -61,7 +61,8 @@ bool raise_event(int id, esp_event_base_t base, uint32_t status, void *data, siz
 
 /*
     very fucked up queue because in this case
-    event_loop have a multiple events, WIFI | ESPNOW | UART
+    event_loop have a multiple events
+    WIFI | ESPNOW | UART
 */
 void event_loop(void *params)
 {

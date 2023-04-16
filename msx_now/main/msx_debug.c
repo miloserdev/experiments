@@ -13,6 +13,7 @@
 #include <esp_err.h>
 #include <esp_wifi.h>
 
+/* a lot of esp_get_free_heap_size */
 
 int32_t last_mem = 0;
 int32_t get_leak()
