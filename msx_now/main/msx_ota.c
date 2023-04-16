@@ -48,6 +48,9 @@ esp_err_t stop_others()
 }
 
 
+/*
+	i imperatively recommend to use this function to OTA update
+*/
 esp_err_t http_handle_ota_from_git(httpd_req_t *req)
 {
 	char *resp = "ok";
@@ -83,7 +86,14 @@ _reload:
 	and i dont know why, but it`s not working on ESP-01 board.
 
 	p.s. just in case, try to edit partitions table
- */
+*/
+/*
+	and i really do not recommend to use this method
+	just because your pc/phone/server can close connection
+	when you will try to update your chip
+
+	it can be fixed with rollback btw
+*/
 // curl 192.168.1.101:8066/update --no-buffer --data-binary @./build/msx.bin --output -
 static esp_err_t http_handle_ota(httpd_req_t *req)
 {
