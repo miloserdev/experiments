@@ -27,6 +27,9 @@
 #define MESH_MY_PREFIX_LEN  strlen(MESH_MY_PREFIX)
 #define MESH_MY_PASSWD  "9857wuj9d9jsie"
 
+/*
+    and yes, i show you my credentials, good luck to find me XD
+*/
 #define MESH_SSID_PREFIX            "Keenetic-6193"
 #define MESH_SSID_PREFIX_LEN        strlen(MESH_SSID_PREFIX)
 #define MESH_PASSWD                 "DNj6KdZT"
@@ -77,6 +80,7 @@ esp_err_t init_wifi(wifi_mode_t mode)
 
     return ESP_OK;
 }
+
 
 esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power)
 {
@@ -129,6 +133,9 @@ void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id
 }
 
 
+/*
+    it can be not used because we can send peer request through ESP-NOW
+*/
 void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     esp_err_t err = ESP_OK;
