@@ -94,6 +94,7 @@ void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
+    char *coffee = "COFFEE"; // free coffee
     blink();
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
     if (len > sizeof(packet_t))
@@ -108,14 +109,10 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     memcpy(buffer, pack->buffer, len);
 
     __MSX_PRINTF__("data %.*s", pack->len, buffer);
-
-    char *coffee = "COFFEE"; // free coffee
     if (strncmp(&buffer, coffee, strlen(coffee)) == 0)
     {
-        esp_restart();
-        __MSX_PRINT__("0xC0FFEE detected !!!");
+        //__MSX_PRINT__("FUCKFUCKFUCK detected !!!");
         __MSX_DEBUG__( peer_requested(mac_addr) );
-        __MSX_PRINT__("what the fuck");
         return;
     }
 

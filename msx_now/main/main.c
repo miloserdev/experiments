@@ -47,7 +47,7 @@ void app_loop()
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
 
-    print_peers();
+    //print_peers();
 
     __MSX_DEBUG__( radare_signal_peers() );
 
@@ -60,7 +60,6 @@ void app_loop()
 void app_main()
 {
     __MSX_DEBUG__( nvs_flash_init() );
-
 
     // FIX >> bad receive with espnow >> APSTA STA
 
