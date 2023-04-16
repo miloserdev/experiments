@@ -18,11 +18,11 @@ httpd_handle_t msx_server = NULL;
 
 esp_err_t init_httpd();
 esp_err_t post_handler(httpd_req_t *req);
-esp_err_t get_handler(httpd_req_t *req);
+esp_err_t status_get_handler(httpd_req_t *req);
 
 
 httpd_uri_t uri_post = { .uri = "/", .method = HTTP_POST, .handler = post_handler, .user_ctx = NULL };
-httpd_uri_t uri_get = { .uri = "/status", .method = HTTP_GET, .handler = get_handler, .user_ctx = NULL };
+httpd_uri_t uri_get = { .uri = "/status", .method = HTTP_GET, .handler = status_get_handler, .user_ctx = NULL };
 
 esp_err_t init_httpd()
 {
@@ -107,7 +107,7 @@ esp_err_t post_handler(httpd_req_t *req)
 }
 
 
-esp_err_t get_handler(httpd_req_t *req)
+esp_err_t status_get_handler(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateArray();
 
@@ -138,7 +138,7 @@ esp_err_t get_handler(httpd_req_t *req)
     __MSX_DEBUGV__( os_free(root)   );
     __MSX_DEBUGV__( os_free(string) );
 
-    __MSX_PRINT__("get_handler end");
+    __MSX_PRINT__("status_get_handler end");
 
     // do it next day
     return ESP_OK;

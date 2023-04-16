@@ -39,13 +39,12 @@
 
 void app_loop()
 {
-
     vTaskDelay(2000 / portTICK_RATE_MS);
 
-    uint8_t broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
+/* 
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
+*/
 
     //print_peers();
 

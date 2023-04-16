@@ -94,6 +94,7 @@ void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
+    // magic word that will say others to add us to peer list
     char *coffee = "COFFEE"; // free coffee
     blink();
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
@@ -111,6 +112,15 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     __MSX_PRINTF__("data %.*s", pack->len, buffer);
     if (strncmp(&buffer, coffee, strlen(coffee)) == 0)
     {
+        /*
+            letter about me.
+
+            a few years ago, i started coding to MCU,
+            at this moment i want to begin my small business
+            about develop of IoT devices...
+
+            finally, i stuck with broken flash chip :)
+        */
         //__MSX_PRINT__("FUCKFUCKFUCK detected !!!");
         __MSX_DEBUG__( peer_requested(mac_addr) );
         return;
