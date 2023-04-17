@@ -15,6 +15,7 @@
 #define MAX(x, y) (x > y ? x : y) */
 
 
+
 char *parse_value(int value, bool invert);
 cJSON * read_pin(int pin);
 esp_err_t setup_gpio(gpio_num_t _pin, gpio_mode_t mode);

@@ -39,14 +39,14 @@
 
 void app_loop()
 {
-    vTaskDelay(2000 / portTICK_RATE_MS);
+    vTaskDelay(5000 / portTICK_RATE_MS);
 
 /* 
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
 */
 
-    //print_peers();
+    print_peers();
 
     __MSX_DEBUG__( radare_signal_peers() );
 

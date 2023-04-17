@@ -4,10 +4,12 @@
 
 #include <esp_libc.h>
 #include <esp_now.h>
+/* #include <esp_http_server.h> */
 #include <string.h>
 
 #include <cJSON.h>
 
+#include "msx_httpd.c"
 #include "msx_event_loop.c"
 #include "msx_debug.c"
 #include "msx_wifi.c"
@@ -44,18 +46,23 @@ void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status);
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len);
 
 esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t channel, wifi_interface_t ifidx, bool encrypted);
-esp_err_t peer_requested(uint8_t mac[ESP_NOW_ETH_ALEN]);
+esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
 esp_err_t send_packet(uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len);
 esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 
-bool mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN]);
-bool mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], uint8_t mac2[ESP_NOW_ETH_ALEN]);
+esp_err_t peers_get_handler(httpd_req_t *req);
+
+int mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN]);
+int mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], uint8_t mac2[ESP_NOW_ETH_ALEN]);
 
 void stack_print (uint32_t *stack);
 bool stack_push (uint32_t *dest, uint32_t data);
 bool stack_null (uint32_t *stack);
 bool stack_exists (uint32_t *stack, uint32_t data);
+
+
+httpd_uri_t peers_uri_get = { .uri = "/peers", .method = HTTP_GET, .handler = peers_get_handler, .user_ctx = NULL };
 
 
 packet_t *init_packet()
@@ -79,6 +86,8 @@ esp_err_t init_espnow()
 
     __MSX_DEBUG__( add_peer(broadcast_mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
 
+    //__MSX_DEBUG__( httpd_register_uri_handler(msx_server, &peers_uri_get) );
+
     return ESP_OK;
 }
 
@@ -94,8 +103,10 @@ void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
+
     // magic word that will say others to add us to peer list
     char *coffee = "COFFEE"; // free coffee
+    
     blink();
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
     if (len > sizeof(packet_t))
@@ -104,47 +115,68 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         return;
     }
 
-    packet_t *pack = data;
-    uint8_t buffer[PACKET_BUFFER_SIZE];
-    memset(buffer, 0, PACKET_BUFFER_SIZE);
-    memcpy(buffer, pack->buffer, len);
+    size_t pack_sz = sizeof(packet_t);
+    packet_t *pack = (packet_t *) os_malloc(pack_sz);
+    memset(pack, 0, pack_sz);
+    memcpy(pack, data, pack_sz);
+
+    uint8_t buffer[pack->len];
+    memset(buffer, 0, pack->len);
+    memcpy(buffer, pack->buffer, pack->len);
+
+    if ( stack_exists(msg_stack, pack->magic))
+    {
+        __MSX_PRINTF__("packet->magic %d is already processed | ignoring", pack->magic);
+        goto recv_exit;
+    }
+
+    if (pack->len > PACKET_BUFFER_SIZE)
+    {
+        __MSX_PRINTF__("abnormal packet->len %d | ignoring", pack->len);
+        goto recv_exit;
+    }
 
     __MSX_PRINTF__("data %.*s", pack->len, buffer);
     if (strncmp(&buffer, coffee, strlen(coffee)) == 0)
     {
-        /*
-            letter about me.
-
-            a few years ago, i started coding to MCU,
-            at this moment i want to begin my small business
-            about develop of IoT devices...
-
-            finally, i stuck with broken flash chip :)
-        */
-        //__MSX_PRINT__("FUCKFUCKFUCK detected !!!");
-        __MSX_DEBUG__( peer_requested(mac_addr) );
+        __MSX_DEBUG__( pair_request(mac_addr) );
         return;
     }
 
-    return;
+
 
     cJSON *root = cJSON_Parse( (const char*) buffer);
-    __MSX_PRINTF__("mac compare %d", mac_cmp_json(root, my_mac));
+    
 
-
-    if (peer_count < MSX_PEER_COUNT)
+    if (mac_cmp_json(root, my_mac) == 0)
     {
-        uint8_t peer[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        __MSX_DEBUG__( sscanf(root, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer[0], &peer[1], &peer[2], &peer[3], &peer[4], &peer[5]) );
-        
-        if ( !add_peer(peer, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) )
-        {
-            __MSX_PRINTF__("CANNOT ADD PEER "MACSTR"", MAC2STR(peer))
-        }
+        __MSX_PRINT__("this is my mac!");
+        char *resp = exec_packet((const char*) buffer, pack->len);
+        __MSX_PRINTF__("exec resp is %s", resp);
     } else
     {
-        __MSX_DEBUG__( select_cast(mac_addr, pack) );
+        __MSX_PRINT__("redirecting!");
+        if (peer_count < MSX_PEER_COUNT)
+        {
+            uint8_t peer[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            if ( !cJSON_GetObjectItemCaseSensitive(root, "to")) return false;
+            char *to_str = cJSON_GetObjectItem(root, "to");
+
+            __MSX_DEBUG__( sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer[0], &peer[1], &peer[2], &peer[3], &peer[4], &peer[5]) );
+        
+            __MSX_DEBUG__( add_peer(peer, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
+
+            __MSX_DEBUG__( select_cast(peer, pack) );
+        } else
+        {
+            __MSX_PRINT__("cannot do anything :)");
+            //__MSX_DEBUG__( select_cast(mac_addr, pack) );
+            goto recv_exit;
+        }
     }
+
+
+
 
 
     cJSON_Delete(root);
@@ -184,10 +216,8 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     //__MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) );
 
 
-// recv_exit:
+recv_exit:
     __MSX_PRINT__("free memory section");
-/*     __MSX_DEBUGV__( os_free(msg->mac_addr) );
-    __MSX_DEBUGV__( os_free(msg->buffer) ); */
     __MSX_DEBUGV__( os_free(pack) );
     return;
 }
@@ -223,7 +253,7 @@ add_exit:
 }
 
 
-esp_err_t peer_requested(uint8_t mac[ESP_NOW_ETH_ALEN])
+esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
 {
     if (peer_count >= 4)
     {
@@ -255,10 +285,13 @@ esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUF
     esp_err_t err = ESP_OK;
 
     size_t pack_sz = sizeof(packet_t);
-    packet_t *msg = (packet_t*) os_malloc(pack_sz);
-    memcpy(msg->mac_addr, mac, ESP_NOW_ETH_ALEN);
-    memcpy(msg->buffer, data, PACKET_BUFFER_SIZE);
-    msg->len = len;
+    packet_t *pack = (packet_t*) os_malloc(pack_sz);
+    memcpy(pack->mac_addr, mac, ESP_NOW_ETH_ALEN);
+    memcpy(pack->buffer, data, PACKET_BUFFER_SIZE);
+    pack->len = len;
+
+    // err = esp_now_is_peer_exist(mac);
+    // if (err != ESP_OK) goto send_exit;
 
 /*     if ( !esp_now_is_peer_exist(mac) )
     {
@@ -269,11 +302,12 @@ esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUF
             goto send_exit;
         }
     } */
+    __MSX_PRINTF__("sending [%.*s] to "MACSTR"", pack->len, pack->buffer, MAC2STR(mac));
+    err = esp_now_send(mac, pack, pack_sz);
 
-    err = esp_now_send(mac, data, pack_sz);
-
-//send_exit:
-    os_free(msg);
+goto send_exit;
+send_exit:
+    os_free(pack);
     return err;
 }
 
@@ -297,7 +331,7 @@ esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
 
         send_packet(peer->peer_addr, pack);
 
-        __MSX_PRINTF__("sending to "MACSTR"", MAC2STR(peer->peer_addr));
+        __MSX_PRINTF__("sending [%.*s] to "MACSTR"", pack->len, pack->buffer, MAC2STR(peer->peer_addr));
     }
 
     os_free(peer);
@@ -320,18 +354,56 @@ void print_peers()
     memset(peer, 0, peer_sz);
     bool from_head = true;
 
-    for (size_t i = 0; i < 10; i++)
+    for (esp_err_t e = esp_now_fetch_peer(true, peer); e == ESP_OK; e = esp_now_fetch_peer(false, peer))
     {
-        esp_now_fetch_peer(from_head, peer);
-        from_head = false;
-        __MSX_PRINTF__("peer "MACSTR"", MAC2STR(peer->peer_addr));
+        __MSX_PRINTF__("peer "MACSTR" | ifidx %d | channel %d", MAC2STR(peer->peer_addr), peer->ifidx, peer->channel);
     }
 
     os_free(peer);
 }
 
 
-bool mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN])
+esp_err_t peers_get_handler(httpd_req_t *req)
+{
+    cJSON *root = cJSON_CreateArray();
+    cJSON *peer_tmp = cJSON_CreateObject();
+
+    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
+    memset(peer, 0, peer_sz);
+
+    for (esp_err_t e = esp_now_fetch_peer(true, peer); e == ESP_OK; e = esp_now_fetch_peer(false, peer))
+    {
+        char macstr[18];
+        sprintf(macstr, MACSTR, MAC2STR(peer->peer_addr));
+        cJSON_AddStringToObject(peer_tmp, "mac", macstr);
+        cJSON_AddNumberToObject(peer_tmp, "ifidx", peer->ifidx);
+        cJSON_AddNumberToObject(peer_tmp, "channel", peer->channel);
+
+        __MSX_PRINTF__("peer "MACSTR" | ifidx %d | channel %d", MAC2STR(peer->peer_addr), peer->ifidx, peer->channel);
+    }
+
+    cJSON_AddItemToArray(root, peer_tmp);
+
+    char *string = cJSON_Print(root); // cJSON_PrintUnformatted
+
+    __MSX_PRINTF__("string %s", string);
+
+    httpd_resp_set_type(req, "application/json");
+	httpd_resp_send(req, string, strlen(string));
+
+    /* __MSX_DEBUGV__(  */cJSON_Delete(root)  /* ) */;
+    __MSX_DEBUGV__( os_free(root)   );
+    __MSX_DEBUGV__( os_free(string) );
+
+    __MSX_PRINT__("status_get_handler end");
+
+    // do it next day
+    return ESP_OK;
+}
+
+
+int mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN])
 {
     if ( !cJSON_GetObjectItemCaseSensitive(obj, "to")) return false;
 
@@ -341,7 +413,7 @@ bool mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN])
     return mac_cmp_char_uint8t(to_str, mac);
 }
 
-bool mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], uint8_t mac2[ESP_NOW_ETH_ALEN])
+int mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], uint8_t mac2[ESP_NOW_ETH_ALEN])
 {
     uint8_t peer[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     sscanf(mac1, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer[0], &peer[1], &peer[2], &peer[3], &peer[4], &peer[5]);
@@ -392,3 +464,14 @@ bool stack_exists (uint32_t *stack, uint32_t data)
 
 
 #endif
+
+
+        /*
+            letter about me.
+
+            a few years ago, i started coding to MCU,
+            at this moment i want to begin my small business
+            about develop of IoT devices...
+
+            finally, i stuck with broken flash chip :)
+        */

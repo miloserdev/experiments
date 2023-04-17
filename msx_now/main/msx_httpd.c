@@ -11,6 +11,7 @@
 
 #include "msx_debug.c"
 #include "msx_utils.c"
+#include "msx_executor.c"
 
 httpd_handle_t msx_server = NULL;
 #define PORT            8066
@@ -71,31 +72,16 @@ esp_err_t post_handler(httpd_req_t *req)
     __MSX_PRINTF__("buffer %.*s size: %d", req->content_len, content, req->content_len);
 
 /*     cJSON *parsed_buffer = cJSON_Parse((const char *) content);
-    os_printf("parsing buffer ... \n");
-    size_t buf_len = cJSON_GetArraySize(parsed_buffer);
-    os_printf("parsing buffer ... len %d \n", buf_len); */
+    size_t buf_len = cJSON_GetArraySize(parsed_buffer); */
     
     /////////////////////////////////////////////////////
     // NEED TO DISABLE "nano" formatting in menuconfig //
     /////////////////////////////////////////////////////
-/* 
-    for (size_t i = 0; i < buf_len; i++)
-    {
-        cJSON *item = cJSON_GetArrayItem(parsed_buffer, i);
-        os_printf("getting item %d \n", i);
-        char *printed = cJSON_PrintUnformatted(item);// cJSON_Print(item);
-        os_printf("parsed_buffer item %d --> %s \n", i, printed);
-    }
 
-    return; // !!!!!!!!!!!!!!!!! */
-
-	//buffer = cJSON_Parse((const char *) content);
-	const char *resp = (const char *) ""; //exec_packet(content, req->content_len);
-
+	const char *resp = (const char *) exec_packet(content, req->content_len);
 	httpd_resp_send(req, resp, sizeof(resp));
-
-
     __MSX_DEBUGV__( os_free( (void *) resp)           );
+
     /* __MSX_DEBUGV__( cJSON_Delete(buffer)    ); */ // crash warning
     /* __MSX_DEBUGV__( os_free(buffer)         ); */
     __MSX_DEBUGV__( os_free(&content)       ); // ??? crash    
