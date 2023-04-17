@@ -48,7 +48,7 @@ void app_loop()
 
     print_peers();
 
-    __MSX_DEBUG__( radare_signal_peers() );
+    __MSX_DEBUG__( radar_peers() );
 
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 

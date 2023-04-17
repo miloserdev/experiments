@@ -59,6 +59,8 @@ esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t chann
 esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
 esp_err_t send_packet(uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len);
+
+esp_err_t retransmit_packet(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t multi_cast(packet_t *pack);
 
@@ -167,17 +169,7 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     } else
     {
         __MSX_PRINT__("redirecting!");
-        if (peer_count < MSX_PEER_COUNT)
-        {
-            __MSX_DEBUG__( add_peer(pack->mac_addr, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
-            __MSX_DEBUG__( select_cast(pack->mac_addr, pack) );
-        } else
-        {
-            multi_cast(pack);
-            __MSX_PRINT__("cannot do anything :)");
-            //__MSX_DEBUG__( select_cast(mac_addr, pack) );
-            goto recv_exit;
-        }
+        __MSX_DEBUG_( retransmit_packet(mac_addr, pack) );
     }
 
 
@@ -317,6 +309,30 @@ send_exit:
 }
 
 
+/// ДОПИСАТЬ БЛЕАТЬ!!!
+
+esp_err_t retransmit_packet(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
+{
+    esp_err_t err = ESP_OK;
+    
+    if (peer_count < MSX_PEER_COUNT)
+    {
+        err = add_peer(pack->mac_addr, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false);
+        if (err == ESP_OK)
+        {
+            __MSX_DEBUG__( select_cast(pack->mac_addr, pack) );
+        }
+    } else
+    {
+        __MSX_DEBUG__( multi_cast(pack) );
+        //__MSX_DEBUG__( select_cast(mac_addr, pack) );
+        goto ret_exit;
+    }
+
+ret_exit:
+    return err;
+}
+
 esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
 {
     size_t peer_sz = sizeof(esp_now_peer_info_t);
@@ -360,12 +376,14 @@ esp_err_t multi_cast(packet_t *pack)
 }
 
 
-esp_err_t radare_signal_peers()
+// 34:94:54:62:9f:74
+esp_err_t radar_peers()
 {
     size_t pack_sz = sizeof(packet_t);
     packet_t *pack = (packet_t *) os_malloc(pack_sz);
     memset(pack, 0, pack_sz);
     pack->type = PACKET_TYPE_PAIR;
+    pack->magic = esp_random();
     esp_err_t err = esp_now_send(broadcast_mac, pack, pack_sz);
     return err;
 }
