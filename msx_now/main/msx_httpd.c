@@ -11,7 +11,7 @@
 
 #include "msx_debug.c"
 #include "msx_utils.c"
-#include "msx_executor.c"
+//#include "msx_executor.c"
 
 httpd_handle_t msx_server = NULL;
 #define PORT            8066
@@ -77,8 +77,8 @@ esp_err_t post_handler(httpd_req_t *req)
     /////////////////////////////////////////////////////
     // NEED TO DISABLE "nano" formatting in menuconfig //
     /////////////////////////////////////////////////////
-
-	const char *resp = (const char *) exec_packet(content, req->content_len);
+    
+	const char *resp = (const char *) ""; //exec_packet(content, req->content_len);
 	httpd_resp_send(req, resp, sizeof(resp));
     __MSX_DEBUGV__( os_free( (void *) resp)           );
 

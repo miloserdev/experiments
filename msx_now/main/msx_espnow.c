@@ -28,14 +28,24 @@ uint32_t msg_stack[MSG_STACK_SIZE];
 uint32_t peer_count = 0;
 
 
+enum packet_type_e
+{
+    PACKET_TYPE_DATA = 0,
+    PACKET_TYPE_PAIR = 1,
+    PACKET_TYPE_KILL = 2,
+};
+
+
 #define PACKET_BUFFER_SIZE  200
 typedef struct
 {
     uint32_t magic;
     uint8_t mac_addr[ESP_NOW_ETH_ALEN];
+    enum packet_type_e type;
     uint8_t buffer[PACKET_BUFFER_SIZE];
     size_t len;
 } __attribute__((packed)) packet_t;
+size_t a = sizeof(packet_t);
 //  4 + 8 + 200 + 4
 //  we have 34 bytes free
 
@@ -50,6 +60,7 @@ esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
 esp_err_t send_packet(uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len);
 esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
+esp_err_t multi_cast(packet_t *pack);
 
 esp_err_t peers_get_handler(httpd_req_t *req);
 
@@ -105,7 +116,6 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
 
     // magic word that will say others to add us to peer list
-    char *coffee = "COFFEE"; // free coffee
     
     blink();
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
@@ -124,6 +134,8 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     memset(buffer, 0, pack->len);
     memcpy(buffer, pack->buffer, pack->len);
 
+    __MSX_PRINTF__("data %.*s", pack->len, buffer);
+
     if ( stack_exists(msg_stack, pack->magic))
     {
         __MSX_PRINTF__("packet->magic %d is already processed | ignoring", pack->magic);
@@ -136,39 +148,32 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         goto recv_exit;
     }
 
-    __MSX_PRINTF__("data %.*s", pack->len, buffer);
-    if (strncmp(&buffer, coffee, strlen(coffee)) == 0)
+    if (pack->type == PACKET_TYPE_PAIR)
     {
         __MSX_DEBUG__( pair_request(mac_addr) );
         return;
     }
 
-
-
-    cJSON *root = cJSON_Parse( (const char*) buffer);
     
+    //////
+    cJSON *root = NULL;
 
-    if (mac_cmp_json(root, my_mac) == 0)
+    if (mac_cmp_json(pack->mac_addr, my_mac) == 0)
     {
         __MSX_PRINT__("this is my mac!");
-        char *resp = exec_packet((const char*) buffer, pack->len);
+        root = cJSON_Parse( (const char*) buffer);
+        char *resp = ""; //exec_packet((const char*) buffer, pack->len);
         __MSX_PRINTF__("exec resp is %s", resp);
     } else
     {
         __MSX_PRINT__("redirecting!");
         if (peer_count < MSX_PEER_COUNT)
         {
-            uint8_t peer[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            if ( !cJSON_GetObjectItemCaseSensitive(root, "to")) return false;
-            char *to_str = cJSON_GetObjectItem(root, "to");
-
-            __MSX_DEBUG__( sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer[0], &peer[1], &peer[2], &peer[3], &peer[4], &peer[5]) );
-        
-            __MSX_DEBUG__( add_peer(peer, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
-
-            __MSX_DEBUG__( select_cast(peer, pack) );
+            __MSX_DEBUG__( add_peer(pack->mac_addr, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
+            __MSX_DEBUG__( select_cast(pack->mac_addr, pack) );
         } else
         {
+            multi_cast(pack);
             __MSX_PRINT__("cannot do anything :)");
             //__MSX_DEBUG__( select_cast(mac_addr, pack) );
             goto recv_exit;
@@ -179,7 +184,7 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 
 
 
-    cJSON_Delete(root);
+    if (root != NULL) cJSON_Delete(root);
 
 //    goto recv_exit;
 
@@ -339,11 +344,30 @@ esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
 }
 
 
+esp_err_t multi_cast(packet_t *pack)
+{
+    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
+    memset(peer, 0, peer_sz);
+
+    for (esp_err_t e = esp_now_fetch_peer(true, peer); e == ESP_OK; e = esp_now_fetch_peer(false, peer))
+    {
+        esp_now_send(peer->peer_addr, pack, sizeof(packet_t));
+        __MSX_PRINTF__("multicast to peer "MACSTR" | ifidx %d | channel %d", MAC2STR(peer->peer_addr), peer->ifidx, peer->channel);
+    }
+
+    return ESP_OK;
+}
+
+
 esp_err_t radare_signal_peers()
 {
-    char *coffee = "COFFEE";
-    if (peer_count >= 4) return;
-    return send_packet_raw(broadcast_mac, (uint8_t *) coffee, strlen(coffee));
+    size_t pack_sz = sizeof(packet_t);
+    packet_t *pack = (packet_t *) os_malloc(pack_sz);
+    memset(pack, 0, pack_sz);
+    pack->type = PACKET_TYPE_PAIR;
+    esp_err_t err = esp_now_send(broadcast_mac, pack, pack_sz);
+    return err;
 }
 
 

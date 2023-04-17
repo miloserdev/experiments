@@ -118,7 +118,6 @@ main.o: /home/max/workspace/to_git/experiments/msx_now/main/main.c \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
@@ -359,6 +358,5 @@ main.o: /home/max/workspace/to_git/experiments/msx_now/main/main.c \
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c:
-
 /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.c:
+/home/max/workspace/to_git/experiments/msx_now/main/./main.c:
