@@ -42,12 +42,13 @@ typedef struct
     uint32_t magic;
     uint8_t mac_addr[ESP_NOW_ETH_ALEN];
     enum packet_type_e type;
-    uint8_t buffer[PACKET_BUFFER_SIZE];
     size_t len;
+    uint8_t buffer[PACKET_BUFFER_SIZE];
 } __attribute__((packed)) packet_t;
 size_t a = sizeof(packet_t);
-//  4 + 8 + 200 + 4
-//  we have 34 bytes free
+// //  4 + 8 + 200 + 4
+// //  we have 34 bytes free
+// 28 bytes free
 
 
 packet_t *init_packet();
@@ -57,6 +58,7 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len);
 
 esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t channel, wifi_interface_t ifidx, bool encrypted);
 esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
+esp_err_t unpair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
 esp_err_t send_packet(uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len);
 
@@ -116,10 +118,8 @@ void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
-
-    // magic word that will say others to add us to peer list
-    
     blink();
+
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
     if (len > sizeof(packet_t))
     {
@@ -132,83 +132,47 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     memset(pack, 0, pack_sz);
     memcpy(pack, data, pack_sz);
 
-    uint8_t buffer[pack->len];
-    memset(buffer, 0, pack->len);
-    memcpy(buffer, pack->buffer, pack->len);
 
-    __MSX_PRINTF__("data %.*s", pack->len, buffer);
-
-    if ( stack_exists(msg_stack, pack->magic))
+    switch(pack->type)
     {
-        __MSX_PRINTF__("packet->magic %d is already processed | ignoring", pack->magic);
-        goto recv_exit;
+        case PACKET_TYPE_PAIR:
+        {
+            __MSX_DEBUG__( pair_request(mac_addr) );
+            goto recv_exit;
+            break;
+        }
+        case PACKET_TYPE_KILL:
+        {
+            unpair_request(mac_addr);
+            break;
+        }
+        case PACKET_TYPE_DATA:
+        {
+
+            uint8_t buffer[pack->len];
+            memset(buffer, 0, pack->len);
+            memcpy(buffer, pack->buffer, pack->len);
+
+            __MSX_PRINTF__("data %.*s", pack->len, buffer);
+
+            if ( !stack_exists(msg_stack, pack->magic) )
+            {
+                stack_push(msg_stack, pack->magic);
+            } else
+            {
+                __MSX_PRINTF__("packet->magic %d is already processed | ignoring", pack->magic);
+                goto recv_exit;
+            }
+
+            if (pack->len > PACKET_BUFFER_SIZE)
+            {
+                __MSX_PRINTF__("abnormal packet->len %d | ignoring", pack->len);
+                goto recv_exit;
+            }
+
+            break;
+        }
     }
-
-    if (pack->len > PACKET_BUFFER_SIZE)
-    {
-        __MSX_PRINTF__("abnormal packet->len %d | ignoring", pack->len);
-        goto recv_exit;
-    }
-
-    if (pack->type == PACKET_TYPE_PAIR)
-    {
-        __MSX_DEBUG__( pair_request(mac_addr) );
-        return;
-    }
-
-    
-    //////
-    cJSON *root = NULL;
-
-    if (mac_cmp_json(pack->mac_addr, my_mac) == 0)
-    {
-        __MSX_PRINT__("this is my mac!");
-        root = cJSON_Parse( (const char*) buffer);
-        char *resp = ""; //exec_packet((const char*) buffer, pack->len);
-        __MSX_PRINTF__("exec resp is %s", resp);
-    } else
-    {
-        __MSX_PRINT__("redirecting!");
-        __MSX_DEBUG_( retransmit_packet(mac_addr, pack) );
-    }
-
-
-
-
-
-    if (root != NULL) cJSON_Delete(root);
-
-//    goto recv_exit;
-
-/*
-    size_t sz = sizeof(packet_t);
-    packet_t *msg = os_malloc(sz);
-    memset(msg, 0, sz);
-    memcpy(msg, data, sz);  // compile msx_message_t from raw uint8_t data;
-
-    if ( !stack_exists(msg_stack, msg->magic) )
-    {
-        stack_push(msg_stack, msg->magic);
-    } else
-    {
-        __MSX_PRINT__("SHITTY WARNING!!! >> _magic is already exists in msg_stack");
-        goto recv_exit;
-    }
-*/
-/*     os_printf("\n\n\nmsx_message_t through esp_now >> \n");
-    os_printf("mac_addr -> "MACSTR" \n", MAC2STR(msg->mac_addr));
-    os_printf("magic -> 0x%08X \n", msg->magic);
-    os_printf("size -> %d \n", msg->len);
-    for (size_t i = 0; i < msg->len; i++)
-    {
-        os_printf("%c", msg->buffer[i]);
-    }
-    os_printf("\n\n\n"); */
-
-    // return; // !!!!!!!!!!!!!!!!!!!!
-    
-//    uint8_t msg_buf[msg->len];
-//    memcpy(msg_buf, msg->buffer, msg->len);
 
     //__MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, msg_buf, msg->len) );
 
@@ -267,6 +231,32 @@ esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
     __MSX_DEBUG__( add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
 
     return ESP_OK;
+}
+
+
+esp_err_t unpair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
+{
+    esp_err_t err = ESP_OK;
+    if (memcmp(mac, broadcast_mac, ESP_NOW_ETH_ALEN) == 0)
+    {
+        __MSX_PRINTF__("broadcast ["MACSTR"] peer cannot be disconnected", MAC2STR(mac));
+        err = ESP_FAIL;
+        goto unpair_exit;
+    }
+    if (esp_now_is_peer_exist(mac))
+    {
+        err = esp_now_del_peer(mac);
+        __MSX_PRINTF__("peer "MACSTR" %s", (err == 0 ? "disconnected" : "CANNOT BE DISCONNECTED") MAC2STR(mac));
+        goto unpair_exit;
+    } else
+    {
+        __MSX_PRINT__("MALFUNCTION!!! peer "MACSTR" is connected but does not exist", MAC2STR(mac));
+        err = ESP_FAIL;
+        goto unpair_exit;
+    }
+
+unpair_exit:
+    return err;
 }
 
 
