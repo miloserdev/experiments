@@ -78,12 +78,15 @@ char *exec_packet(char *datas, size_t len)
             if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
             {
                 char *to_str = cJSON_GetObjectItem(data, "to")->valuestring;
-                cJSON_DeleteItemFromObjectCaseSensitive(data, "to");
-                char *buff_to_send = cJSON_PrintUnformatted(data);
-                size_t buff_sz = strlen(buff_to_send);
-
                 uint8_t pr[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
                 sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &pr[0], &pr[1], &pr[2], &pr[3], &pr[4], &pr[5]);
+
+                cJSON_DeleteItemFromObjectCaseSensitive(data, "to");    // delete now, not earlier;
+
+                char *buff_to_send = cJSON_PrintUnformatted(pack);
+                size_t buff_sz = strlen(buff_to_send);
+
+                __MSX_PRINTF__("parsing %s to "MACSTR" ", to_str, MAC2STR(pr));
 
                 packet_t *pack = os_malloc(sizeof(packet_t));
                 pack->magic = esp_random();
@@ -92,12 +95,15 @@ char *exec_packet(char *datas, size_t len)
                 pack->len = buff_sz;
                 memcpy(pack->buffer, buff_to_send, buff_sz);
 
+                __MSX_PRINTF__("sending %.*s to "MACSTR"", buff_sz, buff_to_send, MAC2STR(pack->mac_addr));
+
                 multi_cast(pack);
 
                 __MSX_DEBUGV__( os_free(pack) );
 
                 // __MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, to_str, 8) );
 
+                continue;
                 
             }
 

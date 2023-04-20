@@ -55,7 +55,7 @@ esp_err_t post_handler(httpd_req_t *req)
     /////////////////////////////////////////////////////
     
 	const char *resp = (const char *) exec_packet(content, req->content_len);
-	httpd_resp_send(req, resp, sizeof(resp));
+	httpd_resp_send(req, resp, strlen(resp));
     __MSX_DEBUGV__( os_free( (void *) resp)           );
 
     /* __MSX_DEBUGV__( cJSON_Delete(buffer)    ); */ // crash warning

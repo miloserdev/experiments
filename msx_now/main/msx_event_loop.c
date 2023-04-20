@@ -1,6 +1,9 @@
 #include "msx_event_loop.h"
 
 
+/* static  */xQueueHandle event_loop_queue;
+
+
 /*
     very fucked up queue because in this case
     event_loop have a multiple events
@@ -8,6 +11,7 @@
 */
 void event_loop(void *params)
 {
+    __MSX_PRINT__("event raise");
 
     msx_event_t *evt; //malloc( sizeof( msx_event_t ) );
     //memset( evt, 0, sizeof( msx_event_t ) );

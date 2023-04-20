@@ -20,7 +20,7 @@ void app_loop()
         pp = true;
     }
 
-    size_t sz = strlen(to_send);
+/*     size_t sz = strlen(to_send);
     packet_t *pack = os_malloc(sizeof(packet_t));
     pack->magic = esp_random();
     pack->type = PACKET_TYPE_DATA;
@@ -29,7 +29,7 @@ void app_loop()
 
     __MSX_DEBUG__( multi_cast(pack) );
 
-    __MSX_DEBUGV__( os_free(pack) );
+    __MSX_DEBUGV__( os_free(pack) ); */
 
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 

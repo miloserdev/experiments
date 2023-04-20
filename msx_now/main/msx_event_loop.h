@@ -52,9 +52,6 @@ typedef enum {
 } msx_event_id_t;
 
 
-static xQueueHandle event_loop_queue;
-
-
 void event_loop(void *params);
 esp_err_t init_event_loop();
 void user_loop();

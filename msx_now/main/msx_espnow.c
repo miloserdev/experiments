@@ -302,12 +302,6 @@ esp_err_t multi_cast(packet_t *pack)
 // 34:94:54:62:9f:74
 esp_err_t radar_peers()
 {
-    if (!esp_now_is_peer_exist(broadcast_mac))
-    {
-        __MSX_DEBUG__( add_peer(broadcast_mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
-    }
-    
-
     size_t pack_sz = sizeof(packet_t);
     packet_t *pack = (packet_t *) os_malloc(pack_sz);
     memset(pack, 0, pack_sz);
