@@ -1,40 +1,4 @@
-#include <string.h>
-#include <sys/param.h>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_system.h"
-#include "esp_log.h"
-#include "esp_netif.h"
-#include "esp_event.h"
-/* #include "protocol_examples_common.h" */
-#include "nvs.h"
-#include "nvs_flash.h"
-
-#include <driver/uart.h>
-#include <driver/gpio.h>
-
-#include "lwip/err.h"
-#include "lwip/sockets.h"
-#include "lwip/sys.h"
-#include <lwip/netdb.h>
-
-#include <netinet/in.h>
-#include <lwip/inet.h>
-
-
-
-#include <esp8266/eagle_soc.h>  // ????????
-
-#define __DEBUG__ 1
-
-#include "msx_debug.c"
-#include "msx_event_loop.c"
-#include "msx_uart.c"
-#include "msx_wifi.c"
-#include "msx_ota.c"
-#include "msx_espnow.c"
-#include "msx_utils.c"
+#include "main.h"
 
 
 char to_send[] = "[{\"light\":\"\"}]";
@@ -53,7 +17,7 @@ void app_loop()
     {
         __MSX_DEBUG__( radar_peers() );
         __MSX_DEBUGV__( print_peers() );
-        pp = false;
+        pp = true;
     }
 
     size_t sz = strlen(to_send);

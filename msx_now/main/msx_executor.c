@@ -1,17 +1,5 @@
-#ifndef __MSX_EXECUTOR_INIT__
-#define __MSX_EXECUTOR_INIT__
+#include "msx_executor.h"
 
-
-#include <esp_libc.h>
-#include <esp_err.h>
-#include <esp_system.h>
-#include <esp_now.h>
-#include <esp_http_server.h>
-
-#include <cJSON.h>
-
-#include "msx_debug.c"
-#include "msx_utils.c"
 
 char *exec_packet(char *datas, size_t len)
 {
@@ -86,6 +74,32 @@ char *exec_packet(char *datas, size_t len)
         {
 
             __MSX_PRINT__("data is object");
+
+            if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
+            {
+                char *to_str = cJSON_GetObjectItem(data, "to")->valuestring;
+                cJSON_DeleteItemFromObjectCaseSensitive(data, "to");
+                char *buff_to_send = cJSON_PrintUnformatted(data);
+                size_t buff_sz = strlen(buff_to_send);
+
+                uint8_t pr[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &pr[0], &pr[1], &pr[2], &pr[3], &pr[4], &pr[5]);
+
+                packet_t *pack = os_malloc(sizeof(packet_t));
+                pack->magic = esp_random();
+                memcpy(pack->mac_addr, pr, ESP_NOW_ETH_ALEN);
+                pack->type = PACKET_TYPE_DATA;
+                pack->len = buff_sz;
+                memcpy(pack->buffer, buff_to_send, buff_sz);
+
+                multi_cast(pack);
+
+                __MSX_DEBUGV__( os_free(pack) );
+
+                // __MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, to_str, 8) );
+
+                
+            }
 
                 if (cJSON_GetObjectItemCaseSensitive(data, "light") != NULL)
                 {
@@ -165,5 +179,3 @@ clean_exit:
 
     return ret_;
 }
-
-#endif

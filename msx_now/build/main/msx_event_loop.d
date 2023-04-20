@@ -1,5 +1,6 @@
 msx_event_loop.o: \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos/FreeRTOSConfig.h \
  /home/max/workspace/to_git/experiments/msx_now/build/include/sdkconfig.h \
@@ -66,22 +67,27 @@ msx_event_loop.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/ip6_addr.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/def.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/dhcpserver/dhcpserver.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi_types.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_base.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_legacy.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_executor.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.h
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
 
@@ -215,7 +221,7 @@ msx_event_loop.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/dhcpserver/dhcpserver.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_debug.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_wifi.h:
 
@@ -227,7 +233,7 @@ msx_event_loop.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp_event/include/esp_event_legacy.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_executor.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h:
 
@@ -237,7 +243,7 @@ msx_event_loop.o: \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h:
 
@@ -246,4 +252,10 @@ msx_event_loop.o: \
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.h:
 /home/max/workspace/to_git/experiments/msx_now/main/./msx_event_loop.c:

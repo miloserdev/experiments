@@ -1,5 +1,6 @@
 msx_utils.o: \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos/FreeRTOSConfig.h \
  /home/max/workspace/to_git/experiments/msx_now/build/include/sdkconfig.h \
@@ -36,6 +37,8 @@ msx_utils.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
 

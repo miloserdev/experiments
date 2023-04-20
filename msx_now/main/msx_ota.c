@@ -14,7 +14,7 @@
 #include <esp_partition.h>
 #include <esp_https_ota.h>
 
-#include "msx_debug.c"
+#include "msx_debug.h"
 #include "msx_httpd.c"
 
 

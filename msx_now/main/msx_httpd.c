@@ -1,29 +1,5 @@
-#ifndef __MSX_HTTPD_INIT__
-#define __MSX_HTTPD_INIT__
+#include "msx_httpd.h"
 
-
-#include <esp_libc.h>
-#include <esp_err.h>
-#include <esp_system.h>
-#include <esp_http_server.h>
-
-#include <cJSON.h>
-
-#include "msx_debug.c"
-#include "msx_utils.c"
-#include "msx_executor.c"
-
-httpd_handle_t msx_server = NULL;
-#define PORT            8066
-
-
-esp_err_t init_httpd();
-esp_err_t post_handler(httpd_req_t *req);
-esp_err_t status_get_handler(httpd_req_t *req);
-
-
-httpd_uri_t uri_post = { .uri = "/", .method = HTTP_POST, .handler = post_handler, .user_ctx = NULL };
-httpd_uri_t uri_get = { .uri = "/status", .method = HTTP_GET, .handler = status_get_handler, .user_ctx = NULL };
 
 esp_err_t init_httpd()
 {
@@ -78,7 +54,7 @@ esp_err_t post_handler(httpd_req_t *req)
     // NEED TO DISABLE "nano" formatting in menuconfig //
     /////////////////////////////////////////////////////
     
-	const char *resp = (const char *) ""; //exec_packet(content, req->content_len);
+	const char *resp = (const char *) exec_packet(content, req->content_len);
 	httpd_resp_send(req, resp, sizeof(resp));
     __MSX_DEBUGV__( os_free( (void *) resp)           );
 
@@ -129,6 +105,3 @@ esp_err_t status_get_handler(httpd_req_t *req)
     // do it next day
     return ESP_OK;
 }
-
-
-#endif

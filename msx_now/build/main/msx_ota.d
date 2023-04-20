@@ -75,16 +75,25 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
  /home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_client/include/esp_http_client.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_debug.h \
  /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c \
- /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_executor.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/timers.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.h
 
 /home/max/esp/ESP8266_RTOS_SDK/components/heap/include/esp_heap_caps.h:
 
@@ -238,13 +247,15 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp_https_ota/include/esp_https_ota.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_debug.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_debug.h:
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.c:
 
+/home/max/workspace/to_git/experiments/msx_now/main/msx_httpd.h:
+
 /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h:
 
@@ -254,7 +265,23 @@ msx_ota.o: /home/max/workspace/to_git/experiments/msx_now/main/msx_ota.c \
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h:
 
-/home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c:
+/home/max/workspace/to_git/experiments/msx_now/main/msx_executor.h:
 
 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/timers.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/queue.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/task.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_espnow.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_wifi.h:
 /home/max/workspace/to_git/experiments/msx_now/main/./msx_ota.c:

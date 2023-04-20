@@ -58,6 +58,13 @@
         "esp_https_ota.h": "c",
         "esp_ota_ops.h": "c",
         "esp_netif.h": "c",
-        "esp_libc.h": "c"
+        "esp_libc.h": "c",
+        "cjson.h": "c",
+        "msx_espnow.h": "c",
+        "msx_utils.h": "c",
+        "msx_executor.h": "c",
+        "msx_wifi.h": "c",
+        "msx_httpd.h": "c",
+        "msx_event_loop.h": "c"
     }
 }
