@@ -46,7 +46,7 @@ typedef struct
     size_t len;
     uint8_t buffer[PACKET_BUFFER_SIZE];
 } __attribute__((packed)) packet_t;
-static size_t pack_sz = sizeof(packet_t);
+//static size_t pack_sz = sizeof(packet_t);
 // //  4 + 8 + 200 + 4
 // //  we have 34 bytes free
 // 28 bytes free
