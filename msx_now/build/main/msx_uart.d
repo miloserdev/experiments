@@ -75,7 +75,17 @@ msx_uart.o: \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/ip6_addr.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/lwip/src/include/lwip/def.h \
  /home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/dhcpserver/dhcpserver.h \
- /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h \
+ /home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h \
+ /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h
 
 /home/max/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/FreeRTOS.h:
 
@@ -228,4 +238,24 @@ msx_uart.o: \
 /home/max/esp/ESP8266_RTOS_SDK/components/lwip/include/apps/dhcpserver/dhcpserver.h:
 
 /home/max/workspace/to_git/experiments/msx_now/main/msx_event_loop.c:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_executor.c:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp_now.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp_http_server/include/esp_http_server.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/http_parser/include/http_parser.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/json/cJSON/cJSON.h:
+
+/home/max/workspace/to_git/experiments/msx_now/main/msx_utils.c:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/driver/gpio.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/pin_mux_register.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/eagle_soc.h:
+
+/home/max/esp/ESP8266_RTOS_SDK/components/esp8266/include/esp8266/gpio_register.h:
 /home/max/workspace/to_git/experiments/msx_now/main/./msx_uart.c:

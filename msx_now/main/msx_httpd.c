@@ -11,7 +11,7 @@
 
 #include "msx_debug.c"
 #include "msx_utils.c"
-//#include "msx_executor.c"
+#include "msx_executor.c"
 
 httpd_handle_t msx_server = NULL;
 #define PORT            8066

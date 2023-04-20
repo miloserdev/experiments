@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "msx_debug.c"
+#include "msx_executor.c"
 
 
 //#define CONFIG_STATION_MODE         1 //deprecated 4 me
@@ -97,7 +98,7 @@ void event_loop(void *params)
 
                 //cJSON *pack = cJSON_Parse( (char *) evt.data );
 
-                char *exec_data = ""; //exec_packet((char *) evt->data, evt->len);
+                char *exec_data = exec_packet((char *) evt->data, evt->len);
                 __MSX_DEBUGV__( os_free(exec_data)  );
 
                 //cJSON_free(pack);

@@ -14,6 +14,7 @@
 #include "msx_debug.c"
 #include "msx_wifi.c"
 #include "msx_utils.c"
+#include "msx_executor.c"
 
 
 #define MSX_PEER_COUNT 4
@@ -111,14 +112,14 @@ esp_err_t init_espnow()
 void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     //blink();
-    __MSX_PRINTF__("mac: "MACSTR" status: %d", MAC2STR(mac_addr), status);
+    __MSX_PRINTF__("sending to "MACSTR" is %s", MAC2STR(mac_addr), (status == ESP_NOW_SEND_SUCCESS ? "success" : "FAILED!"));
    // __MSX_DEBUG__( raise_event(MSX_ESP_NOW_SEND_CB, NULL, status, NULL, 0) );
 }
 
 
 void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
 {
-    blink();
+    //blink();
 
     __MSX_PRINTF__("mac: "MACSTR" size: %d", MAC2STR(mac_addr), len);   // ???
     if (len > sizeof(packet_t))
@@ -132,6 +133,8 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
     memset(pack, 0, pack_sz);
     memcpy(pack, data, pack_sz);
 
+    __MSX_PRINTF__("packet_t | magic %d | mac_addr "MACSTR" type %d | len %d | buffer %s", pack->magic, MAC2STR(pack->mac_addr), pack->type, pack->len, pack->buffer);
+
 
     switch(pack->type)
     {
@@ -143,12 +146,12 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         }
         case PACKET_TYPE_KILL:
         {
-            unpair_request(mac_addr);
+            __MSX_DEBUG__( unpair_request(mac_addr) );
+            goto recv_exit;
             break;
         }
         case PACKET_TYPE_DATA:
         {
-
             uint8_t buffer[pack->len];
             memset(buffer, 0, pack->len);
             memcpy(buffer, pack->buffer, pack->len);
@@ -169,6 +172,8 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
                 __MSX_PRINTF__("abnormal packet->len %d | ignoring", pack->len);
                 goto recv_exit;
             }
+
+            __MSX_DEBUG__( raise_event(MSX_ESP_NOW_RECV_CB, NULL, 0, buffer, pack->len) );
 
             break;
         }
@@ -246,11 +251,11 @@ esp_err_t unpair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
     if (esp_now_is_peer_exist(mac))
     {
         err = esp_now_del_peer(mac);
-        __MSX_PRINTF__("peer "MACSTR" %s", (err == 0 ? "disconnected" : "CANNOT BE DISCONNECTED") MAC2STR(mac));
+        __MSX_PRINTF__("peer "MACSTR" %s", MAC2STR(mac), (err == ESP_OK ? "disconnected" : "CANNOT BE DISCONNECTED"));
         goto unpair_exit;
     } else
     {
-        __MSX_PRINT__("MALFUNCTION!!! peer "MACSTR" is connected but does not exist", MAC2STR(mac));
+        __MSX_PRINTF__("MALFUNCTION!!! peer "MACSTR" is connected but does not exist", MAC2STR(mac));
         err = ESP_FAIL;
         goto unpair_exit;
     }
@@ -273,6 +278,7 @@ esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUF
 
     size_t pack_sz = sizeof(packet_t);
     packet_t *pack = (packet_t*) os_malloc(pack_sz);
+    pack->type = PACKET_TYPE_DATA;
     memcpy(pack->mac_addr, mac, ESP_NOW_ETH_ALEN);
     memcpy(pack->buffer, data, PACKET_BUFFER_SIZE);
     pack->len = len;
@@ -345,7 +351,7 @@ esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
         __MSX_PRINTF__("sending [%.*s] to "MACSTR"", pack->len, pack->buffer, MAC2STR(peer->peer_addr));
     }
 
-    os_free(peer);
+    __MSX_DEBUGV__( os_free(peer) );
     return ESP_OK;
 }
 
@@ -362,6 +368,8 @@ esp_err_t multi_cast(packet_t *pack)
         __MSX_PRINTF__("multicast to peer "MACSTR" | ifidx %d | channel %d", MAC2STR(peer->peer_addr), peer->ifidx, peer->channel);
     }
 
+    __MSX_DEBUGV__( os_free(peer) );
+
     return ESP_OK;
 }
 
@@ -375,6 +383,9 @@ esp_err_t radar_peers()
     pack->type = PACKET_TYPE_PAIR;
     pack->magic = esp_random();
     esp_err_t err = esp_now_send(broadcast_mac, pack, pack_sz);
+
+    __MSX_DEBUGV__( os_free(pack) );
+
     return err;
 }
 
@@ -391,7 +402,7 @@ void print_peers()
         __MSX_PRINTF__("peer "MACSTR" | ifidx %d | channel %d", MAC2STR(peer->peer_addr), peer->ifidx, peer->channel);
     }
 
-    os_free(peer);
+    __MSX_DEBUGV__( os_free(peer) );
 }
 
 
@@ -427,6 +438,8 @@ esp_err_t peers_get_handler(httpd_req_t *req)
     /* __MSX_DEBUGV__(  */cJSON_Delete(root)  /* ) */;
     __MSX_DEBUGV__( os_free(root)   );
     __MSX_DEBUGV__( os_free(string) );
+
+    __MSX_DEBUGV__( os_free(peer) );
 
     __MSX_PRINT__("status_get_handler end");
 

@@ -26,7 +26,7 @@
 
 #include <esp8266/eagle_soc.h>  // ????????
 
-#define __DEBUG__
+#define __DEBUG__ 1
 
 #include "msx_debug.c"
 #include "msx_event_loop.c"
@@ -37,18 +37,35 @@
 #include "msx_utils.c"
 
 
+char to_send[] = "[{\"light\":\"\"}]";
+bool pp = true;
+
 void app_loop()
 {
-    vTaskDelay(5000 / portTICK_RATE_MS);
+    vTaskDelay(3000 / portTICK_RATE_MS);
 
 /* 
     uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
 */
 
-    print_peers();
+    if (pp)
+    {
+        __MSX_DEBUG__( radar_peers() );
+        __MSX_DEBUGV__( print_peers() );
+        pp = false;
+    }
 
-    __MSX_DEBUG__( radar_peers() );
+    size_t sz = strlen(to_send);
+    packet_t *pack = os_malloc(sizeof(packet_t));
+    pack->magic = esp_random();
+    pack->type = PACKET_TYPE_DATA;
+    memcpy(pack->buffer, to_send, sz);
+    pack->len = sz;
+
+    __MSX_DEBUG__( multi_cast(pack) );
+
+    __MSX_DEBUGV__( os_free(pack) );
 
     os_printf("esp_get_free_heap_size >> %d \n", esp_get_free_heap_size());
 
