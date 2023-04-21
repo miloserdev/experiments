@@ -46,7 +46,7 @@ esp_err_t init_wifi(wifi_mode_t mode);
 esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power);
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
-static wifi_scan_config_t config  = {
+static wifi_scan_config_t scan_config  = {
 	.ssid = NULL,
 	.bssid = NULL,
 	.channel = 0,

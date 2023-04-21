@@ -27,6 +27,8 @@ esp_err_t init_espnow()
 
     __MSX_DEBUG__( add_peer(broadcast_mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
 
+    __MSX_DEBUG__( xTaskCreate(radar_loop, "vTask_radar_loop", 4096, NULL, 0, NULL)    );
+
     //__MSX_DEBUG__( httpd_register_uri_handler(msx_server, &peers_uri_get) );
 
     return ESP_OK;
@@ -236,7 +238,7 @@ esp_err_t retransmit_packet(/* uint8_t src_mac[ESP_NOW_ETH_ALEN],  */packet_t *p
 {
     esp_err_t err = ESP_OK;
     
-    if (peer_count < MSX_PEER_COUNT)
+    if (peer_count < MSX_MAX_PEER_COUNT)
     {
         err = add_peer(pack->mac_addr, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false);
         if (err == ESP_OK)
@@ -314,6 +316,24 @@ esp_err_t radar_peers()
     __MSX_DEBUGV__( os_free(pack) );
 
     return err;
+}
+
+int radar_ping_delay = RADAR_PING_DELAY_ZERO_PEER;
+void radar_loop( void (*func)(void) )
+{
+    TickType_t xLastWakeTime;
+    const TickType_t xFrequency = 10;
+    xLastWakeTime = xTaskGetTickCount();
+    for( ;; )
+    {
+        vTaskDelayUntil( &xLastWakeTime, xFrequency );
+
+        radar_ping_delay = peer_count > 0 ? RADAR_PING_DELAY_CONNECTED : RADAR_PING_DELAY_ZERO_PEER;
+        vTaskDelay(radar_ping_delay / portTICK_RATE_MS);
+        
+        
+        __MSX_DEBUG__( radar_peers() );
+    }
 }
 
 

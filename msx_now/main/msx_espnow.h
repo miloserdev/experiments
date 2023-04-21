@@ -18,7 +18,11 @@
 #include "msx_event_loop.h"
 
 
-#define MSX_PEER_COUNT 4
+#define MSX_MAX_PEER_COUNT 4
+#define RADAR_PING_DELAY_ZERO_PEER 3000
+#define RADAR_PING_DELAY_CONNECTED 30000
+
+
 #define CONFIG_ESPNOW_PMK   "pmk1234567890123"
 #define CONFIG_ESPNOW_LMK   "lmk1234567890123"
 static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
@@ -67,6 +71,7 @@ esp_err_t retransmit_packet(/* uint8_t src_mac[ESP_NOW_ETH_ALEN],  */packet_t *p
 esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t multi_cast(packet_t *pack);
 esp_err_t radar_peers();
+void radar_loop( void (*func)(void) );
 void print_peers();
 
 

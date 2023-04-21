@@ -51,7 +51,7 @@ void app_main()
     __MSX_DEBUG__( init_httpd() );
     __MSX_DEBUG__( init_ota() );
     __MSX_DEBUG__( init_espnow() );
-    __MSX_DEBUG__( init_user_loop(app_loop) );
+    //__MSX_DEBUG__( init_user_loop(app_loop) );
 
     init_gpio(GPIO_NUM_12, GPIO_MODE_INPUT);
     init_gpio(GPIO_NUM_2, GPIO_MODE_OUTPUT); // LED

@@ -77,7 +77,7 @@ void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, voi
 
 void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    __MSX_DEBUG__( esp_wifi_scan_start(&config, true) );
+    __MSX_DEBUG__( esp_wifi_scan_start(&scan_config, true) );
 }
 
 
