@@ -27,6 +27,12 @@
 #define MESH_MY_PREFIX  "ESP"
 #define MESH_MY_PREFIX_LEN  strlen(MESH_MY_PREFIX)
 #define MESH_MY_PASSWD  "9857wuj9d9jsie"
+#define MESH_RECONNECT	true
+#define MESH_RECONNECT_ATTEMPTS 10
+extern uint32_t reconnect_attempts;
+
+extern esp_interface_t WIFI_IF;
+extern uint8_t my_mac[ESP_NOW_ETH_ALEN];
 
 /*
     and yes, i show you my credentials, good luck to find me XD
@@ -37,9 +43,6 @@
 #define MESH_PASSWD_LEN             ets_strlen(MESH_PASSWD)
 #define MESH_CHANNEL                0 // CONFIG_ESPNOW_CHANNEL
 #define MESH_MAX_HOP                (4)
-
-extern esp_interface_t WIFI_IF;
-extern uint8_t my_mac[ESP_NOW_ETH_ALEN];
 
 
 esp_err_t init_wifi(wifi_mode_t mode);
@@ -56,5 +59,6 @@ static wifi_scan_config_t scan_config  = {
 void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
+esp_err_t set_wifi_power(int8_t dB);
 
 #endif

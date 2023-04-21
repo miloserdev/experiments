@@ -89,6 +89,12 @@ void event_loop(void *params)
             case WIFI_EVENT_STA_DISCONNECTED:
             {
                 __MSX_PRINT__("MSX_WIFI_EVENT_STA_DISCONNECTED");
+
+                if (MESH_RECONNECT && reconnect_attempts < MESH_RECONNECT_ATTEMPTS)
+                {
+                    reconnect_attempts++;
+                    __MSX_DEBUG__( esp_wifi_connect() );
+                }
                 break;
             }
             case IP_EVENT_STA_GOT_IP:

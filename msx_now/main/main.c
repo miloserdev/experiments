@@ -48,6 +48,7 @@ void app_main()
     __MSX_DEBUG__( init_wifi(WIFI_MODE_APSTA) );
     //__MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_AP, (uint8_t*) "ESP", (uint8_t*) "nullnullnull119911", WIFI_PS_NONE) );
     __MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_STA, (uint8_t*) MESH_SSID_PREFIX, (uint8_t*) MESH_PASSWD, WIFI_PS_NONE) );
+    __MSX_DEBUG__( set_wifi_power(84) );
     __MSX_DEBUG__( init_httpd() );
     __MSX_DEBUG__( init_ota() );
     __MSX_DEBUG__( init_espnow() );

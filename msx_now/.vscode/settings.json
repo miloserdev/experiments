@@ -65,6 +65,7 @@
         "msx_executor.h": "c",
         "msx_wifi.h": "c",
         "msx_httpd.h": "c",
-        "msx_event_loop.h": "c"
+        "msx_event_loop.h": "c",
+        "ets_sys.h": "c"
     }
 }

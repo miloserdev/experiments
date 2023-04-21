@@ -328,9 +328,9 @@ void radar_loop( void (*func)(void) )
     {
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
+        if (peer_count >= MSX_MAX_PEER_COUNT) return;
         radar_ping_delay = peer_count > 0 ? RADAR_PING_DELAY_CONNECTED : RADAR_PING_DELAY_ZERO_PEER;
         vTaskDelay(radar_ping_delay / portTICK_RATE_MS);
-        
         
         __MSX_DEBUG__( radar_peers() );
     }

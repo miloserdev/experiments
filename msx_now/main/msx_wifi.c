@@ -1,6 +1,6 @@
 #include "msx_wifi.h"
 
-
+uint32_t reconnect_attempts = 0;
 esp_interface_t WIFI_IF = ESP_IF_MAX;
 uint8_t my_mac[ESP_NOW_ETH_ALEN];
 
@@ -41,6 +41,7 @@ esp_err_t init_wifi(wifi_mode_t mode)
 esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power)
 {
     WIFI_IF = ifidx;
+
     wifi_config_t wifi_config =
     (ifidx == ESP_IF_WIFI_AP)
     ? (wifi_config_t) {
@@ -108,4 +109,19 @@ void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id,
     }
 
     os_free(record);
+}
+
+
+esp_err_t set_wifi_power(int8_t dB)
+{
+    int8_t max_tx = 0;
+    esp_wifi_get_max_tx_power(&max_tx);
+    __MSX_PRINTF__("wifi max TX power %d", max_tx);
+
+    __MSX_DEBUG__( esp_wifi_set_max_tx_power(dB) );
+
+    esp_wifi_get_max_tx_power(&max_tx);
+    __MSX_PRINTF__("wifi max TX power %d", max_tx);
+
+    return ESP_OK;
 }
