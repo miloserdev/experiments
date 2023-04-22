@@ -102,6 +102,8 @@ void event_loop(void *params)
                 ip_event_got_ip_t *event = (ip_event_got_ip_t *)evt->data;
                 __MSX_PRINTF__("MSX_IP_EVENT_STA_GOT_IP >> ip_info.ip : %s", ip4addr_ntoa(&event->ip_info.ip));
                 __MSX_DEBUGV__( os_free(event)  );
+
+                __MSX_DEBUG__( esp_wifi_scan_start(&scan_config, true) );
                 break;
             }
             default:

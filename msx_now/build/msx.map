@@ -11282,8 +11282,9 @@ END GROUP
                 0x0000000040105ce8                g_misc_nvs
                 0x0000000040105cec                g_log_mod
                 0x0000000040105cf0                g_log_level
+ *libfreertos.a:list.*(.bss .bss.* COMMON)
+ *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
  *libfreertos.a:impure.*(.bss .bss.* COMMON)
- *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
  *libfreertos.a:tasks.*(.bss .bss.* COMMON)
  .bss.uxSchedulerSuspended
                 0x0000000040105cf4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
@@ -11328,10 +11329,7 @@ END GROUP
  .bss.pxCurrentTCB
                 0x0000000040105ebc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
                 0x0000000040105ebc                pxCurrentTCB
- *libfreertos.a:list.*(.bss .bss.* COMMON)
- *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
- *libfreertos.a:queue.*(.bss .bss.* COMMON)
- *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
+ *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
  *libfreertos.a:timers.*(.bss .bss.* COMMON)
  .bss.xLastTime$4351
                 0x0000000040105ec0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
@@ -11347,6 +11345,8 @@ END GROUP
                 0x0000000040105ed4       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
  .bss.xActiveTimerList1
                 0x0000000040105ee8       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ *libfreertos.a:queue.*(.bss .bss.* COMMON)
+ *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
  *liblwip.a:(.bss .bss.* COMMON)
  .bss.dhcps_cb  0x0000000040105efc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/lwip/liblwip.a(dhcpserver.o)
  .bss.dhcps_dns
@@ -11726,7 +11726,7 @@ END GROUP
 .dram0.bss      0x000000003ffe86a0     0x2458
                 0x000000003ffe86a0                . = ALIGN (0x8)
                 0x000000003ffe86a0                _bss_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:event_groups.* *libfreertos.a:tasks.* *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:timers.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:event_groups.* *libfreertos.a:tasks.* *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:timers.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:event_groups.* *libfreertos.a:tasks.* *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:timers.* *libcore.a) COMMON)
+ *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:list.* *libfreertos.a:stream_buffer.* *libfreertos.a:impure.* *libfreertos.a:tasks.* *libfreertos.a:event_groups.* *libfreertos.a:timers.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libcore.a) COMMON)
  .bss.base_mac_addr
                 0x000000003ffe86a0        0x6 /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(system_api.o)
  *fill*         0x000000003ffe86a6        0x2 

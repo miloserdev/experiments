@@ -20,7 +20,7 @@ esp_err_t init_wifi(wifi_mode_t mode)
     __MSX_DEBUG__( esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
     __MSX_DEBUG__( esp_event_handler_register(WIFI_EVENT, SYSTEM_EVENT_SCAN_DONE, &scan_done_handler, NULL) );
     __MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
-    __MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &scan_start_handler, NULL) );
+    //__MSX_DEBUG__( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &scan_start_handler, NULL) );
 
     __MSX_DEBUG__( esp_wifi_set_channel(MESH_CHANNEL, 0)) ;
 
@@ -76,10 +76,10 @@ void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, voi
 }
 
 
-void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+/* void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     __MSX_DEBUG__( esp_wifi_scan_start(&scan_config, true) );
-}
+} */
 
 
 /*

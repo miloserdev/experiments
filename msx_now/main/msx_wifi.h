@@ -56,7 +56,7 @@ static wifi_scan_config_t scan_config  = {
 	.show_hidden = true
 };
 
-void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+//void scan_start_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
 esp_err_t set_wifi_power(int8_t dB);
