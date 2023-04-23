@@ -10569,7 +10569,7 @@ END GROUP
 
 .iram0.text     0x0000000040100080     0x5773
                 0x0000000040100080                _iram_text_start = ABSOLUTE (.)
- *(.iram1 .iram1.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .text)
+ *(.iram1 .iram1.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .text)
  .iram1.0.literal
                 0x0000000040100080       0x1c /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(task_wdt.o)
  .iram1.1.literal
@@ -11282,71 +11282,71 @@ END GROUP
                 0x0000000040105ce8                g_misc_nvs
                 0x0000000040105cec                g_log_mod
                 0x0000000040105cf0                g_log_level
- *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
- *libfreertos.a:queue.*(.bss .bss.* COMMON)
- *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
- *libfreertos.a:list.*(.bss .bss.* COMMON)
- *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
  *libfreertos.a:impure.*(.bss .bss.* COMMON)
- *libfreertos.a:timers.*(.bss .bss.* COMMON)
- .bss.xLastTime$4351
-                0x0000000040105cf4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- .bss.xTimerTaskHandle
-                0x0000000040105cf8        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- .bss.xTimerQueue
-                0x0000000040105cfc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- .bss.pxOverflowTimerList
-                0x0000000040105d00        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- .bss.pxCurrentTimerList
-                0x0000000040105d04        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- .bss.xActiveTimerList2
-                0x0000000040105d08       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
- .bss.xActiveTimerList1
-                0x0000000040105d1c       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ *libfreertos.a:event_groups.*(.bss .bss.* COMMON)
  *libfreertos.a:tasks.*(.bss .bss.* COMMON)
  .bss.uxSchedulerSuspended
-                0x0000000040105d30        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105cf4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xIdleTaskHandle
-                0x0000000040105d34        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105cf8        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xNextTaskUnblockTime
-                0x0000000040105d38        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105cfc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.uxTaskNumber
-                0x0000000040105d3c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d00        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xNumOfOverflows
-                0x0000000040105d40        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d04        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xYieldPending
-                0x0000000040105d44        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d08        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.uxPendedTicks
-                0x0000000040105d48        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d0c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xSchedulerRunning
-                0x0000000040105d4c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d10        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.uxTopReadyPriority
-                0x0000000040105d50        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d14        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xTickCount
-                0x0000000040105d54        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d18        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.uxCurrentNumberOfTasks
-                0x0000000040105d58        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d1c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xSuspendedTaskList
-                0x0000000040105d5c       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d20       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.uxDeletedTasksWaitingCleanUp
-                0x0000000040105d70        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d34        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xTasksWaitingTermination
-                0x0000000040105d74       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d38       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xPendingReadyList
-                0x0000000040105d88       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d4c       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.pxOverflowDelayedTaskList
-                0x0000000040105d9c        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d60        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.pxDelayedTaskList
-                0x0000000040105da0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d64        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xDelayedTaskList2
-                0x0000000040105da4       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d68       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.xDelayedTaskList1
-                0x0000000040105db8       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d7c       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.pxReadyTasksLists
-                0x0000000040105dcc      0x12c /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105d90      0x12c /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
  .bss.pxCurrentTCB
-                0x0000000040105ef8        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
-                0x0000000040105ef8                pxCurrentTCB
+                0x0000000040105ebc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(tasks.o)
+                0x0000000040105ebc                pxCurrentTCB
+ *libfreertos.a:timers.*(.bss .bss.* COMMON)
+ .bss.xLastTime$4351
+                0x0000000040105ec0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ .bss.xTimerTaskHandle
+                0x0000000040105ec4        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ .bss.xTimerQueue
+                0x0000000040105ec8        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ .bss.pxOverflowTimerList
+                0x0000000040105ecc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ .bss.pxCurrentTimerList
+                0x0000000040105ed0        0x4 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ .bss.xActiveTimerList2
+                0x0000000040105ed4       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ .bss.xActiveTimerList1
+                0x0000000040105ee8       0x14 /home/max/workspace/to_git/experiments/msx_now/build/freertos/libfreertos.a(timers.o)
+ *libfreertos.a:stream_buffer.*(.bss .bss.* COMMON)
+ *libfreertos.a:freertos_hooks.*(.bss .bss.* COMMON)
+ *libfreertos.a:queue.*(.bss .bss.* COMMON)
+ *libfreertos.a:list.*(.bss .bss.* COMMON)
  *liblwip.a:(.bss .bss.* COMMON)
  .bss.dhcps_cb  0x0000000040105efc        0x4 /home/max/workspace/to_git/experiments/msx_now/build/lwip/liblwip.a(dhcpserver.o)
  .bss.dhcps_dns
@@ -11726,7 +11726,7 @@ END GROUP
 .dram0.bss      0x000000003ffe86a0     0x2458
                 0x000000003ffe86a0                . = ALIGN (0x8)
                 0x000000003ffe86a0                _bss_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:list.* *libfreertos.a:event_groups.* *libfreertos.a:impure.* *libfreertos.a:timers.* *libfreertos.a:tasks.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:list.* *libfreertos.a:event_groups.* *libfreertos.a:impure.* *libfreertos.a:timers.* *libfreertos.a:tasks.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:stream_buffer.* *libfreertos.a:queue.* *libfreertos.a:freertos_hooks.* *libfreertos.a:list.* *libfreertos.a:event_groups.* *libfreertos.a:impure.* *libfreertos.a:timers.* *libfreertos.a:tasks.* *libcore.a) COMMON)
+ *(EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:event_groups.* *libfreertos.a:tasks.* *libfreertos.a:timers.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:queue.* *libfreertos.a:list.* *libcore.a) .bss EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:event_groups.* *libfreertos.a:tasks.* *libfreertos.a:timers.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:queue.* *libfreertos.a:list.* *libcore.a) .bss.* EXCLUDE_FILE(*liblwip.a *libfreertos.a:impure.* *libfreertos.a:event_groups.* *libfreertos.a:tasks.* *libfreertos.a:timers.* *libfreertos.a:stream_buffer.* *libfreertos.a:freertos_hooks.* *libfreertos.a:queue.* *libfreertos.a:list.* *libcore.a) COMMON)
  .bss.base_mac_addr
                 0x000000003ffe86a0        0x6 /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(system_api.o)
  *fill*         0x000000003ffe86a6        0x2 
@@ -12304,7 +12304,7 @@ END GROUP
 .flash.text     0x0000000040210010    0x8e974
                 0x0000000040210010                _stext = .
                 0x0000000040210010                _text_start = ABSOLUTE (.)
- *(EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .literal.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .text EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2-fde.* *libgcc.a:unwind-dw2.* *libphy.a *libpp.a) .text.* .wifi0iram .wifi0iram.*)
+ *(EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .literal EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .literal.* EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .text EXCLUDE_FILE(*libspi_flash.a:spi_flash_raw.* *libgcc.a:unwind-dw2.* *libgcc.a:unwind-dw2-fde.* *libphy.a *libpp.a) .text.* .wifi0iram .wifi0iram.*)
  .literal.user_init_entry
                 0x0000000040210010       0x1c /home/max/workspace/to_git/experiments/msx_now/build/esp8266/libesp8266.a(startup.o)
                                          0x50 (size before relaxing)
@@ -33783,51 +33783,51 @@ END GROUP
  *fill*         0x000000004028d760        0x0 
  *fill*         0x000000004028d760        0x0 
  *fill*         0x000000004028d760        0x0 
- *libgcc.a:unwind-dw2-fde.*(.literal .literal.* .text .text.*)
- .literal       0x000000004028d760       0x80 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
-                                        0x104 (size before relaxing)
- .literal       0x000000004028d7e0       0x28 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
-                                         0x7c (size before relaxing)
- .text          0x000000004028d808      0xe71 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
-                                        0xe79 (size before relaxing)
-                0x000000004028e3f8                __register_frame_info_bases
-                0x000000004028e418                __register_frame_info
-                0x000000004028e43c                __register_frame
-                0x000000004028e478                __register_frame_info_table_bases
-                0x000000004028e494                __register_frame_info_table
-                0x000000004028e4b0                __register_frame_table
-                0x000000004028e4e4                __deregister_frame_info_bases
-                0x000000004028e574                __deregister_frame_info
-                0x000000004028e584                __deregister_frame
-                0x000000004028e5a0                _Unwind_Find_FDE
- *fill*         0x000000004028e679        0x0 
  *libgcc.a:unwind-dw2.*(.literal .literal.* .text .text.*)
- *fill*         0x000000004028e679        0x3 
- .text          0x000000004028e67c     0x1e6b /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
+ .literal       0x000000004028d760       0x2c /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
+                                         0x7c (size before relaxing)
+ .literal       0x000000004028d78c       0x7c /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
+                                        0x104 (size before relaxing)
+ .text          0x000000004028d808     0x1e6b /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2.o)
                                        0x1e87 (size before relaxing)
-                0x0000000040290028                _Unwind_GetGR
-                0x0000000040290068                _Unwind_GetCFA
-                0x0000000040290070                _Unwind_SetGR
-                0x00000000402900c0                _Unwind_GetIP
-                0x00000000402900c8                _Unwind_GetIPInfo
-                0x00000000402900d8                _Unwind_SetIP
-                0x00000000402900e0                _Unwind_GetLanguageSpecificData
-                0x00000000402900e8                _Unwind_GetRegionStart
-                0x00000000402900f0                _Unwind_FindEnclosingFunction
-                0x000000004029010c                _Unwind_GetDataRelBase
-                0x0000000040290114                _Unwind_GetTextRelBase
-                0x000000004029011c                __frame_state_for
-                0x00000000402901d0                _Unwind_RaiseException
-                0x00000000402902bc                _Unwind_ForcedUnwind
-                0x0000000040290344                _Unwind_Resume
-                0x00000000402903d0                _Unwind_Resume_or_Rethrow
-                0x000000004029045c                _Unwind_DeleteException
-                0x0000000040290474                _Unwind_Backtrace
- *fill*         0x00000000402904e7        0x0 
+                0x000000004028f1b4                _Unwind_GetGR
+                0x000000004028f1f4                _Unwind_GetCFA
+                0x000000004028f1fc                _Unwind_SetGR
+                0x000000004028f24c                _Unwind_GetIP
+                0x000000004028f254                _Unwind_GetIPInfo
+                0x000000004028f264                _Unwind_SetIP
+                0x000000004028f26c                _Unwind_GetLanguageSpecificData
+                0x000000004028f274                _Unwind_GetRegionStart
+                0x000000004028f27c                _Unwind_FindEnclosingFunction
+                0x000000004028f298                _Unwind_GetDataRelBase
+                0x000000004028f2a0                _Unwind_GetTextRelBase
+                0x000000004028f2a8                __frame_state_for
+                0x000000004028f35c                _Unwind_RaiseException
+                0x000000004028f448                _Unwind_ForcedUnwind
+                0x000000004028f4d0                _Unwind_Resume
+                0x000000004028f55c                _Unwind_Resume_or_Rethrow
+                0x000000004028f5e8                _Unwind_DeleteException
+                0x000000004028f600                _Unwind_Backtrace
+ *fill*         0x000000004028f673        0x0 
+ *libgcc.a:unwind-dw2-fde.*(.literal .literal.* .text .text.*)
+ *fill*         0x000000004028f673        0x1 
+ .text          0x000000004028f674      0xe71 /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libgcc.a(unwind-dw2-fde.o)
+                                        0xe79 (size before relaxing)
+                0x0000000040290264                __register_frame_info_bases
+                0x0000000040290284                __register_frame_info
+                0x00000000402902a8                __register_frame
+                0x00000000402902e4                __register_frame_info_table_bases
+                0x0000000040290300                __register_frame_info_table
+                0x000000004029031c                __register_frame_table
+                0x0000000040290350                __deregister_frame_info_bases
+                0x00000000402903e0                __deregister_frame_info
+                0x00000000402903f0                __deregister_frame
+                0x000000004029040c                _Unwind_Find_FDE
+ *fill*         0x00000000402904e5        0x0 
  *(.irom0.literal .irom0.text)
  *(.irom.literal .irom.text .irom.text.literal)
  *(.text2 .text2.* .literal2 .literal2.*)
- *fill*         0x00000000402904e7        0x1 
+ *fill*         0x00000000402904e5        0x3 
  .text2.0       0x00000000402904e8       0x1b /home/max/esp/ESP8266_RTOS_SDK/components/esp8266/lib/libphy.a(phy.o)
                 0x00000000402904ec                phy_enable_agc
  *fill*         0x0000000040290503        0x1 
