@@ -21,8 +21,8 @@ static QueueHandle_t uart_queue;
 
 
 const uart_port_t uart_port = UART_NUM_0;
-const uint32_t uart_buffer_size = (1024 * 1);
-const uint32_t uart_buffer_size_x2 = (uart_buffer_size * 2);
+const __uint32_t uart_buffer_size = (1024 * 1);
+const __uint32_t uart_buffer_size_x2 = (uart_buffer_size * 2);
 
 
 esp_err_t init_uart();

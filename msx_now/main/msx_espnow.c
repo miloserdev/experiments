@@ -1,14 +1,17 @@
 #include "msx_espnow.h"
 
 
-uint32_t msg_stack[MSG_STACK_SIZE];
-uint32_t peer_count = 0;
+int radar_ping_delay = RADAR_PING_DELAY_ZERO_PEER;
+
+__uint32_t msg_stack[MSG_STACK_SIZE];
+__uint32_t peer_count = 0;
 
 httpd_uri_t peers_uri_get = { .uri = "/peers", .method = HTTP_GET, .handler = peers_get_handler, .user_ctx = NULL };
 
+
 packet_t *init_packet()
 {
-    size_t sz = sizeof(packet_t);
+    __size_t sz = sizeof(packet_t);
     if (sz > 250)
     {
         __MSX_PRINT__("can not allocate | size of packet_t can not be more than 250 bytes");
@@ -23,9 +26,9 @@ esp_err_t init_espnow()
     __MSX_DEBUG__( esp_now_init() );
     __MSX_DEBUG__( esp_now_register_send_cb(send_cb) );
     __MSX_DEBUG__( esp_now_register_recv_cb(recv_cb) );
-    __MSX_DEBUG__( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
+    __MSX_DEBUG__( esp_now_set_pmk((__uint8_t *)CONFIG_ESPNOW_PMK) );
 
-    __MSX_DEBUG__( add_peer(broadcast_mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
+    __MSX_DEBUG__( add_peer(broadcast_mac, (__uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
 
     __MSX_DEBUG__( xTaskCreate(radar_loop, "vTask_radar_loop", 4096, NULL, 0, NULL)    );
 
@@ -36,7 +39,7 @@ esp_err_t init_espnow()
 
 
 
-void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
+void send_cb(const __uint8_t *mac_addr, esp_now_send_status_t status)
 {
     //blink();
     __MSX_PRINTF__("sending to "MACSTR" is %s", MAC2STR(mac_addr), (status == ESP_NOW_SEND_SUCCESS ? "success" : "FAILED!"));
@@ -44,7 +47,7 @@ void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 }
 
 
-void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
+void recv_cb(const __uint8_t *mac_addr, const __uint8_t *data, int len)
 {
     //blink();
 
@@ -55,7 +58,7 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         return;
     }
 
-    size_t pack_sz = sizeof(packet_t);
+    __size_t pack_sz = sizeof(packet_t);
     packet_t *pack = (packet_t *) os_malloc(pack_sz);
     memset(pack, 0, pack_sz);
     memcpy(pack, data, pack_sz);
@@ -79,7 +82,7 @@ void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
         }
         case PACKET_TYPE_DATA:
         {
-            uint8_t buffer[pack->len];
+            __uint8_t buffer[pack->len];
             memset(buffer, 0, pack->len);
             memcpy(buffer, pack->buffer, pack->len);
 
@@ -116,11 +119,11 @@ recv_exit:
 }
 
                                                             // HARDCODED !!!
-esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t channel, wifi_interface_t ifidx, bool encrypted)
+esp_err_t add_peer(__uint8_t mac[ESP_NOW_ETH_ALEN], __uint8_t lmk[16], __uint8_t channel, wifi_interface_t ifidx, bool encrypted)
 {
     esp_err_t err = ESP_OK;
 
-    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    __size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
     if (peer == NULL)
     {
@@ -146,7 +149,7 @@ add_exit:
 }
 
 
-esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
+esp_err_t pair_request(__uint8_t mac[ESP_NOW_ETH_ALEN])
 {
     if (peer_count >= 4)
     {
@@ -160,13 +163,13 @@ esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
         return ESP_ERR_ESPNOW_EXIST;
     }
 
-    __MSX_DEBUG__( add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
+    __MSX_DEBUG__( add_peer(mac, (__uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) );
 
     return ESP_OK;
 }
 
 
-esp_err_t unpair_request(uint8_t mac[ESP_NOW_ETH_ALEN])
+esp_err_t unpair_request(__uint8_t mac[ESP_NOW_ETH_ALEN])
 {
     esp_err_t err = ESP_OK;
     if (memcmp(mac, broadcast_mac, ESP_NOW_ETH_ALEN) == 0)
@@ -192,18 +195,18 @@ unpair_exit:
 }
 
 
-esp_err_t send_packet(uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack)
+esp_err_t send_packet(__uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack)
 {
-    size_t pack_sz = sizeof(packet_t);
+    __size_t pack_sz = sizeof(packet_t);
     return esp_now_send(mac, pack, pack_sz);
 }
 
 
-esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len)
+esp_err_t send_packet_raw(__uint8_t mac[ESP_NOW_ETH_ALEN], __uint8_t data[PACKET_BUFFER_SIZE], __size_t len)
 {
     esp_err_t err = ESP_OK;
 
-    size_t pack_sz = sizeof(packet_t);
+    __size_t pack_sz = sizeof(packet_t);
     packet_t *pack = (packet_t*) os_malloc(pack_sz);
     pack->type = PACKET_TYPE_DATA;
     memcpy(pack->mac_addr, mac, ESP_NOW_ETH_ALEN);
@@ -215,7 +218,7 @@ esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUF
 
 /*     if ( !esp_now_is_peer_exist(mac) )
     {
-        if ( !add_peer(mac, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) )
+        if ( !add_peer(mac, (__uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false) )
         {
             __MSX_PRINTF__("cannot add peer"MACSTR"", MAC2STR(mac));
             err = ESP_ERR_ESPNOW_NOT_FOUND;
@@ -234,13 +237,13 @@ send_exit:
 
 /// ДОПИСАТЬ БЛЕАТЬ!!!
 
-esp_err_t retransmit_packet(/* uint8_t src_mac[ESP_NOW_ETH_ALEN],  */packet_t *pack)
+esp_err_t retransmit_packet(/* __uint8_t src_mac[ESP_NOW_ETH_ALEN],  */packet_t *pack)
 {
     esp_err_t err = ESP_OK;
     
     if (peer_count < MSX_MAX_PEER_COUNT)
     {
-        err = add_peer(pack->mac_addr, (uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false);
+        err = add_peer(pack->mac_addr, (__uint8_t*) CONFIG_ESPNOW_LMK, MESH_CHANNEL, WIFI_IF, false);
         if (err == ESP_OK)
         {
             __MSX_DEBUG__( select_cast(pack->mac_addr, pack) );
@@ -256,16 +259,16 @@ ret_exit:
     return err;
 }
 
-esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
+esp_err_t select_cast(__uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
 {
-    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    __size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
     memset(peer, 0, peer_sz);
     bool from_head = true;
 
-    uint8_t e = 0x00;
+    __uint8_t e = 0x00;
 
-    for (size_t i = 0; i < 4; i++)
+    for (__size_t i = 0; i < 4; i++)
     {
         esp_now_fetch_peer(from_head, peer);
         from_head = false;
@@ -285,7 +288,7 @@ esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack)
 
 esp_err_t multi_cast(packet_t *pack)
 {
-    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    __size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
     memset(peer, 0, peer_sz);
 
@@ -304,21 +307,19 @@ esp_err_t multi_cast(packet_t *pack)
 // 34:94:54:62:9f:74
 esp_err_t radar_peers()
 {
-    size_t pack_sz = sizeof(packet_t);
+    esp_err_t err = ESP_OK;
+    __size_t pack_sz = sizeof(packet_t);
     packet_t *pack = (packet_t *) os_malloc(pack_sz);
     memset(pack, 0, pack_sz);
     pack->type = PACKET_TYPE_PAIR;
     pack->magic = esp_random();
-    esp_err_t err = esp_now_send(broadcast_mac, pack, pack_sz);
 
-    __MSX_PRINTF__("err is %d", err);
-
+    err = esp_now_send(broadcast_mac, pack, pack_sz);
     __MSX_DEBUGV__( os_free(pack) );
-
     return err;
 }
 
-int radar_ping_delay = RADAR_PING_DELAY_ZERO_PEER;
+
 void radar_loop( void (*func)(void) )
 {
     TickType_t xLastWakeTime;
@@ -339,7 +340,7 @@ void radar_loop( void (*func)(void) )
 
 void print_peers()
 {
-    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    __size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
     memset(peer, 0, peer_sz);
     bool from_head = true;
@@ -358,7 +359,7 @@ esp_err_t peers_get_handler(httpd_req_t *req)
     cJSON *root = cJSON_CreateArray();
     cJSON *peer_tmp = cJSON_CreateObject();
 
-    size_t peer_sz = sizeof(esp_now_peer_info_t);
+    __size_t peer_sz = sizeof(esp_now_peer_info_t);
     esp_now_peer_info_t *peer = (esp_now_peer_info_t*) os_malloc(peer_sz);
     memset(peer, 0, peer_sz);
 
@@ -395,7 +396,7 @@ esp_err_t peers_get_handler(httpd_req_t *req)
 }
 
 
-int mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN])
+int mac_cmp_json(cJSON *obj, __uint8_t mac[ESP_NOW_ETH_ALEN])
 {
     if ( !cJSON_GetObjectItemCaseSensitive(obj, "to")) return false;
 
@@ -405,48 +406,48 @@ int mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN])
     return mac_cmp_char_uint8t(to_str, mac);
 }
 
-int mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], uint8_t mac2[ESP_NOW_ETH_ALEN])
+int mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], __uint8_t mac2[ESP_NOW_ETH_ALEN])
 {
-    uint8_t peer[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    __uint8_t peer[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     sscanf(mac1, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peer[0], &peer[1], &peer[2], &peer[3], &peer[4], &peer[5]);
     return (memcmp(mac1, peer, ESP_NOW_ETH_ALEN) == 0);
 }
 
 
-void stack_print (uint32_t *stack)
+void stack_print (__uint32_t *stack)
 {
-    for (size_t i = 0; i < MSG_STACK_SIZE; i++)
+    for (__size_t i = 0; i < MSG_STACK_SIZE; i++)
     {
         os_printf("%d -> 0x%08X \n", i, stack[i]);
     }
 }
 
-bool stack_push (uint32_t *dest, uint32_t data)
+bool stack_push (__uint32_t *dest, __uint32_t data)
 {
 //     os_printf("data is 0x%08X \n", data);
-    size_t i = MSG_STACK_SIZE;
+    __size_t i = MSG_STACK_SIZE;
     if (i == 0) return false;
     do {
         dest[i] = (i == 0) ? data : dest[i - 1];
     } while( (i--) != 0);
 
-/*     for (size_t i = MSG_STACK_SIZE; i--; i != 0) { stack[i] = (i == 0) ? data : stack[i - 1]; } */
+/*     for (__size_t i = MSG_STACK_SIZE; i--; i != 0) { stack[i] = (i == 0) ? data : stack[i - 1]; } */
     return true;
 }
 
-bool stack_null (uint32_t *stack)
+bool stack_null (__uint32_t *stack)
 {
     //memset
-    for (size_t i = 0; i < MSG_STACK_SIZE; i++)
+    for (__size_t i = 0; i < MSG_STACK_SIZE; i++)
     {
         stack[i] = 0x00000000;
     }
     return true;
 }
 
-bool stack_exists (uint32_t *stack, uint32_t data)
+bool stack_exists (__uint32_t *stack, __uint32_t data)
 {
-    for (size_t i = 0; i < MSG_STACK_SIZE; i++)
+    for (__size_t i = 0; i < MSG_STACK_SIZE; i++)
     {
         if (stack[i] == data) return true;
     }

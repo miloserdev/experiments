@@ -32,7 +32,7 @@ esp_err_t post_handler(httpd_req_t *req)
 
     /* cJSON *buffer = NULL; */
 	char content[512];
-	size_t recv_size = MIN(req->content_len, sizeof(content));
+	__size_t recv_size = MIN(req->content_len, sizeof(content));
 
 	int ret = httpd_req_recv(req, content, recv_size);
 	if (ret <= 0)
@@ -48,7 +48,7 @@ esp_err_t post_handler(httpd_req_t *req)
     __MSX_PRINTF__("buffer %.*s size: %d", req->content_len, content, req->content_len);
 
 /*     cJSON *parsed_buffer = cJSON_Parse((const char *) content);
-    size_t buf_len = cJSON_GetArraySize(parsed_buffer); */
+    __size_t buf_len = cJSON_GetArraySize(parsed_buffer); */
     
     /////////////////////////////////////////////////////
     // NEED TO DISABLE "nano" formatting in menuconfig //

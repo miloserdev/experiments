@@ -16,7 +16,7 @@
 #include "msx_espnow.h"
 
 
-char *exec_packet(char *datas, size_t len);
+char *exec_packet(char *datas, __size_t len);
 
 
 #endif

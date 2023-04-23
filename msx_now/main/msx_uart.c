@@ -23,7 +23,7 @@ esp_err_t init_uart()
 void uart_task(void *params)
 {
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *) malloc(uart_buffer_size);
+    __uint8_t *dtmp = (__uint8_t *) malloc(uart_buffer_size);
     __MSX_PRINT__("dtmp malloc(uart_buffer_size)");
 
         while ( xQueueReceive(uart_queue, (void *) &event, (TickType_t) portMAX_DELAY) == pdTRUE)
@@ -38,15 +38,15 @@ void uart_task(void *params)
 
                     uart_read_bytes(uart_port, dtmp, event.size, portMAX_DELAY);
 
-                    uint8_t buff[event.size];
+                    __uint8_t buff[event.size];
                     memset(buff, 0, event.size);
                     memcpy(buff, dtmp, event.size);
 
                     __MSX_PRINTF__("generating event MSX_UART_DATA with size %d >> data >> %s", event.size, buff);
 
-                    // esp_err_t esp_now_send(const uint8_t *peer_addr, const uint8_t *data, size_t len);
+                    // esp_err_t esp_now_send(const __uint8_t *peer_addr, const __uint8_t *data, __size_t len);
 
-                    __MSX_DEBUG__( raise_event(MSX_UART_DATA, NULL, 0, (uint8_t *) &buff, event.size) );
+                    __MSX_DEBUG__( raise_event(MSX_UART_DATA, NULL, 0, (__uint8_t *) &buff, event.size) );
 
                     /* __MSX_DEBUGV__( os_free(&buff)  ); */
 

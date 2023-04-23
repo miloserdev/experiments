@@ -67,8 +67,8 @@ void event_loop(void *params)
                 __MSX_PRINT__("MSX_UART_DATA");
 
                 __MSX_PRINTF__("uart data is %.*s", evt->len, (char *) evt->data);
-                //uint8_t u8_data[evt.len];
-                //for (size_t i = 0; i < evt.len; i++) u8_data[i] = evt.data[i];
+                //__uint8_t u8_data[evt.len];
+                //for (__size_t i = 0; i < evt.len; i++) u8_data[i] = evt.data[i];
                 char *asd = ""; //exec_packet((char *) evt->data, evt->len);
                 __MSX_DEBUGV__( os_free(asd)    );
 
@@ -148,7 +148,7 @@ esp_err_t init_user_loop(void (*task)(void))
     return ESP_OK;
 }
 
-bool raise_event(int id, esp_event_base_t base, uint32_t status, void *data, size_t len)
+bool raise_event(int id, esp_event_base_t base, __uint32_t status, void *data, __size_t len)
 {
     if (id < 0)
     {

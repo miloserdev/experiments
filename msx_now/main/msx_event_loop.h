@@ -28,12 +28,12 @@
 typedef struct {
     //msx_event_id_t id;
     //msx_event_data_t data;
-    //uint8_t *from;
+    //__uint8_t *from;
     esp_event_base_t base;
-    uint32_t status;
+    __uint32_t status;
     int32_t id;
     void *data;
-    size_t len;
+    __size_t len;
 } msx_event_t;
 
 
@@ -56,7 +56,7 @@ void event_loop(void *params);
 esp_err_t init_event_loop();
 void user_loop( void (*func)(void) );
 esp_err_t init_user_loop(void (*task)(void));
-bool raise_event(int id, esp_event_base_t base, uint32_t status, void *data, size_t len);
+bool raise_event(int id, esp_event_base_t base, __uint32_t status, void *data, __size_t len);
 
 
 #endif

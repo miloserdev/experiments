@@ -29,10 +29,10 @@
 #define MESH_MY_PASSWD  "9857wuj9d9jsie"
 #define MESH_RECONNECT	true
 #define MESH_RECONNECT_ATTEMPTS 10
-extern uint32_t reconnect_attempts;
+extern __uint32_t reconnect_attempts;
 
 extern esp_interface_t WIFI_IF;
-extern uint8_t my_mac[ESP_NOW_ETH_ALEN];
+extern __uint8_t my_mac[ESP_NOW_ETH_ALEN];
 
 /*
     and yes, i show you my credentials, good luck to find me XD
@@ -46,7 +46,7 @@ extern uint8_t my_mac[ESP_NOW_ETH_ALEN];
 
 
 esp_err_t init_wifi(wifi_mode_t mode);
-esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power);
+esp_err_t setup_wifi(esp_interface_t ifidx, __uint8_t ssid[32], __uint8_t password[64], wifi_ps_type_t power);
 void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
 static wifi_scan_config_t scan_config  = {

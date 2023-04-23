@@ -1,7 +1,7 @@
 #include "msx_executor.h"
 
 
-char *exec_packet(char *datas, size_t len)
+char *exec_packet(char *datas, __size_t len)
 {
     char fuckdata[len];
     memcpy(fuckdata, datas, len);
@@ -34,7 +34,7 @@ char *exec_packet(char *datas, size_t len)
         cJSON_AddItemToArray(ret_arr, tmp);
     }
 
-    for (uint32_t i = 0; i < arr_sz; i++)
+    for (__uint32_t i = 0; i < arr_sz; i++)
     {
         __MSX_PRINTF__("using packet %d", i);
         const cJSON *data = cJSON_GetArrayItem(pack, i);
@@ -54,7 +54,7 @@ char *exec_packet(char *datas, size_t len)
             if (strcmp("status", data->valuestring) == 0)
             {
                 __MSX_PRINT__("data is status");
-                // uint8_t temp_farenheit = temprature_sens_read();
+                // __uint8_t temp_farenheit = temprature_sens_read();
                 // float temp_celsius = ( temp_farenheit - 32 ) / 1.8;
                 // ^ need to include to status packet;
 
@@ -78,13 +78,13 @@ char *exec_packet(char *datas, size_t len)
             if (cJSON_GetObjectItemCaseSensitive(data, "to") != NULL)
             {
                 char *to_str = cJSON_GetObjectItem(data, "to")->valuestring;
-                uint8_t pr[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                __uint8_t pr[ESP_NOW_ETH_ALEN] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
                 sscanf(to_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &pr[0], &pr[1], &pr[2], &pr[3], &pr[4], &pr[5]);
 
                 cJSON_DeleteItemFromObjectCaseSensitive(data, "to");    // delete now, not earlier;
 
                 char *buff_to_send = cJSON_PrintUnformatted(pack);
-                size_t buff_sz = strlen(buff_to_send);
+                __size_t buff_sz = strlen(buff_to_send);
 
                 __MSX_PRINTF__("parsing %s to "MACSTR" ", to_str, MAC2STR(pr));
 

@@ -66,6 +66,11 @@
         "msx_wifi.h": "c",
         "msx_httpd.h": "c",
         "msx_event_loop.h": "c",
-        "ets_sys.h": "c"
+        "ets_sys.h": "c",
+        "types.h": "c",
+        "optional": "c",
+        "iosfwd": "c",
+        "limits": "c",
+        "stop_token": "c"
     }
 }

@@ -9,7 +9,7 @@ void app_loop()
     vTaskDelay(3000 / portTICK_RATE_MS);
 
 /* 
-    uint8_t buf[200];
+    __uint8_t buf[200];
     send_packet_raw(broadcast_mac, buf, sizeof(buf));
 */
 
@@ -20,7 +20,7 @@ void app_loop()
         pp = true;
     }
 
-/*     size_t sz = strlen(to_send);
+/*     __size_t sz = strlen(to_send);
     packet_t *pack = os_malloc(sizeof(packet_t));
     pack->magic = esp_random();
     pack->type = PACKET_TYPE_DATA;
@@ -46,8 +46,8 @@ void app_main()
     __MSX_DEBUG__( init_event_loop() );
     __MSX_DEBUG__( init_uart() );
     __MSX_DEBUG__( init_wifi(WIFI_MODE_APSTA) );
-    //__MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_AP, (uint8_t*) "ESP", (uint8_t*) "nullnullnull119911", WIFI_PS_NONE) );
-    __MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_STA, (uint8_t*) MESH_SSID_PREFIX, (uint8_t*) MESH_PASSWD, WIFI_PS_NONE) );
+    //__MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_AP, (__uint8_t*) "ESP", (__uint8_t*) "nullnullnull119911", WIFI_PS_NONE) );
+    __MSX_DEBUG__( setup_wifi(ESP_IF_WIFI_STA, (__uint8_t*) MESH_SSID_PREFIX, (__uint8_t*) MESH_PASSWD, WIFI_PS_NONE) );
     __MSX_DEBUG__( set_wifi_power(84) );
     __MSX_DEBUG__( init_httpd() );
     __MSX_DEBUG__( init_ota() );

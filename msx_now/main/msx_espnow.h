@@ -25,32 +25,33 @@
 
 #define CONFIG_ESPNOW_PMK   "pmk1234567890123"
 #define CONFIG_ESPNOW_LMK   "lmk1234567890123"
-static const uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static const __uint8_t broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 
 #define MSG_STACK_SIZE  6
-extern uint32_t msg_stack[MSG_STACK_SIZE];
-extern uint32_t peer_count;
+extern __uint32_t msg_stack[MSG_STACK_SIZE];
+extern __uint32_t peer_count;
 
 
 enum packet_type_e
 {
-    PACKET_TYPE_DATA = 0,
-    PACKET_TYPE_PAIR = 1,
-    PACKET_TYPE_KILL = 2,
+    PACKET_TYPE_DATA = 0x00,
+    PACKET_TYPE_PAIR = 0x01,
+    PACKET_TYPE_KILL = 0x02,
 };
 
 
 #define PACKET_BUFFER_SIZE  200
 typedef struct
 {
-    uint32_t magic;
-    uint8_t mac_addr[ESP_NOW_ETH_ALEN];
-    enum packet_type_e type;
-    size_t len;
-    uint8_t buffer[PACKET_BUFFER_SIZE];
+    __uint32_t magic;
+    __uint8_t mac_addr[ESP_NOW_ETH_ALEN];
+    enum packet_type_e type : 2;
+    __size_t len;
+    __uint8_t buffer[PACKET_BUFFER_SIZE];
 } __attribute__((packed)) packet_t;
-//static size_t pack_sz = sizeof(packet_t);
+// __packed__
+static size_t pack_sz = sizeof(packet_t);
 // //  4 + 8 + 200 + 4
 // //  we have 34 bytes free
 // 28 bytes free
@@ -58,17 +59,17 @@ typedef struct
 
 packet_t *init_packet();
 esp_err_t init_espnow();
-void send_cb(const uint8_t *mac_addr, esp_now_send_status_t status);
-void recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len);
+void send_cb(const __uint8_t *mac_addr, esp_now_send_status_t status);
+void recv_cb(const __uint8_t *mac_addr, const __uint8_t *data, int len);
 
-esp_err_t add_peer(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t lmk[16], uint8_t channel, wifi_interface_t ifidx, bool encrypted);
-esp_err_t pair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
-esp_err_t unpair_request(uint8_t mac[ESP_NOW_ETH_ALEN]);
-esp_err_t send_packet(uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack);
-esp_err_t send_packet_raw(uint8_t mac[ESP_NOW_ETH_ALEN], uint8_t data[PACKET_BUFFER_SIZE], size_t len);
+esp_err_t add_peer(__uint8_t mac[ESP_NOW_ETH_ALEN], __uint8_t lmk[16], __uint8_t channel, wifi_interface_t ifidx, bool encrypted);
+esp_err_t pair_request(__uint8_t mac[ESP_NOW_ETH_ALEN]);
+esp_err_t unpair_request(__uint8_t mac[ESP_NOW_ETH_ALEN]);
+esp_err_t send_packet(__uint8_t mac[ESP_NOW_ETH_ALEN], packet_t *pack);
+esp_err_t send_packet_raw(__uint8_t mac[ESP_NOW_ETH_ALEN], __uint8_t data[PACKET_BUFFER_SIZE], __size_t len);
 
-esp_err_t retransmit_packet(/* uint8_t src_mac[ESP_NOW_ETH_ALEN],  */packet_t *pack);
-esp_err_t select_cast(uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
+esp_err_t retransmit_packet(/* __uint8_t src_mac[ESP_NOW_ETH_ALEN],  */packet_t *pack);
+esp_err_t select_cast(__uint8_t src_mac[ESP_NOW_ETH_ALEN], packet_t *pack);
 esp_err_t multi_cast(packet_t *pack);
 esp_err_t radar_peers();
 void radar_loop( void (*func)(void) );
@@ -79,13 +80,13 @@ esp_err_t peers_get_handler(httpd_req_t *req);
 extern httpd_uri_t peers_uri_get;
 
 
-int mac_cmp_json(cJSON *obj, uint8_t mac[ESP_NOW_ETH_ALEN]);
-int mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], uint8_t mac2[ESP_NOW_ETH_ALEN]);
+int mac_cmp_json(cJSON *obj, __uint8_t mac[ESP_NOW_ETH_ALEN]);
+int mac_cmp_char_uint8t(char mac1[ESP_NOW_ETH_ALEN], __uint8_t mac2[ESP_NOW_ETH_ALEN]);
 
-void stack_print (uint32_t *stack);
-bool stack_push (uint32_t *dest, uint32_t data);
-bool stack_null (uint32_t *stack);
-bool stack_exists (uint32_t *stack, uint32_t data);
+void stack_print (__uint32_t *stack);
+bool stack_push (__uint32_t *dest, __uint32_t data);
+bool stack_null (__uint32_t *stack);
+bool stack_exists (__uint32_t *stack, __uint32_t data);
 
 
 #endif

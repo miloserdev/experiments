@@ -1,8 +1,8 @@
 #include "msx_wifi.h"
 
-uint32_t reconnect_attempts = 0;
+__uint32_t reconnect_attempts = 0;
 esp_interface_t WIFI_IF = ESP_IF_MAX;
-uint8_t my_mac[ESP_NOW_ETH_ALEN];
+__uint8_t my_mac[ESP_NOW_ETH_ALEN];
 
 
 esp_err_t init_wifi(wifi_mode_t mode)
@@ -38,10 +38,9 @@ esp_err_t init_wifi(wifi_mode_t mode)
 }
 
 
-esp_err_t setup_wifi(esp_interface_t ifidx, uint8_t ssid[32], uint8_t password[64], wifi_ps_type_t power)
+esp_err_t setup_wifi(esp_interface_t ifidx, __uint8_t ssid[32], __uint8_t password[64], wifi_ps_type_t power)
 {
     WIFI_IF = ifidx;
-
     wifi_config_t wifi_config =
     (ifidx == ESP_IF_WIFI_AP)
     ? (wifi_config_t) {
@@ -89,7 +88,7 @@ void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id,
 {
     esp_err_t err = ESP_OK;
 
-    uint16_t size = 0;
+    __uint16_t size = 0;
     wifi_ap_record_t *record;
     
     esp_wifi_scan_get_ap_num(&size);
@@ -101,11 +100,11 @@ void scan_done_handler(void *arg, esp_event_base_t event_base, int32_t event_id,
 
     /*  = (wifi_ap_record_t *) os_malloc(sizeof(wifi_ap_record_t)); */
 
-    for (size_t i = 0; i < size; i++)
+    for (__size_t i = 0; i < size; i++)
     {
         wifi_ap_record_t *ap = &record[i];
         if (ap == NULL) return;
-        __MSX_PRINTF__("ssid %.*s | bssid "MACSTR"", 33, ap->ssid, MAC2STR(ap->bssid));
+        __MSX_PRINTF__("ssid %.*s | bssid "MACSTR" rssi %d", 33, ap->ssid, MAC2STR(ap->bssid), ap->rssi);
     }
 
     os_free(record);

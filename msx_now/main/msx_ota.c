@@ -104,9 +104,9 @@ static esp_err_t http_handle_ota(httpd_req_t *req)
 	char buf[OTA_BUFFER_SIZE];
 	int total_size;
 	int recv_size;
-    size_t offset = 0;
+    __size_t offset = 0;
 	int remain;
-	uint8_t percent;
+	__uint8_t percent;
 
 	__MSX_DEBUG__( httpd_resp_set_type(req, "text/plain") );
 	__MSX_DEBUG__( httpd_resp_send_chunk(req, "Start to update firmware.\n", 100) );
